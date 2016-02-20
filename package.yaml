@@ -1,0 +1,42 @@
+name: futurice-prelude
+version: 0.1.0.0
+synopsis: Futurice Prelude
+description: |
+  'Futurice.Prelude' is used in Futurice apps:
+  .
+  @
+  import Prelude ()
+  import Futurice.Prelude
+  @
+author: Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer: Oleg Grenrus <oleg.grenrus@iki.fi>
+license: BSD3
+github: futurice/haskell-futurice-prelude
+category: Web
+tested-with: GHC==7.8.4, GHC==7.10.3
+extra-source-files:
+- README.md
+
+ghc-options: -Wall
+
+library:
+  source-dirs: src
+  dependencies:
+    - base                  >=4.7   && <4.9
+    - base-compat
+    - binary
+    - binary-orphans
+    - containers
+    - deepseq
+    - exceptions
+    - hashable
+    - hashable-time
+    - mtl
+    - nats
+    - semigroups
+    - tagged 
+    - text
+    - transformers
+    - unordered-containers
+    - vector
+    - vector-instances
