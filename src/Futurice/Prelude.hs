@@ -31,6 +31,8 @@ module Futurice.Prelude (
     MonadError(..),
     MonadThrow(..),
     MonadCatch(..),
+    -- * composition-extra
+    (<$$>),
     -- * Extras
     type (:$),
     ) where
@@ -42,6 +44,7 @@ import Control.DeepSeq        (NFData (..))
 import Control.Monad.Catch    (MonadCatch (..), MonadThrow (..))
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Binary            (Binary)
+import Data.Functor.Syntax    ((<$$>))
 import Data.Hashable          (Hashable (..))
 import Data.HashMap.Strict    (HashMap)
 import Data.HashSet           (HashSet)
@@ -76,5 +79,5 @@ import Data.Vector.Instances ()
 
 infixr 0 :$
 
--- | Type level '@'
+-- | Type level '$'
 type (:$) (f :: k -> l) (x :: k) = f x

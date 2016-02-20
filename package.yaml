@@ -27,6 +27,7 @@ library:
     - binary
     - binary-orphans
     - containers
+    - composition-extra >=2.0.0
     - deepseq
     - exceptions
     - hashable
@@ -34,7 +35,7 @@ library:
     - mtl
     - nats
     - semigroups
-    - tagged 
+    - tagged
     - text
     - transformers
     - unordered-containers

@@ -39,15 +39,16 @@ library
     , binary
     , binary-orphans
     , containers
+    , composition-extra >=2.0.0
     , deepseq
     , exceptions
     , hashable
-    , text
     , hashable-time
     , mtl
     , nats
     , semigroups
     , tagged
+    , text
     , transformers
     , unordered-containers
     , vector
