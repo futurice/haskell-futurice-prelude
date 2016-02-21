@@ -3,5 +3,6 @@ packages:
 - '.'
 extra-deps:
 - binary-orphans-0.1.4.0
+- composition-extra-2.0.0
 - hashable-time-0.2
 flags: {}
