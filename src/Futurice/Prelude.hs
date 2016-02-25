@@ -23,6 +23,7 @@ module Futurice.Prelude (
     Generic,
     Hashable(..),
     NFData(..),
+    genericRnf,
     Semigroup(..),
     Typeable,
     IsString(..),
@@ -33,6 +34,12 @@ module Futurice.Prelude (
     MonadCatch(..),
     -- * composition-extra
     (<$$>),
+    -- * lens
+    (^.), view,
+    from,
+    packed,
+    strict, lazy,
+    makeLenses, makePrisms,
     -- * Extras
     type (:$),
     ) where
@@ -40,29 +47,32 @@ module Futurice.Prelude (
 import Prelude        ()
 import Prelude.Compat
 
-import Control.DeepSeq        (NFData (..))
-import Control.Monad.Catch    (MonadCatch (..), MonadThrow (..))
-import Control.Monad.IO.Class (MonadIO (..))
-import Data.Binary            (Binary)
-import Data.Functor.Syntax    ((<$$>))
-import Data.Hashable          (Hashable (..))
-import Data.HashMap.Strict    (HashMap)
-import Data.HashSet           (HashSet)
+import Control.Lens             ((^.), from, makeLenses, makePrisms, strict, lazy, view)
+import Control.DeepSeq          (NFData (..))
+import Control.DeepSeq.Generics (genericRnf)
+import Control.Monad.Catch      (MonadCatch (..), MonadThrow (..))
+import Control.Monad.IO.Class   (MonadIO (..))
+import Data.Binary              (Binary)
+import Data.Functor.Syntax      ((<$$>))
+import Data.Hashable            (Hashable (..))
+import Data.HashMap.Strict      (HashMap)
+import Data.HashSet             (HashSet)
 import Data.Int
-import Data.IntMap.Strict     (IntMap)
-import Data.IntSet            (IntSet)
-import Data.Map.Strict        (Map)
-import Data.Proxy             (Proxy (..))
-import Data.Semigroup         (Semigroup (..))
-import Data.Set               (Set)
-import Data.String            (IsString (..))
-import Data.Tagged            (Tagged, untag)
-import Data.Text              (Text)
-import Data.Typeable          (Typeable)
-import Data.Vector            (Vector)
+import Data.IntMap.Strict       (IntMap)
+import Data.IntSet              (IntSet)
+import Data.Map.Strict          (Map)
+import Data.Proxy               (Proxy (..))
+import Data.Semigroup           (Semigroup (..))
+import Data.Set                 (Set)
+import Data.String              (IsString (..))
+import Data.Tagged              (Tagged, untag)
+import Data.Text                (Text)
+import Data.Text.Lens           (packed)
+import Data.Typeable            (Typeable)
+import Data.Vector              (Vector)
 import Data.Word
-import GHC.Generics           (Generic)
-import Numeric.Natural        (Natural)
+import GHC.Generics             (Generic)
+import Numeric.Natural          (Natural)
 
 #if MIN_VERSION_mtl(2,2,0)
 import Control.Monad.Except (MonadError (..))

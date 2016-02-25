@@ -41,9 +41,11 @@ library
     , containers
     , composition-extra >=2.0.0
     , deepseq
+    , deepseq-generics      >=0.1.1.2   && <0.3
     , exceptions
     , hashable
     , hashable-time
+    , lens
     , mtl
     , nats
     , semigroups
