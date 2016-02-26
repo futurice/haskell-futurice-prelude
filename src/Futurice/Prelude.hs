@@ -34,8 +34,13 @@ module Futurice.Prelude (
     MonadCatch(..),
     -- * composition-extra
     (<$$>),
+    -- * alternative
+    Alternative(..), optional,
+    -- * maybe
+    fromMaybe,
     -- * lens
     (^.), view,
+    (.~),
     from,
     packed,
     strict, lazy,
@@ -47,7 +52,8 @@ module Futurice.Prelude (
 import Prelude        ()
 import Prelude.Compat
 
-import Control.Lens             ((^.), from, makeLenses, makePrisms, strict, lazy, view)
+import Control.Applicative      (Alternative(..), optional)
+import Control.Lens             ((^.), (.~), from, makeLenses, makePrisms, strict, lazy, view)
 import Control.DeepSeq          (NFData (..))
 import Control.DeepSeq.Generics (genericRnf)
 import Control.Monad.Catch      (MonadCatch (..), MonadThrow (..))
@@ -61,6 +67,7 @@ import Data.Int
 import Data.IntMap.Strict       (IntMap)
 import Data.IntSet              (IntSet)
 import Data.Map.Strict          (Map)
+import Data.Maybe               (fromMaybe)
 import Data.Proxy               (Proxy (..))
 import Data.Semigroup           (Semigroup (..))
 import Data.Set                 (Set)
