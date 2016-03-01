@@ -2,6 +2,7 @@ resolver: lts-3.22
 packages:
 - '.'
 extra-deps:
+- ansi-pretty-0.1.1.0
 - binary-orphans-0.1.4.0
 - composition-extra-2.0.0
 - hashable-time-0.2

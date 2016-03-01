@@ -5,16 +5,18 @@
 module Futurice.Prelude (
     module Prelude.Compat,
     -- * Types
+    Day,
     HashMap,
     HashSet,
     IntMap,
     IntSet,
     Map,
     Natural,
-    Set,
-    Text,
     Proxy(..),
+    Set,
     Tagged, untag,
+    Text,
+    UTCTime,
     Vector,
     module Data.Int,
     module Data.Word,
@@ -27,11 +29,14 @@ module Futurice.Prelude (
     Semigroup(..),
     Typeable,
     IsString(..),
+    AnsiPretty,
     -- * Monad classes
     MonadIO(..),
     MonadError(..),
     MonadThrow(..),
     MonadCatch(..),
+    -- * generics-sop
+    deriveGeneric,
     -- * composition-extra
     (<$$>),
     -- * alternative
@@ -75,11 +80,15 @@ import Data.String              (IsString (..))
 import Data.Tagged              (Tagged, untag)
 import Data.Text                (Text)
 import Data.Text.Lens           (packed)
+import Data.Time                (UTCTime, Day)
 import Data.Typeable            (Typeable)
 import Data.Vector              (Vector)
 import Data.Word
+import Generics.SOP.TH          (deriveGeneric)
 import GHC.Generics             (Generic)
 import Numeric.Natural          (Natural)
+
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
 #if MIN_VERSION_mtl(2,2,0)
 import Control.Monad.Except (MonadError (..))
