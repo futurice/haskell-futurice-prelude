@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.8.0.
+-- This file has been generated from package.yaml by hpack version 0.9.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -35,14 +35,16 @@ library
   ghc-options: -Wall
   build-depends:
       base                  >=4.7   && <4.9
+    , ansi-pretty
     , base-compat
     , binary
     , binary-orphans
-    , containers
     , composition-extra >=2.0.0
+    , containers
     , deepseq
     , deepseq-generics      >=0.1.1.2   && <0.3
     , exceptions
+    , generics-sop
     , hashable
     , hashable-time
     , lens
@@ -51,6 +53,7 @@ library
     , semigroups
     , tagged
     , text
+    , time
     , transformers
     , unordered-containers
     , vector
