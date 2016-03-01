@@ -30,6 +30,7 @@ module Futurice.Prelude (
     Typeable,
     IsString(..),
     AnsiPretty,
+    Exception,
     -- * Monad classes
     MonadIO(..),
     MonadError(..),
@@ -61,7 +62,7 @@ import Control.Applicative      (Alternative(..), optional)
 import Control.Lens             ((^.), (.~), from, makeLenses, makePrisms, strict, lazy, view)
 import Control.DeepSeq          (NFData (..))
 import Control.DeepSeq.Generics (genericRnf)
-import Control.Monad.Catch      (MonadCatch (..), MonadThrow (..))
+import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..))
 import Control.Monad.IO.Class   (MonadIO (..))
 import Data.Binary              (Binary)
 import Data.Functor.Syntax      ((<$$>))
