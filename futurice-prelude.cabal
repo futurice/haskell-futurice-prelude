@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.8.0.
+-- This file has been generated from package.yaml by hpack version 0.9.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -36,6 +36,7 @@ library
   build-depends:
       base                  >=4.7   && <4.9
     , ansi-pretty
+    , ansi-wl-pprint
     , base-compat
     , binary
     , binary-orphans
@@ -60,4 +61,5 @@ library
     , vector-instances
   exposed-modules:
       Futurice.Prelude
+      Futurice.Prelude.Internal.Orphans
   default-language: Haskell2010

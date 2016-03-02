@@ -98,9 +98,10 @@ import Control.Monad.Error (MonadError (..))
 #endif
 
 -- Orphans
-import Data.Binary.Orphans   ()
-import Data.Hashable.Time    ()
-import Data.Vector.Instances ()
+import Data.Binary.Orphans               ()
+import Data.Hashable.Time                ()
+import Data.Vector.Instances             ()
+import Futurice.Prelude.Internal.Orphans ()
 
 -- Own extras
 

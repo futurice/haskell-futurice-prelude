@@ -24,6 +24,7 @@ library:
   dependencies:
     - base                  >=4.7   && <4.9
     - ansi-pretty
+    - ansi-wl-pprint
     - base-compat
     - binary
     - binary-orphans
