@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:           futurice-prelude
-version:        0.1.1.0
+version:        0.1.2.0
 synopsis:       Futurice Prelude
 description:    'Futurice.Prelude' is used in Futurice apps:
                 .
@@ -36,6 +36,7 @@ library
   build-depends:
       base                  >=4.7   && <4.9
     , ansi-pretty
+    , ansi-wl-pprint
     , base-compat
     , binary
     , binary-orphans
@@ -60,4 +61,5 @@ library
     , vector-instances
   exposed-modules:
       Futurice.Prelude
+      Futurice.Prelude.Internal.Orphans
   default-language: Haskell2010
