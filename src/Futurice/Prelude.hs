@@ -44,6 +44,8 @@ module Futurice.Prelude (
     Alternative(..), optional,
     -- * maybe
     fromMaybe,
+    -- * foldable
+    toList,
     -- * lens
     (^.), view,
     (.~),
@@ -65,6 +67,7 @@ import Control.DeepSeq.Generics (genericRnf)
 import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..))
 import Control.Monad.IO.Class   (MonadIO (..))
 import Data.Binary              (Binary)
+import Data.Foldable            (toList)
 import Data.Functor.Syntax      ((<$$>))
 import Data.Hashable            (Hashable (..))
 import Data.HashMap.Strict      (HashMap)
