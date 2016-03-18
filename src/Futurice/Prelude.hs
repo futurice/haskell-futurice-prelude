@@ -42,13 +42,24 @@ module Futurice.Prelude (
     (<$$>),
     -- * alternative
     Alternative(..), optional,
+    -- * deepseq
+    ($!!),
+    -- * exception
+    SomeException(..),
+    evaluate,
     -- * maybe
     fromMaybe,
+    readMaybe,
     -- * foldable
     toList,
+    traverse_,
+    -- * monad
+    void, join,
+    -- * function
+    on, (&),
     -- * lens
     (^.), view,
-    (.~),
+    (.~), (?~),
     from,
     packed,
     strict, lazy,
@@ -61,13 +72,15 @@ import Prelude        ()
 import Prelude.Compat
 
 import Control.Applicative      (Alternative(..), optional)
-import Control.Lens             ((^.), (.~), from, makeLenses, makePrisms, strict, lazy, view)
-import Control.DeepSeq          (NFData (..))
+import Control.Lens             ((^.), (.~), (?~), from, makeLenses, makePrisms, strict, lazy, view, (&))
+import Control.DeepSeq          (NFData (..), ($!!))
 import Control.DeepSeq.Generics (genericRnf)
-import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..))
+import Control.Exception        (evaluate)
+import Control.Monad            (void, join)
+import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..), SomeException(..))
 import Control.Monad.IO.Class   (MonadIO (..))
 import Data.Binary              (Binary)
-import Data.Foldable            (toList)
+import Data.Foldable            (toList, traverse_)
 import Data.Functor.Syntax      ((<$$>))
 import Data.Hashable            (Hashable (..))
 import Data.HashMap.Strict      (HashMap)
@@ -75,6 +88,7 @@ import Data.HashSet             (HashSet)
 import Data.Int
 import Data.IntMap.Strict       (IntMap)
 import Data.IntSet              (IntSet)
+import Data.Function            (on)
 import Data.Map.Strict          (Map)
 import Data.Maybe               (fromMaybe)
 import Data.Proxy               (Proxy (..))
@@ -91,6 +105,7 @@ import Data.Word
 import Generics.SOP.TH          (deriveGeneric)
 import GHC.Generics             (Generic)
 import Numeric.Natural          (Natural)
+import Text.Read                (readMaybe)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
