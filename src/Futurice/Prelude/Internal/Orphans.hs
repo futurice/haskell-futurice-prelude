@@ -10,6 +10,7 @@ import Data.Foldable                (toList)
 import Data.Hashable                (Hashable (..))
 import Data.Semigroup               (Semigroup (..))
 import Data.Vector                  (Vector)
+import Generics.SOP                 (I (..))
 import Text.PrettyPrint.ANSI.Leijen (Doc)
 
 -- | Defined in 'Futurice.Prelude'.
@@ -22,3 +23,7 @@ instance Semigroup Doc where
 -- <https://github.com/ekmett/vector-instances/pull/4>
 instance Hashable a => Hashable (Vector a) where
     hashWithSalt salt = hashWithSalt salt . toList
+
+-- | Defined in 'Futurice.Prelude'.
+instance Eq a => Eq (I a) where
+    I a == I b = a == b
