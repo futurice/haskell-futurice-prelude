@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.8.0.
+-- This file has been generated from package.yaml by hpack version 0.9.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -35,23 +35,30 @@ library
   ghc-options: -Wall
   build-depends:
       base                  >=4.7   && <4.9
+    , aeson
     , ansi-pretty
     , ansi-wl-pprint
     , base-compat
     , binary
     , binary-orphans
-    , composition-extra >=2.0.0
+    , bytestring
+    , cassava
+    , composition-extra     >=2.0.0
     , containers
     , deepseq
-    , deepseq-generics      >=0.1.1.2   && <0.3
+    , deepseq-generics      >=0.1.1.2  && <0.3
     , exceptions
-    , generics-sop
+    , generics-sop          >=0.2.1.0  && <0.3
+    , generics-sop-lens     >=0.1.1.0  && <0.2
     , hashable
     , hashable-time
     , lens
     , mtl
     , nats
+    , QuickCheck
+    , quickcheck-instances
     , semigroups
+    , swagger2              >= 2.0.2
     , tagged
     , text
     , time
@@ -60,6 +67,23 @@ library
     , vector
     , vector-instances
   exposed-modules:
+      Futurice.Generics
       Futurice.Prelude
       Futurice.Prelude.Internal.Orphans
+  default-language: Haskell2010
+
+test-suite futurice-prelude-tests
+  type: exitcode-stdio-1.0
+  main-is: Tests.hs
+  hs-source-dirs:
+      test
+  ghc-options: -Wall
+  build-depends:
+      base
+    , cassava
+    , futurice-prelude
+    , QuickCheck
+    , tasty
+    , tasty-hunit
+    , vector
   default-language: Haskell2010

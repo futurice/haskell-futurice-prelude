@@ -120,6 +120,7 @@ import Data.Binary.Orphans               ()
 import Data.Hashable.Time                ()
 import Data.Vector.Instances             ()
 import Futurice.Prelude.Internal.Orphans ()
+import Test.QuickCheck.Instances         ()
 
 -- Own extras
 

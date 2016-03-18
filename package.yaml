@@ -23,23 +23,30 @@ library:
   source-dirs: src
   dependencies:
     - base                  >=4.7   && <4.9
+    - aeson
     - ansi-pretty
     - ansi-wl-pprint
     - base-compat
     - binary
     - binary-orphans
-    - composition-extra >=2.0.0
+    - bytestring
+    - cassava
+    - composition-extra     >=2.0.0
     - containers
     - deepseq
-    - deepseq-generics      >=0.1.1.2   && <0.3
+    - deepseq-generics      >=0.1.1.2  && <0.3
     - exceptions
-    - generics-sop
+    - generics-sop          >=0.2.1.0  && <0.3
+    - generics-sop-lens     >=0.1.1.0  && <0.2
     - hashable
     - hashable-time
     - lens
     - mtl
     - nats
+    - QuickCheck
+    - quickcheck-instances
     - semigroups
+    - swagger2              >= 2.0.2
     - tagged
     - text
     - time
@@ -47,3 +54,16 @@ library:
     - unordered-containers
     - vector
     - vector-instances
+
+tests:
+  futurice-prelude-tests:
+    main: Tests.hs
+    source-dirs: test
+    dependencies:
+      - base
+      - cassava
+      - futurice-prelude
+      - QuickCheck
+      - tasty
+      - tasty-hunit
+      - vector
