@@ -1,5 +1,5 @@
 name: futurice-prelude
-version: 0.1.2.0
+version: 0.1.3.0
 synopsis: Futurice Prelude
 description: |
   'Futurice.Prelude' is used in Futurice apps:
@@ -62,8 +62,10 @@ tests:
     dependencies:
       - base
       - cassava
+      - aeson
       - futurice-prelude
       - QuickCheck
       - tasty
       - tasty-hunit
+      - tasty-quickcheck
       - vector

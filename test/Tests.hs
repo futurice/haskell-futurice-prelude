@@ -8,17 +8,18 @@ import Futurice.Generics
 import Futurice.Prelude
 import Prelude           ()
 
-import Data.Csv (DefaultOrdered (..))
-
 import Test.QuickCheck
 import Test.Tasty
+import Test.Tasty.QuickCheck
 import Test.Tasty.HUnit
 
+import qualified Data.Csv as Csv
+import qualified Data.Aeson as Aeson
 import qualified Data.Vector as V
 
 data T  = T
     { _tInt  :: !Int
-    , _tBool :: !Bool
+    , _tChar :: !Char
     , _tText :: !Text
     }
     deriving (Eq, Show)
@@ -29,7 +30,11 @@ instance Arbitrary T where
     arbitrary = sopArbitrary
     shrink = sopShrink
 
-instance DefaultOrdered T where headerOrder = sopHeaderOrder
+instance Csv.DefaultOrdered T where headerOrder = sopHeaderOrder
+instance Csv.FromRecord T where parseRecord = sopParseRecord
+instance Csv.ToNamedRecord T where toNamedRecord = sopToNamedRecord
+instance Aeson.FromJSON T where parseJSON = sopParseJSON 
+instance Aeson.ToJSON T where toJSON = sopToJSON
 
 main :: IO ()
 main = defaultMain tests
@@ -37,7 +42,21 @@ main = defaultMain tests
 tests :: TestTree
 tests = testGroup "Futurice.Generics"
     [ testCase "Arbitrary.shrink" $ 
-        length (shrink $ T 2 True "foo") > 0 @?= True
+        length (shrink $ T 2 'a' "foo") > 0 @?= True
     , testCase "DefaultOrdered" $
-        headerOrder (undefined :: T) @?= V.fromList ["int", "bool", "text"]
+        Csv.headerOrder (undefined :: T) @?= V.fromList ["int", "char", "text"]
+    , testProperty "FromJSON . ToJSON" aesonRoundtripT
+    , testProperty "FromRecord . ToNamedRecord" cassavaRoundtripT
     ]
+
+aesonRoundtripT :: T -> Property
+aesonRoundtripT t = lhs === rhs
+  where
+    lhs = Aeson.eitherDecode (Aeson.encode t)
+    rhs = Right t
+
+cassavaRoundtripT :: [T] -> Property
+cassavaRoundtripT t = lhs === rhs
+  where
+    lhs = Csv.decode Csv.HasHeader (Csv.encodeDefaultOrderedByName t)
+    rhs = Right (V.fromList t)
