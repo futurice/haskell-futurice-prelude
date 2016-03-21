@@ -7,8 +7,10 @@ module Futurice.Generics (
     -- * Cassava
     sopToNamedRecord,
     sopHeaderOrder,
+    sopParseRecord,
     -- * Aeson
     sopToJSON,
+    sopParseJSON,
     -- * Swagger
     sopDeclareNamedSchema,
     ) where
@@ -111,6 +113,24 @@ sopHeaderOrder' fs = hcollapse (hmap f fs)
     f :: FieldInfo a -> K ByteString a
     f (FieldInfo n) = K . fromString . processFieldName prefix $ n
 
+sopParseRecord
+    :: forall a xs.
+       (Generic a, HasDatatypeInfo a, All Csv.FromField xs, Code a ~ '[xs])
+    => Csv.Record
+    -> Csv.Parser a
+sopParseRecord r
+    | length r == lenXs = to . SOP . Z <$> sopParseRecord' r
+    | otherwise         = fail $ "Cannot match field of length " ++ show (length r) ++ " with record of " ++ show lenXs ++ " fields"
+  where
+    lenXs = lengthSList (Proxy :: Proxy xs)
+
+sopParseRecord' :: forall xs. (SListI xs, All Csv.FromField xs) => Csv.Record -> Csv.Parser (NP I xs)
+sopParseRecord' r = go (sList :: SList xs) 0
+  where
+    go :: All Csv.FromField ys => SList ys -> Int -> Csv.Parser (NP I ys)
+    go SNil  _ = pure Nil
+    go SCons i = (\h t -> I h :* t) <$> r Csv..! i <*> go sList (i + 1)
+
 -------------------------------------------------------------------------------
 -- Aeson
 -------------------------------------------------------------------------------
@@ -142,6 +162,33 @@ sopToJSON' fs' xs' = go fs' xs'
     go (FieldInfo f :* fs) (I x :* xs) =
         (fromString $ processFieldName prefix f) Aeson..= x : go fs xs
     go _ _ = error "sopToNamedRecord' go: impossible happened"
+
+sopParseJSON
+    :: forall a xs.
+       (Generic a, HasDatatypeInfo a, All Aeson.FromJSON xs, Code a ~ '[xs])
+    => Aeson.Value
+    -> Aeson.Parser a
+sopParseJSON = Aeson.withObject tName $ \obj ->
+    to . SOP . Z <$> sopParseJSON' obj fieldInfos
+  where
+    dInfo = datatypeInfo (Proxy :: Proxy a)
+    tName = dInfo ^. datatypeName
+    fieldInfos = dInfo ^. constructorInfo . unSingletonP . fieldInfo
+
+sopParseJSON'
+    :: All Aeson.FromJSON xs
+    => Aeson.Object -> NP FieldInfo xs -> Aeson.Parser (NP I xs)
+sopParseJSON' obj fs' = go fs'
+  where
+    prefix :: String
+    prefix = longestFieldInfoPrefix fs'
+
+    go :: All Aeson.FromJSON ys => NP FieldInfo ys -> Aeson.Parser (NP I ys)
+    go Nil  = pure Nil
+    go (FieldInfo f :* fs) = (\h t -> I h :* t)
+        <$> obj Aeson..: (fromString $ processFieldName prefix f)
+        <*> go fs
+
 
 -------------------------------------------------------------------------------
 -- swagger
