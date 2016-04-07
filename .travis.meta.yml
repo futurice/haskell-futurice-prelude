@@ -3,6 +3,7 @@ language: haskell-stack
 env:
   - GHCVER=7.8.4 STACK_YAML=stack-lts-2.yaml PEDANTIC=YES
   - GHCVER=7.10.2 STACK_YAML=stack-lts-3.yaml PEDANTIC=YES
+  - GHCVER=7.10.3 STACK_YAML=stack-lts-5.yaml PEDANTIC=YES
 
 matrix:
   fast_finish: true

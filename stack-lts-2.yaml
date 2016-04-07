@@ -7,14 +7,24 @@ packages:
   extra-dep: true
 extra-deps:
 - ansi-pretty-0.1.2.0
+- base-compat-0.9.0
 - binary-orphans-0.1.4.0
 - composition-extra-2.0.0
+- conduit-extra-1.1.13.1
+- exceptions-0.8.2.1
 - generics-sop-0.2.1.0
 - hashable-time-0.2
-- iso8601-time-0.1.4
+- monadcryptorandom-0.7.0
+- mtl-2.2.1
+- optparse-applicative-0.12.1.0
+- primitive-0.6.1.0
+- resourcet-1.1.7.3
+- semigroupoids-4.2
 - swagger2-2.0.2
+- transformers-0.4.3.0
+- transformers-compat-0.5.1.4
+- vector-binary-instances-0.2.3.1
+- vector-instances-3.3.1
 flags:
   hashable-time:
     old-locale: true
-  iso8601-time:
-    new-time: false
