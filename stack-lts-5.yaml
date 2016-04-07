@@ -1,4 +1,4 @@
-resolver: lts-3.22
+resolver: lts-5.11
 packages:
 - '.'
 - location:
@@ -7,10 +7,5 @@ packages:
   extra-dep: true
 extra-deps:
 - ansi-pretty-0.1.1.0
-- binary-orphans-0.1.4.0
-- composition-extra-2.0.0
-- generics-sop-0.2.1.0
-- hashable-time-0.2
 - swagger2-2.0.2
-- monadcryptorandom-0.7.0
 flags: {}
