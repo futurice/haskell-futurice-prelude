@@ -26,7 +26,7 @@ library:
     - aeson
     - ansi-pretty
     - ansi-wl-pprint
-    - base-compat
+    - base-compat           >=0.9.1
     - binary
     - binary-orphans
     - bytestring
@@ -47,6 +47,7 @@ library:
     - nats
     - QuickCheck
     - quickcheck-instances
+    - random-shuffle
     - semigroups
     - swagger2              >= 2.0.2
     - tagged

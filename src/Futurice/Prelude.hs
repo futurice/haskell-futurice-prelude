@@ -64,6 +64,9 @@ module Futurice.Prelude (
     packed,
     strict, lazy,
     makeLenses, makePrisms,
+    -- * list
+    sort, sortBy, nub,
+    shuffleM,
     -- * Extras
     type (:$),
     ) where
@@ -89,6 +92,7 @@ import Data.Int
 import Data.IntMap.Strict       (IntMap)
 import Data.IntSet              (IntSet)
 import Data.Function            (on)
+import Data.List                (sort, sortBy, nub)
 import Data.Map.Strict          (Map)
 import Data.Maybe               (fromMaybe)
 import Data.Proxy               (Proxy (..))
@@ -105,6 +109,7 @@ import Data.Word
 import Generics.SOP.TH          (deriveGeneric)
 import GHC.Generics             (Generic)
 import Numeric.Natural          (Natural)
+import System.Random.Shuffle    (shuffleM)
 import Text.Read                (readMaybe)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
