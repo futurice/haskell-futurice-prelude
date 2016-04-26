@@ -45,6 +45,7 @@ library:
     - monadcryptorandom     >=0.7.0   && <=0.7.1
     - mtl
     - nats
+    - operational
     - QuickCheck
     - quickcheck-instances
     - random-shuffle
