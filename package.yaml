@@ -67,6 +67,7 @@ tests:
       - base
       - cassava
       - aeson
+      - generics-sop
       - futurice-prelude
       - QuickCheck
       - tasty

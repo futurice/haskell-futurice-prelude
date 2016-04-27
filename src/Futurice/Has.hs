@@ -1,21 +1,21 @@
-{-# LANGUAGE CPP                   #-}
+{-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE PatternSynonyms       #-}
 {-# LANGUAGE PolyKinds             #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeOperators         #-}
-
-#if __GLASGOW_HASKELL__ < 710
-{-# LANGUAGE OverlappingInstances  #-}
-#define OVERLAPPING_
-#else
-#define OVERLAPPING_ {-# OVERLAPPING #-}
-#endif
--- |
+{-# LANGUAGE UndecidableInstances  #-}
+-- | Tools for ad-hoc reader monad environments.
 --
--- *TODO* move to own package once stabilised.
+-- A bit like in @vinyl@ - package, but reimplemented for @generics-sop@ data
+-- structures.
+--
+-- TODO: move to own package once stabilised.
 module Futurice.Has (
     Has(..),
     IsElem(..),
@@ -25,20 +25,37 @@ import Control.Lens      (Lens', Prism')
 import Generics.SOP      (I (..), NP (..), NS (..))
 import Generics.SOP.Lens (headLens, tailLens, uni, _S, _Z)
 
-class Has f r where
+import Futurice.Peano
+
+-- | Poor man 'Has' type-class. Useful with reader and state monads.
+--
+-- The inversed type parameterds are also handy for specifying reader environment:
+--
+-- @
+-- foobarAction
+--    :: (MonadIO m, MonadReader env m, All (Has env) '[ConfFoo, ConfBar])
+--    => m ()
+-- @
+class Has r f where
     field :: Lens' r f
 
-class IsElem xs a where
-    proj :: Lens' (NP f xs) (f a)
-    inj  :: Prism' (NS f xs) (f a)
+-- | n-ary products from "Generics.SOP" 'Has' all fields in it.
+--
+-- This is extremly handy for specifying ad-hoc environments.
+instance IsElem xs x (Index x xs) => Has (NP I xs) x where
+    field = proj . uni
 
-instance OVERLAPPING_ IsElem (a ': xs) a where
-    proj  = headLens
-    inj   = _Z
+-- | Class to look into products and sums thru lenses and prisms.
+--
+-- See 'reifyDiagIsElem' and 'diagIsElemDict' for construction.
+class i ~ Index a xs => IsElem xs a i where
+    proj :: forall f. Lens'  (NP f xs) (f a)
+    inj  :: forall f. Prism' (NS f xs) (f a)
 
-instance IsElem xs a => IsElem (b ': xs) a where
+instance IsElem (x ': xs) x 'PZ where
+    proj = headLens
+    inj  = _Z
+
+instance ('PS i ~ Index x (y ': ys), IsElem ys x i) => IsElem (y ': ys) x ('PS i) where
     proj = tailLens . proj
     inj  = _S . inj
-
-instance IsElem xs x => Has x (NP I xs) where
-    field = proj . uni
