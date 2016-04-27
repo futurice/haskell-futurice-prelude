@@ -74,6 +74,7 @@ library
       Futurice.Generics
       Futurice.Has
       Futurice.Operational.Sum
+      Futurice.Peano
       Futurice.Prelude
       Futurice.Prelude.Internal.Orphans
       Futurice.REPL
@@ -89,10 +90,13 @@ test-suite futurice-prelude-tests
       base
     , cassava
     , aeson
+    , generics-sop
     , futurice-prelude
     , QuickCheck
     , tasty
     , tasty-hunit
     , tasty-quickcheck
     , vector
+  other-modules:
+      HasTests
   default-language: Haskell2010

@@ -17,6 +17,8 @@ import qualified Data.Csv as Csv
 import qualified Data.Aeson as Aeson
 import qualified Data.Vector as V
 
+import HasTests
+
 data T  = T
     { _tInt  :: !Int
     , _tChar :: !Char
@@ -37,7 +39,10 @@ instance Aeson.FromJSON T where parseJSON = sopParseJSON
 instance Aeson.ToJSON T where toJSON = sopToJSON
 
 main :: IO ()
-main = defaultMain tests
+main = defaultMain $ testGroup "Tests"
+    [ tests
+    , hasTests
+    ]
 
 tests :: TestTree
 tests = testGroup "Futurice.Generics"
