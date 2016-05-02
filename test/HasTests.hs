@@ -13,7 +13,7 @@ import Test.Tasty.QuickCheck
 
 hasTests :: TestTree
 hasTests = testGroup "Futurice.Has"
-    [ testProperty "here"    $ hereProp 
+    [ testProperty "here"    $ hereProp
     , testProperty "there"   $ there2Prop
     , testProperty "there 2" $ there2Prop
     ]
@@ -28,4 +28,4 @@ there2Prop :: Bool -> Property
 there2Prop b = b === getBool (I (1 :: Int) :* I b :* I (0.1 :: Double) :* Nil)
 
 getBool :: Has a Bool => a -> Bool
-getBool = view field 
+getBool = view field
