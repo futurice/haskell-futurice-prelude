@@ -54,6 +54,7 @@ library
     , hashable-time
     , lens
     , monad-logger
+    , monad-time
     , monadcryptorandom     >=0.7.0   && <=0.7.1
     , mtl
     , nats

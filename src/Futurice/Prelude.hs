@@ -120,6 +120,12 @@ import Control.Monad.Except (MonadError (..))
 import Control.Monad.Error (MonadError (..))
 #endif
 
+#if MIN_VERSION_monad_time(0,2,0)
+import Control.Monad.Time ()
+#else
+import Control.Monad.Time.Instances ()
+#endif
+
 -- Orphans
 import Data.Binary.Orphans               ()
 import Data.Hashable.Time                ()
