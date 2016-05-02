@@ -14,6 +14,7 @@ extra-deps:
 - exceptions-0.8.2.1
 - generics-sop-0.2.1.0
 - hashable-time-0.2
+- monad-time-0.2
 - monadcryptorandom-0.7.0
 - MonadRandom-0.4.2.2
 - mtl-2.2.1
