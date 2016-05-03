@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:           futurice-prelude
-version:        0.1.6.0
+version:        0.1.7.0
 synopsis:       Futurice Prelude
 description:    'Futurice.Prelude' is used in Futurice apps:
                 .
