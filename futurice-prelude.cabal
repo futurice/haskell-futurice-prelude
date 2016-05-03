@@ -51,6 +51,7 @@ library
     , exceptions
     , generics-sop          >=0.2.1.0  && <0.3
     , generics-sop-lens     >=0.1.1.0  && <0.2
+    , ghc-prim
     , hashable
     , hashable-time
     , lens
@@ -78,6 +79,7 @@ library
       Futurice.Peano
       Futurice.Prelude
       Futurice.Prelude.Internal.Orphans
+      Futurice.Reflection.TypeLits
       Futurice.REPL
   default-language: Haskell2010
 
@@ -100,4 +102,5 @@ test-suite futurice-prelude-tests
     , vector
   other-modules:
       HasTests
+      ReflectionTests
   default-language: Haskell2010
