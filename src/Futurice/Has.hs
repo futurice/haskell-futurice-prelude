@@ -23,8 +23,8 @@ module Futurice.Has (
     IsSubset(..),
     IsSubset',
     In, In', AllIn, AllIn',
-    type (∈),
-    type (⊆),
+--    type (∈),
+--    type (⊆),
     ) where
 
 import Control.Lens      (Lens', Prism', lens, set, view)
@@ -111,5 +111,5 @@ type In'    x  ys = IsElem'   x  ys (Index x  ys)
 type AllIn  xs ys = IsSubset  xs ys (Image xs ys)
 type AllIn' xs ys = IsSubset' xs ys (Image xs ys)
 
-type x  ∈ ys = In' x ys
-type xs ⊆ ys = AllIn' xs ys
+-- type x  ∈ ys = In' x ys
+-- type xs ⊆ ys = AllIn' xs ys
