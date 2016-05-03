@@ -22,7 +22,9 @@ module Futurice.Has (
     IsElem',
     IsSubset(..),
     IsSubset',
-    type (<::),
+    In, In', AllIn, AllIn',
+    type (∈),
+    type (⊆),
     ) where
 
 import Control.Lens      (Lens', Prism', lens, set, view)
@@ -46,12 +48,16 @@ class Has r f where
 -- | n-ary products from "Generics.SOP" 'Has' all fields in it.
 --
 -- This is extremly handy for specifying ad-hoc environments.
-instance IsElem x xs (Index x xs) => Has (NP I xs) x where
+instance In x xs => Has (NP I xs) x where
     field = proj . uni
 
--- | 'I' wrapped value 'Has'itself.
+-- | 'I' wrapped value 'Has' itself.
 instance Has (I x) x where
     field = uni
+
+-------------------------------------------------------------------------------
+-- IsElem
+-------------------------------------------------------------------------------
 
 -- | The dictionary-less version of 'IsElem'.
 class i ~ Index a xs => IsElem' a xs i
@@ -70,6 +76,10 @@ instance IsElem x (x ': xs) 'PZ where
 instance ('PS i ~ Index x (y ': ys), IsElem x ys i) => IsElem x (y ': ys) ('PS i) where
     proj = tailLens . proj
     inj  = _S . inj
+
+-------------------------------------------------------------------------------
+-- IsSubset
+-------------------------------------------------------------------------------
 
 -- | The dictionary-less version of 'IsSubset'.
 class (is ~ Image xs ys) => IsSubset' xs ys is
@@ -92,4 +102,14 @@ instance (IsElem x ys i, IsSubset xs ys is) => IsSubset (x ': xs) ys (i ': is) w
         s :: NP f ys -> NP f (x ': xs) -> NP f ys
         s ys (x :* xs) = set proj x (set projs xs ys)
 
-type xs <:: ys = IsSubset' xs ys (Image xs ys)
+-------------------------------------------------------------------------------
+-- Aliases
+-------------------------------------------------------------------------------
+
+type In     x  ys = IsElem    x  ys (Index x  ys)
+type In'    x  ys = IsElem'   x  ys (Index x  ys)
+type AllIn  xs ys = IsSubset  xs ys (Image xs ys)
+type AllIn' xs ys = IsSubset' xs ys (Image xs ys)
+
+type x  ∈ ys = In' x ys
+type xs ⊆ ys = AllIn' xs ys
