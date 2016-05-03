@@ -6,7 +6,7 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Futurice.Reflection.TypeLits (
-    reifySymbolTypeable,
+    reifyTypeableSymbol,
     ) where
 
 import Data.Typeable.Internal
@@ -36,8 +36,8 @@ symbolTypeRep p = mkTyConApp tc []
 newtype MagicTypeable (s :: Symbol) r = MagicTypeable (Typeable s => r)
 newtype ReifiedTypeable s = ReifiedTypeable (Proxy# s -> TypeRep)
 
-reifySymbolTypeable :: forall s r. KnownSymbol s => Proxy s -> (Typeable s => r) -> r
-reifySymbolTypeable p k = unsafeCoerce (MagicTypeable k :: MagicTypeable s r) rtr
+reifyTypeableSymbol :: forall s r. KnownSymbol s => Proxy s -> (Typeable s => r) -> r
+reifyTypeableSymbol p k = unsafeCoerce (MagicTypeable k :: MagicTypeable s r) rtr
   where
     tr  = symbolTypeRep p
     rtr = ReifiedTypeable (\_ -> tr)
