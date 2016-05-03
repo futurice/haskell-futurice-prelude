@@ -20,11 +20,11 @@ reflectionTests = testGroup "Futurice.Reflection.TypeLits"
     ]
 
 worksProp :: Property
-worksProp = once $ show "foo" === show (reifySymbolTypeable p $ typeRep p)
+worksProp = once $ show "foo" === show (reifyTypeableSymbol p $ typeRep p)
   where p = Proxy :: Proxy "foo"
 
 #if MIN_VERSION_base(4,8,0)
 ghc710Prop :: Property
-ghc710Prop = once $ typeRep p === reifySymbolTypeable p (typeRep p)
+ghc710Prop = once $ typeRep p === reifyTypeableSymbol p (typeRep p)
   where p = Proxy :: Proxy "foo"
 #endif
