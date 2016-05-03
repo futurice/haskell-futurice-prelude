@@ -3,7 +3,7 @@
 -- see: https://github.com/sol/hpack
 
 name:           futurice-prelude
-version:        0.1.7.0
+version:        0.1.8.0
 synopsis:       Futurice Prelude
 description:    'Futurice.Prelude' is used in Futurice apps:
                 .
@@ -45,6 +45,7 @@ library
     , bytestring
     , cassava
     , composition-extra     >=2.0.0
+    , constraints
     , containers
     , deepseq
     , deepseq-generics      >=0.1.1.2  && <0.3
@@ -74,6 +75,7 @@ library
     , vector
     , vector-instances
   exposed-modules:
+      Futurice.Constraint.ForallSymbol
       Futurice.Generics
       Futurice.Has
       Futurice.Peano
