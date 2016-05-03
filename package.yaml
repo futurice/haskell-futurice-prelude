@@ -39,6 +39,7 @@ library:
     - exceptions
     - generics-sop          >=0.2.1.0  && <0.3
     - generics-sop-lens     >=0.1.1.0  && <0.2
+    - ghc-prim
     - hashable
     - hashable-time
     - lens

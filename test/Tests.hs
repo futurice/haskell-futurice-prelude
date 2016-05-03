@@ -18,6 +18,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Vector as V
 
 import HasTests
+import ReflectionTests
 
 data T  = T
     { _tInt  :: !Int
@@ -42,6 +43,7 @@ main :: IO ()
 main = defaultMain $ testGroup "Tests"
     [ tests
     , hasTests
+    , reflectionTests
     ]
 
 tests :: TestTree
