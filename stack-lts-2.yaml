@@ -8,6 +8,7 @@ packages:
 extra-deps:
 - ansi-pretty-0.1.2.0
 - base-compat-0.9.1
+- base-orphans-0.5.4
 - binary-orphans-0.1.4.0
 - composition-extra-2.0.0
 - conduit-extra-1.1.13.1

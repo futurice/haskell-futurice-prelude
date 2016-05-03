@@ -49,6 +49,10 @@ class Has r f where
 instance IsElem x xs (Index x xs) => Has (NP I xs) x where
     field = proj . uni
 
+-- | 'I' wrapped value 'Has'itself.
+instance Has (I x) x where
+    field = uni
+
 -- | The dictionary-less version of 'IsElem'.
 class i ~ Index a xs => IsElem' a xs i
 instance IsElem' x (x ': xs) 'PZ

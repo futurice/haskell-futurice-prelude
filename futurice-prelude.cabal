@@ -38,7 +38,8 @@ library
     , aeson
     , ansi-pretty
     , ansi-wl-pprint
-    , base-compat           >=0.9.1
+    , base-compat           ==0.9.1
+    , base-orphans          ==0.5.4
     , binary
     , binary-orphans
     , bytestring
