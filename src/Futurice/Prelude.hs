@@ -129,6 +129,7 @@ import Control.Monad.Time.Instances ()
 -- Orphans
 import Data.Binary.Orphans               ()
 import Data.Hashable.Time                ()
+import Data.Orphans                      ()
 import Data.Vector.Instances             ()
 import Futurice.Prelude.Internal.Orphans ()
 import Test.QuickCheck.Instances         ()
