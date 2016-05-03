@@ -46,6 +46,7 @@ library
     , cassava
     , composition-extra     >=2.0.0
     , constraints
+    , intervals
     , containers
     , deepseq
     , deepseq-generics      >=0.1.1.2  && <0.3
