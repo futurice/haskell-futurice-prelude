@@ -1,12 +1,12 @@
-{-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE DataKinds        #-}
+{-# LANGUAGE FlexibleContexts #-}
 module HasTests where
 
 import Futurice.Prelude
-import Futurice.Has
-import Prelude ()
+import Prelude          ()
 
-import Generics.SOP (I(..), NP(..))
+import Futurice.Has     (Has (..), In')
+import Generics.SOP (I (..), NP (..))
 
 import Test.Tasty
 import Test.Tasty.QuickCheck
@@ -29,3 +29,13 @@ there2Prop b = b === getBool (I (1 :: Int) :* I b :* I (0.1 :: Double) :* Nil)
 
 getBool :: Has a Bool => a -> Bool
 getBool = view field
+
+-------------------------------------------------------------------------------
+-- Check it compiles
+-------------------------------------------------------------------------------
+
+inExample1 :: ()
+inExample1 = ex
+  where
+    ex :: In' Bool '[Bool, Int, Double] => ()
+    ex = ()
