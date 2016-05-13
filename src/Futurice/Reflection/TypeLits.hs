@@ -9,10 +9,16 @@ module Futurice.Reflection.TypeLits (
     reifyTypeableSymbol,
     ) where
 
-import Data.Typeable.Internal
+import Data.Proxy    (Proxy)
+import Data.Typeable (Typeable)
+import GHC.TypeLits
+
+-- This could be for base-4.8.0, but we use it for testing
+--
+#if !MIN_VERSION_base(4,9,0)
+import Data.Typeable.Internal (TyCon(..), TypeRep, mkTyConApp)
 import GHC.Fingerprint
 import GHC.Prim
-import GHC.TypeLits
 import Unsafe.Coerce
 
 symbolTypeRep :: KnownSymbol s => Proxy s -> TypeRep
@@ -41,3 +47,9 @@ reifyTypeableSymbol p k = unsafeCoerce (MagicTypeable k :: MagicTypeable s r) rt
   where
     tr  = symbolTypeRep p
     rtr = ReifiedTypeable (\_ -> tr)
+
+#else
+-- | With @base >= 4.9@ the implementation is trivial.
+reifyTypeableSymbol :: forall s r. KnownSymbol s => Proxy s -> (Typeable s => r) -> r
+reifyTypeableSymbol _ f = f
+#endif

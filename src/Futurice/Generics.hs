@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds, FlexibleContexts, TypeFamilies, ScopedTypeVariables, RankNTypes #-}
+{-# LANGUAGE CPP, DataKinds, FlexibleContexts, TypeFamilies, ScopedTypeVariables, RankNTypes #-}
 -- | "Generics.SOP" derivation for record types (i.e. products).
 module Futurice.Generics (
     -- * QuickCheck
@@ -92,7 +92,9 @@ sopToNamedRecord' fs' xs' = go fs' xs'
     go Nil Nil = []
     go (FieldInfo f :* fs) (I x :* xs) =
         Csv.namedField (fromString $ processFieldName prefix f) x : go fs xs
+#if __GLASGOW_HASKELL__ < 800
     go _ _ = error "sopToNamedRecord' go: impossible happened"
+#endif
 
 sopHeaderOrder
     :: forall a xs.
@@ -115,7 +117,7 @@ sopHeaderOrder' fs = hcollapse (hmap f fs)
 
 sopParseRecord
     :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Csv.FromField xs, Code a ~ '[xs])
+       (Generic a, All Csv.FromField xs, Code a ~ '[xs])
     => Csv.Record
     -> Csv.Parser a
 sopParseRecord r
@@ -124,7 +126,7 @@ sopParseRecord r
   where
     lenXs = lengthSList (Proxy :: Proxy xs)
 
-sopParseRecord' :: forall xs. (SListI xs, All Csv.FromField xs) => Csv.Record -> Csv.Parser (NP I xs)
+sopParseRecord' :: forall xs. (All Csv.FromField xs) => Csv.Record -> Csv.Parser (NP I xs)
 sopParseRecord' r = go (sList :: SList xs) 0
   where
     go :: All Csv.FromField ys => SList ys -> Int -> Csv.Parser (NP I ys)
@@ -161,7 +163,9 @@ sopToJSON' fs' xs' = go fs' xs'
     go Nil Nil = []
     go (FieldInfo f :* fs) (I x :* xs) =
         (fromString $ processFieldName prefix f) Aeson..= x : go fs xs
+#if __GLASGOW_HASKELL__ < 800
     go _ _ = error "sopToNamedRecord' go: impossible happened"
+#endif
 
 sopParseJSON
     :: forall a xs.
@@ -199,7 +203,7 @@ type SwaggerPP = (Text, Swagger.Referenced Swagger.Schema)
 
 sopDeclareNamedSchema
     :: forall a xs proxy.
-       (Generic a, HasDatatypeInfo a, All Swagger.ToSchema xs, Code a ~ '[xs])
+       (HasDatatypeInfo a, All Swagger.ToSchema xs, Code a ~ '[xs])
     => proxy a
     -> SwaggerM Swagger.NamedSchema
 sopDeclareNamedSchema _ = do

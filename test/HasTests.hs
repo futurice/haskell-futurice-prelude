@@ -1,5 +1,9 @@
+{-# LANGUAGE CPP              #-}
 {-# LANGUAGE DataKinds        #-}
 {-# LANGUAGE FlexibleContexts #-}
+#if __GLASGOW_HASKELL__ >= 800
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+#endif
 module HasTests where
 
 import Futurice.Prelude
