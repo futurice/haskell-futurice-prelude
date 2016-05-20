@@ -36,17 +36,20 @@ library
   build-depends:
       base                  >=4.7   && <4.10
     , aeson
+    , aeson-compat
+    , aeson-extra >=0.3.1
     , ansi-pretty
     , ansi-wl-pprint
     , base-compat           ==0.9.1
     , base-orphans          ==0.5.4
     , binary
     , binary-orphans
+    , binary-tagged
     , bytestring
     , cassava
+    , case-insensitive
     , composition-extra     >=2.0.0
     , constraints
-    , intervals
     , containers
     , deepseq
     , deepseq-generics      >=0.1.1.2  && <0.3
@@ -54,15 +57,21 @@ library
     , generics-sop          >=0.2.1.0  && <0.3
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
-    , hashable
+    , github >=0.14.1
+    , hashable >=1.2.4
     , hashable-time
+    , intervals
+    , JuicyPixels
     , lens
+    , lucid
     , monad-logger
     , monad-time
     , monadcryptorandom     >=0.7.0   && <=0.7.1
     , mtl
     , nats
     , operational
+    , parsec
+    , postgresql-simple
     , QuickCheck
     , quickcheck-instances
     , random-shuffle
@@ -71,7 +80,9 @@ library
     , tagged
     , text
     , time
+    , time-parsers
     , transformers
+    , transformers-compat
     , unordered-containers
     , vector
     , vector-instances

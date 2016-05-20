@@ -58,6 +58,7 @@ module Futurice.Prelude (
     -- * function
     on, (&),
     -- * lens
+    Lens', lens,
     (^.), view,
     (.~), (?~),
     from,
@@ -75,7 +76,7 @@ import Prelude        ()
 import Prelude.Compat
 
 import Control.Applicative      (Alternative(..), optional)
-import Control.Lens             ((^.), (.~), (?~), from, makeLenses, makePrisms, strict, lazy, view, (&))
+import Control.Lens             ((^.), (.~), (?~), Lens', lens, from, makeLenses, makePrisms, strict, lazy, view, (&))
 import Control.DeepSeq          (NFData (..), ($!!))
 import Control.DeepSeq.Generics (genericRnf)
 import Control.Exception        (evaluate)
