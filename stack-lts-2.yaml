@@ -6,28 +6,48 @@ packages:
     commit: 789cee48725ec6fb4ce8ce1fd122453496ad6ed4
   extra-dep: true
 extra-deps:
+- aeson-compat-0.3.3.0
+- aeson-extra-0.3.1.1
 - ansi-pretty-0.1.2.0
 - base-compat-0.9.1
 - base-orphans-0.5.4
+- bifunctors-5.3
 - binary-orphans-0.1.4.0
+- binary-tagged-0.1.4.0
 - composition-extra-2.0.0
 - conduit-extra-1.1.13.1
 - exceptions-0.8.2.1
+- fast-logger-2.4.6
+- free-4.12.4
 - generics-sop-0.2.1.0
+- github-0.14.1
+- hashable-1.2.4.0
 - hashable-time-0.2
+- http-link-header-1.0.1
+- iso8601-time-0.1.4
+- lens-4.13
 - monad-time-0.2
 - monadcryptorandom-0.7.0
 - MonadRandom-0.4.2.2
 - mtl-2.2.1
 - optparse-applicative-0.12.1.0
+- postgresql-simple-0.5.1.3
 - primitive-0.6.1.0
+- profunctors-5.2
+- recursion-schemes-4.1.2
+- reflection-2.1.2
 - resourcet-1.1.7.3
-- semigroupoids-4.2
+- semigroupoids-5.0.1
 - swagger2-2.0.2
+- time-parsers-0.1.0.0
 - transformers-0.4.3.0
 - transformers-compat-0.5.1.4
-- vector-binary-instances-0.2.3.1
+- unix-time-0.3.6
+- vector-0.11.0.0
+- vector-binary-instances-0.2.3.2
 - vector-instances-3.3.1
 flags:
   hashable-time:
     old-locale: true
+  iso8601-time:
+    new-time: false

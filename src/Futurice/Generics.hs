@@ -18,7 +18,6 @@ module Futurice.Generics (
 import Futurice.Prelude hiding (Generic, from)
 import Prelude          ()
 
-import Control.Lens      (Lens', lens)
 import Data.ByteString   (ByteString)
 import Data.Char         (toLower)
 import Generics.SOP

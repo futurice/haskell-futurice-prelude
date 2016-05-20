@@ -9,21 +9,46 @@ packages:
     git: https://github.com/ekmett/reducers.git
     commit: 0e610b18eb48952cc62423eee094d86c952844b4
   extra-dep: true
+- location:
+    git: https://github.com/phadej/aeson-extra.git
+    commit: 4bdbb561adfa6220a6a296eede31efa4fe5473ff
+  extra-dep: true
+- location:
+    git: https://github.com/phadej/github.git
+    commit: 4dd62be8c5d380cc8f260cddb1510ac73f409663
+  extra-dep: true
+- location:
+    git: https://github.com/phadej/recursion-schemes.git
+    commit: 637bbd49a16c4a54e016b23b1a12f60743dbaf1e
+  extra-dep: true
+- location:
+    git: https://github.com/phadej/time-parsers.git
+    commit: bc49be701d00baf9f7f98c6214065a77cbd8d364
+  extra-dep: true
 extra-deps:
 - adjunctions-4.3
 - aeson-0.11.2.0
+- aeson-compat-0.3.3.0
 - ansi-pretty-0.1.2.0
 - ansi-terminal-0.6.2.3
 - ansi-wl-pprint-0.6.7.3
+- asn1-encoding-0.9.3
+- asn1-parse-0.9.4
+- asn1-types-0.3.2
 - async-2.1.0
 - attoparsec-0.13.0.2
 - auto-update-0.1.4
 - base-compat-0.9.1
 - base-orphans-0.5.4
+- base16-bytestring-0.1.1.6
+- base64-bytestring-1.0.0.1
 - bifunctors-5.3
 - binary-orphans-0.1.4.0
+- binary-tagged-0.1.4.0
 - blaze-builder-0.4.0.2
+- byteable-0.1.1
 - bytestring-builder-0.10.6.0.0
+- bytestring-conversion-0.3.1
 - case-insensitive-1.2.0.6
 - cassava-0.4.5.0
 - cereal-0.5.1.0
@@ -34,19 +59,26 @@ extra-deps:
 - composition-extra-2.0.0
 - conduit-1.2.6.6
 - conduit-extra-1.1.13.1
+- connection-0.2.5
 - constraints-0.8
 - contravariant-1.4
+- cookie-0.4.2
 - crypto-api-0.13.2
+- cryptohash-0.11.9
+- cryptonite-0.15
 - data-default-class-0.0.1
 - deepseq-generics-0.2.0.0
 - distributive-0.5.0.2
 - dlist-0.7.1.2
 - doctest-0.11.0
+- double-conversion-2.0.1.0
 - easy-file-0.2.1
 - entropy-0.3.7
+- errors-2.1.2
 - exceptions-0.8.2.1
 - fail-4.9.0.0
 - fast-logger-2.4.6
+- file-embed-0.0.10
 - fingertree-0.1.1.0
 - free-4.12.4
 - generics-sop-0.2.1.0
@@ -54,12 +86,27 @@ extra-deps:
 - ghc-paths-0.1.0.9
 - hashable-1.2.4.0
 - hashable-time-0.2
+- hourglass-0.2.10
+- hspec-2.2.3
+- hspec-core-2.2.3
+- hspec-discover-2.2.3
+- hspec-expectations-0.7.2
+- http-client-0.4.28
+- http-client-tls-0.2.4
+- http-link-header-1.0.1
 - http-media-0.6.3
+- http-types-0.9
+- HUnit-1.3.1.1
 - intervals-0.7.2
+- iso8601-time-0.1.4
+- JuicyPixels-3.2.7
 - kan-extensions-5.0.1
 - keys-3.11
 - lens-4.14
 - lifted-base-0.2.3.6
+- lucid-2.9.5
+- memory-0.12
+- mime-types-0.1.0.7
 - mmorph-1.0.6
 - monad-control-1.0.1.0
 - monad-logger-0.3.18
@@ -70,27 +117,36 @@ extra-deps:
 - mtl-2.2.1
 - nats-1.1
 - network-2.6.2.1
+- network-uri-2.6.1.0
 - old-locale-1.0.0.7
 - old-time-1.1.0.3
 - operational-0.2.3.2
 - optparse-applicative-0.12.1.0
 - parallel-3.2.1.0
 - parsec-3.1.11
+- pem-0.2.2
 - pointed-5
+- postgresql-libpq-0.9.1.1
+- postgresql-simple-0.5.1.3
 - prelude-extras-0.4.0.3
 - primitive-0.6.1.0
 - profunctors-5.2
 - QuickCheck-2.8.2
 - quickcheck-instances-0.3.12
+- quickcheck-io-0.1.2
 - random-1.1
 - random-shuffle-0.0.4
 - reflection-2.1.2
 - regex-base-0.93.2
 - regex-tdfa-1.2.2
 - resourcet-1.1.7.4
+- safe-0.3.9
 - scientific-0.3.4.6
 - semigroupoids-5.0.1
 - semigroups-0.18.1
+- setenv-0.1.1.3
+- SHA-1.6.4.2
+- socks-0.5.5
 - StateVar-1.1.0.4
 - stm-2.4.4.1
 - stm-chans-3.0.0.4
@@ -104,17 +160,28 @@ extra-deps:
 - text-1.2.2.1
 - text-binary-0.2.1
 - tf-random-0.5
+- these-0.6.2.1
+- time-locale-compat-0.1.1.1
+- tls-1.3.8
 - transformers-base-0.4.4
 - transformers-compat-0.5.1.4
 - unbounded-delays-0.1.0.9
+- unexceptionalio-0.3.0
 - unix-time-0.3.6
 - unordered-containers-0.2.7.0
+- uuid-types-1.0.3
 - vector-0.11.0.0
 - vector-binary-instances-0.2.3.2
 - vector-instances-3.3.1
 - void-0.7.1
+- x509-1.6.3
+- x509-store-1.6.1
+- x509-system-1.6.3
+- x509-validation-1.6.3
 - zlib-0.6.1.1
-flags: {}
+flags:
+  time-locale-compat:
+    old-locale: false
 compiler-check: match-exact
 setup-info:
   ghc:
