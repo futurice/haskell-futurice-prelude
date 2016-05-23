@@ -1,4 +1,4 @@
-resolver: ghc-8.0.0.20160421
+resolver: ghc-8.0.1
 packages:
 - '.'
 - location:
@@ -19,7 +19,7 @@ packages:
   extra-dep: true
 - location:
     git: https://github.com/phadej/recursion-schemes.git
-    commit: 637bbd49a16c4a54e016b23b1a12f60743dbaf1e
+    commit: c1e48c1cab0e1851f159ef6b609440fd360d5632
   extra-dep: true
 - location:
     git: https://github.com/phadej/time-parsers.git
@@ -182,12 +182,3 @@ extra-deps:
 flags:
   time-locale-compat:
     old-locale: false
-compiler-check: match-exact
-setup-info:
-  ghc:
-    linux64:
-      8.0.0.20160421:
-        url: https://downloads.haskell.org/~ghc/8.0.1-rc4/ghc-8.0.0.20160421-x86_64-unknown-linux.tar.xz
-    macosx:
-      8.0.0.20160421:
-        url: https://downloads.haskell.org/~ghc/8.0.1-rc4/ghc-8.0.0.20160421-x86_64-apple-darwin.tar.xz
