@@ -12,6 +12,7 @@ module Futurice.Prelude (
     IntSet,
     Map,
     Natural,
+    NominalDiffTime,
     Proxy(..),
     Set,
     Tagged, untag,
@@ -120,7 +121,7 @@ import Data.String              (IsString (..))
 import Data.Tagged              (Tagged, untag)
 import Data.Text                (Text)
 import Data.Text.Lens           (packed)
-import Data.Time                (UTCTime, Day)
+import Data.Time                (UTCTime, Day, NominalDiffTime)
 import Data.Typeable            (Typeable)
 import Data.Vector              (Vector)
 import Data.Word
