@@ -36,6 +36,14 @@ module Futurice.Prelude (
     MonadError(..),
     MonadThrow(..),
     MonadCatch(..),
+    MonadLogger,
+    -- * monad-logger
+    logDebug,
+    logInfo,
+    logWarn,
+    logError,
+    runStderrLoggingT,
+    runNoLoggingT,
     -- * generics-sop
     deriveGeneric,
     -- * composition-extra
@@ -87,6 +95,7 @@ import Control.Exception        (evaluate)
 import Control.Monad.Compat     (void, join, forever, foldM)
 import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..), SomeException(..))
 import Control.Monad.IO.Class   (MonadIO (..))
+import Control.Monad.Logger     (MonadLogger, logDebug, logInfo, logWarn, logError, runStderrLoggingT, runNoLoggingT)
 import Data.Binary              (Binary)
 import Data.Foldable            (toList, traverse_, fold)
 import Data.Functor.Syntax      ((<$$>))
