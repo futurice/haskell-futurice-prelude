@@ -50,6 +50,8 @@ module Futurice.Prelude (
     (<$$>),
     -- * alternative
     Alternative(..), optional,
+    -- * bifunctors
+    first, second,
     -- * deepseq
     ($!!),
     -- * exception
@@ -63,6 +65,7 @@ module Futurice.Prelude (
     fold,
     toList,
     traverse_,
+    for_,
     -- * monad
     void, join, forever, iterateM, foldM,
     -- * function
@@ -97,7 +100,8 @@ import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..), So
 import Control.Monad.IO.Class   (MonadIO (..))
 import Control.Monad.Logger     (MonadLogger, logDebug, logInfo, logWarn, logError, runStderrLoggingT, runNoLoggingT)
 import Data.Binary              (Binary)
-import Data.Foldable            (toList, traverse_, fold)
+import Data.Bifunctor           (first, second)
+import Data.Foldable            (toList, traverse_, fold, for_)
 import Data.Functor.Syntax      ((<$$>))
 import Data.Hashable            (Hashable (..))
 import Data.HashMap.Strict      (HashMap)

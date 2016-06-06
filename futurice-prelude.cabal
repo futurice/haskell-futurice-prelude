@@ -43,6 +43,7 @@ library
     , async
     , base-compat           ==0.9.1
     , base-orphans          ==0.5.4
+    , bifunctors
     , binary
     , binary-orphans
     , binary-tagged
