@@ -47,14 +47,16 @@ module Futurice.Prelude (
     -- * exception
     SomeException(..),
     evaluate,
+    tryDeep,
     -- * maybe
     fromMaybe,
     readMaybe,
     -- * foldable
+    fold,
     toList,
     traverse_,
     -- * monad
-    void, join,
+    void, join, forever, iterateM, foldM,
     -- * function
     on, (&),
     -- * lens
@@ -70,21 +72,23 @@ module Futurice.Prelude (
     shuffleM,
     -- * Extras
     type (:$),
+    textShow,
     ) where
 
 import Prelude        ()
 import Prelude.Compat
 
+import Control.Concurrent.Async (withAsync, waitCatch)
 import Control.Applicative      (Alternative(..), optional)
 import Control.Lens             ((^.), (.~), (?~), Lens', lens, from, makeLenses, makePrisms, strict, lazy, view, (&))
 import Control.DeepSeq          (NFData (..), ($!!))
 import Control.DeepSeq.Generics (genericRnf)
 import Control.Exception        (evaluate)
-import Control.Monad            (void, join)
+import Control.Monad.Compat     (void, join, forever, foldM)
 import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..), SomeException(..))
 import Control.Monad.IO.Class   (MonadIO (..))
 import Data.Binary              (Binary)
-import Data.Foldable            (toList, traverse_)
+import Data.Foldable            (toList, traverse_, fold)
 import Data.Functor.Syntax      ((<$$>))
 import Data.Hashable            (Hashable (..))
 import Data.HashMap.Strict      (HashMap)
@@ -135,9 +139,28 @@ import Data.Vector.Instances             ()
 import Futurice.Prelude.Internal.Orphans ()
 import Test.QuickCheck.Instances         ()
 
--- Own extras
-
-infixr 0 :$
+-------------------------------------------------------------------------------
+-- Our additions
+-------------------------------------------------------------------------------
 
 -- | Type level '$'
 type (:$) (f :: k -> l) (x :: k) = f x
+infixr 0 :$
+
+-- | Iterative version of 'forever'.
+iterateM :: Monad m => (a -> m a) -> a -> m b
+iterateM f = go
+  where
+    go x = f x >>= go
+
+-- | @pack . show@.
+textShow :: Show a => a -> Text
+textShow = view packed . show
+
+-- | Perform @IO@ action on background thread.
+--
+-- See <https://www.schoolofhaskell.com/user/snoyberg/general-haskell/exceptions/catching-all-exceptions>
+tryDeep :: NFData a => IO a -> IO (Either SomeException a)
+tryDeep action = flip withAsync waitCatch $ do
+    x <- action
+    evaluate $!! x

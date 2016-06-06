@@ -6,20 +6,20 @@ packages:
     commit: f1fff116f277ffb733e6b6e281c3e7a1912e82d9
   extra-dep: true
 - location:
+    git: https://github.com/ekmett/recursion-schemes.git
+    commit: 129df9bb5c5630781ba0c2dd6def698fce0f44df
+  extra-dep: true
+- location:
     git: https://github.com/ekmett/reducers.git
     commit: 0e610b18eb48952cc62423eee094d86c952844b4
   extra-dep: true
 - location:
     git: https://github.com/phadej/aeson-extra.git
-    commit: 4bdbb561adfa6220a6a296eede31efa4fe5473ff
+    commit: b2a191aec365abf4891285a8e03a308a9c9a64b2
   extra-dep: true
 - location:
     git: https://github.com/phadej/github.git
     commit: 4dd62be8c5d380cc8f260cddb1510ac73f409663
-  extra-dep: true
-- location:
-    git: https://github.com/phadej/recursion-schemes.git
-    commit: c1e48c1cab0e1851f159ef6b609440fd360d5632
   extra-dep: true
 - location:
     git: https://github.com/phadej/time-parsers.git

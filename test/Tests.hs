@@ -36,7 +36,7 @@ instance Arbitrary T where
 instance Csv.DefaultOrdered T where headerOrder = sopHeaderOrder
 instance Csv.FromRecord T where parseRecord = sopParseRecord
 instance Csv.ToNamedRecord T where toNamedRecord = sopToNamedRecord
-instance Aeson.FromJSON T where parseJSON = sopParseJSON 
+instance Aeson.FromJSON T where parseJSON = sopParseJSON
 instance Aeson.ToJSON T where toJSON = sopToJSON
 
 main :: IO ()
@@ -44,11 +44,12 @@ main = defaultMain $ testGroup "Tests"
     [ tests
     , hasTests
     , reflectionTests
+    , tryDeepTests
     ]
 
 tests :: TestTree
 tests = testGroup "Futurice.Generics"
-    [ testCase "Arbitrary.shrink" $ 
+    [ testCase "Arbitrary.shrink" $
         length (shrink $ T 2 'a' "foo") > 0 @?= True
     , testCase "DefaultOrdered" $
         Csv.headerOrder (undefined :: T) @?= V.fromList ["int", "char", "text"]
@@ -67,3 +68,18 @@ cassavaRoundtripT t = lhs === rhs
   where
     lhs = Csv.decode Csv.HasHeader (Csv.encodeDefaultOrderedByName t)
     rhs = Right (V.fromList t)
+
+tryDeepTests :: TestTree
+tryDeepTests = testGroup "tryDeep"
+    [ testCase "Shallow" $ do
+        x <- fmap toMaybe $ tryDeep $ error "Error" :: IO (Maybe [Int])
+        x @?= Nothing
+    , testCase "Deep" $ do
+        x <- fmap toMaybe $ tryDeep $ return [ error "Error" ] :: IO (Maybe [Int])
+        x @?= Nothing
+    , testCase "Works" $ do
+        x <- fmap toMaybe $ tryDeep $ return [ 1 ] :: IO (Maybe [Int])
+        x @?= Just [ 1 ]
+    ]
+  where
+    toMaybe = either (const Nothing) Just
