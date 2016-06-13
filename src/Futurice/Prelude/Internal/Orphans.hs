@@ -25,12 +25,13 @@ import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom   (CRandT (..))
 import Control.Monad.Logger         (MonadLogger (..))
 import Control.Monad.Trans.Class    (lift)
-import Data.Aeson.Compat            (Value (..))
+import Data.Aeson.Compat            (FromJSON (..), ToJSON (..), Value (..))
 import Data.Aeson.Extra             (M (..), ToJSONKey (..))
 import Data.Binary                  (Binary (..))
 import Data.Binary.Orphans          ()
 import Data.Binary.Tagged           (HasSemanticVersion, HasStructuralInfo)
 import Data.Foldable                (toList)
+import Data.Functor.Compose         (Compose (..))
 import Data.Hashable                (Hashable (..))
 import Data.Map                     (Map)
 import Data.Proxy                   (Proxy (..))
@@ -162,6 +163,19 @@ instance ToJSONKey Day where
 
 instance ToSchema v => ToSchema (M (Map k v)) where
     declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy (Map String v))
+
+instance ToSchema (f (g a)) => ToSchema (Compose f g a) where
+    declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy (f (g a)))
+
+-------------------------------------------------------------------------------
+-- aeson
+-------------------------------------------------------------------------------
+
+instance ToJSON (f (g a)) => ToJSON (Compose f g a) where
+    toJSON = toJSON . getCompose
+
+instance FromJSON (f (g a)) => FromJSON (Compose f g a) where
+    parseJSON = fmap Compose . parseJSON
 
 -------------------------------------------------------------------------------
 -- Binary
