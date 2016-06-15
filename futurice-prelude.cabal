@@ -81,6 +81,7 @@ library
     , swagger2              >= 2.0.2
     , tagged
     , text
+    , these
     , time
     , time-parsers
     , transformers

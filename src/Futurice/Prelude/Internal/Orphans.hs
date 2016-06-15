@@ -21,12 +21,13 @@ import Prelude.Compat
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.Lens                 ((^.))
-import Control.Monad.Reader         (MonadReader(..))
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom   (CRandT (..))
 import Control.Monad.Logger         (MonadLogger (..))
+import Control.Monad.Reader         (MonadReader (..))
 import Control.Monad.Trans.Class    (lift)
-import Data.Aeson.Compat            (FromJSON (..), ToJSON (..), Value (..))
+import Data.Aeson.Compat            (FromJSON (..), ToJSON (..), Value (..),
+                                     object, (.=))
 import Data.Aeson.Extra             (M (..), ToJSONKey (..))
 import Data.Binary                  (Binary (..))
 import Data.Binary.Orphans          ()
@@ -40,12 +41,13 @@ import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
 import Data.Text.Lens               (packed)
+import Data.These                   (These (..))
 import Data.Time                    (Day)
 import Data.Time.Parsers            (day)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
 import Generics.SOP                 (I (..))
-import Lucid.Base                   (HtmlT(..))
+import Lucid.Base                   (HtmlT (..))
 import Numeric.Interval             (Interval)
 import Text.Parsec                  (parse)
 import Text.Parsec.String           ()
@@ -185,6 +187,12 @@ instance ToJSON (f (g a)) => ToJSON (Compose f g a) where
 
 instance FromJSON (f (g a)) => FromJSON (Compose f g a) where
     parseJSON = fmap Compose . parseJSON
+
+-- | See <https://github.com/bos/aeson/issues/432>
+instance (ToJSON a, ToJSON b) => ToJSON (These a b) where
+    toJSON (This a)    = object [ "This" .= a ]
+    toJSON (That b)    = object [ "That" .= b ]
+    toJSON (These a b) = object [ "This" .= a, "That" .= b ]
 
 -------------------------------------------------------------------------------
 -- Binary
