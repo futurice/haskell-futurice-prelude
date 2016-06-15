@@ -3,11 +3,16 @@
 --
 -- Adopted rom "Data.Vinyl.TypeLevel" from @vinyl@-package.
 module Futurice.Peano (
+    -- * Peano numbers
     Peano(..),
     SPeano(..),
     SPeanoI(..),
+    -- * Functions
     Index,
     Image,
+    PAdd,
+    -- * Type aliases
+    PZero, POne, PTwo, PThree, PFour, PFive,
     ) where
 
 import Data.Proxy (Proxy (..))
@@ -36,3 +41,18 @@ type family Index (x :: k) (xs :: [k]) :: Peano where
 type family Image xs ys :: [Peano] where
     Image '[]       ys = '[]
     Image (x ': xs) ys = Index x ys ': Image xs ys
+
+type family PAdd (n :: Peano) (m :: Peano) :: Peano where
+    PAdd 'PZ     m = m
+    PAdd ('PS n) m = 'PS (PAdd n m)
+
+-------------------------------------------------------------------------------
+-- aliases
+-------------------------------------------------------------------------------
+
+type PZero   = 'PZ
+type POne    = 'PS PZero
+type PTwo    = 'PS POne
+type PThree  = 'PS PTwo
+type PFour   = 'PS PThree
+type PFive   = 'PS PFour
