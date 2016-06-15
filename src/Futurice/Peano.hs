@@ -6,16 +6,15 @@ module Futurice.Peano (
     -- * Peano numbers
     Peano(..),
     SPeano(..),
+    sPeanoToInteger,
     SPeanoI(..),
-    -- * Functions
+    -- * Type-Functions
     Index,
     Image,
     PAdd,
     -- * Type aliases
     PZero, POne, PTwo, PThree, PFour, PFive,
     ) where
-
-import Data.Proxy (Proxy (..))
 
 -- | Peano natural numbers. Better then 'Nat' for type-level usage.
 data Peano = PZ | PS Peano
@@ -25,12 +24,16 @@ data SPeano (p :: Peano) where
     SPZ :: SPeano 'PZ
     SPS :: SPeano p -> SPeano ('PS p)
 
+sPeanoToInteger :: SPeano p -> Integer
+sPeanoToInteger SPZ     = 0
+sPeanoToInteger (SPS n) = 1 + sPeanoToInteger n
+
 -- | Convenience class to get 'SPeano'.
 class SPeanoI p where
-    singPeano :: Proxy p -> SPeano p
-instance SPeanoI 'PZ where singPeano _ = SPZ
+    singPeano :: SPeano p
+instance SPeanoI 'PZ where singPeano = SPZ
 instance SPeanoI p => SPeanoI ('PS p) where
-    singPeano _ = SPS $ singPeano Proxy 
+    singPeano = SPS singPeano
 
 -- | A partial relation that gives the index of a value in a list.
 type family Index (x :: k) (xs :: [k]) :: Peano where
