@@ -37,6 +37,7 @@ module Futurice.Prelude (
     MonadError(..),
     MonadThrow(..),
     MonadCatch(..),
+    MonadReader(..),
     MonadLogger,
     -- * monad-logger
     logDebug,
@@ -99,6 +100,7 @@ import Control.Exception        (evaluate)
 import Control.Monad.Compat     (void, join, forever, foldM)
 import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..), SomeException(..))
 import Control.Monad.IO.Class   (MonadIO (..))
+import Control.Monad.Reader     (MonadReader(..))
 import Control.Monad.Logger     (MonadLogger, logDebug, logInfo, logWarn, logError, runStderrLoggingT, runNoLoggingT)
 import Data.Binary              (Binary)
 import Data.Bifunctor           (first, second)

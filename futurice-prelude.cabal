@@ -65,7 +65,7 @@ library
     , intervals
     , JuicyPixels
     , lens
-    , lucid
+    , lucid == 2.9.5
     , monad-logger
     , monad-time
     , monadcryptorandom     >=0.7.0   && <=0.7.1

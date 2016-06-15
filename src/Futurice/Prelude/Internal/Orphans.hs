@@ -21,6 +21,7 @@ import Prelude.Compat
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.Lens                 ((^.))
+import Control.Monad.Reader         (MonadReader(..))
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom   (CRandT (..))
 import Control.Monad.Logger         (MonadLogger (..))
@@ -44,7 +45,7 @@ import Data.Time.Parsers            (day)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
 import Generics.SOP                 (I (..))
-import Lucid                        (HtmlT)
+import Lucid.Base                   (HtmlT(..))
 import Numeric.Interval             (Interval)
 import Text.Parsec                  (parse)
 import Text.Parsec.String           ()
@@ -110,13 +111,21 @@ deriving instance Typeable Identity
 #endif
 
 deriving instance Typeable Image
-deriving instance Typeable HtmlT
 deriving instance Typeable PixelRGBA8
 
 -- | Defined in 'Futurice.Prelude'.
 --
 -- <https://https://github.com/Twinside/Juicy.Pixels/pull/126>
 deriving instance Typeable DynamicImage
+
+-------------------------------------------------------------------------------
+-- lucid
+-------------------------------------------------------------------------------
+
+-- | See <https://github.com/chrisdone/lucid/pull/53>
+instance MonadReader r m => MonadReader r (HtmlT m) where
+    ask = lift ask
+    local f (HtmlT x) = HtmlT (local f x)
 
 -------------------------------------------------------------------------------
 -- ansi-pretty instances
