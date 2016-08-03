@@ -69,7 +69,7 @@ library:
     - swagger2              >= 2.0.2
     - tagged
     - text
-    - these
+    - these >= 0.7.1
     - time
     - time-parsers
     - transformers
