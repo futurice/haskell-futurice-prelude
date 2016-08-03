@@ -17,5 +17,6 @@ extra-deps:
 - ansi-pretty-0.1.2.0
 - generics-sop-lens-0.1.1.0
 - parsers-0.12.4
+- these-0.7.1
 - time-parsers-0.1.0.0
 flags: {}
