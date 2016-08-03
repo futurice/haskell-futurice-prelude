@@ -91,6 +91,7 @@ library
     , vector-instances
   exposed-modules:
       Futurice.Constraint.ForallSymbol
+      Futurice.Constraint.Unit1
       Futurice.Generics
       Futurice.Has
       Futurice.Peano
