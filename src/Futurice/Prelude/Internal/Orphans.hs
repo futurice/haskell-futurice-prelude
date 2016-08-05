@@ -192,6 +192,9 @@ instance ToSchema (GH.Name a) where
 
 instance ToSchema GH.Language
 
+instance ToSchema DynamicImage where
+    declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
+
 -------------------------------------------------------------------------------
 -- aeson
 -------------------------------------------------------------------------------
