@@ -125,7 +125,7 @@ deriving instance Typeable PixelRGBA8
 
 -- | Defined in 'Futurice.Prelude'.
 --
--- <https://https://github.com/Twinside/Juicy.Pixels/pull/126>
+-- <https://github.com/Twinside/Juicy.Pixels/pull/126>
 deriving instance Typeable DynamicImage
 
 -------------------------------------------------------------------------------
@@ -172,6 +172,7 @@ instance Csv.ToField (M a) where
 -- Swagger schemas
 -------------------------------------------------------------------------------
 
+-- | /TODO:/ this is partly incorrect instance
 instance ToSchema Value where
     declareNamedSchema _ = pure $ NamedSchema (Just "JSON Value") s
       where
@@ -185,6 +186,11 @@ instance ToSchema v => ToSchema (M (Map k v)) where
 
 instance ToSchema (f (g a)) => ToSchema (Compose f g a) where
     declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy (f (g a)))
+
+instance ToSchema (GH.Name a) where
+    declareNamedSchema _ = pure $ NamedSchema (Just "Github name") mempty
+
+instance ToSchema GH.Language
 
 -------------------------------------------------------------------------------
 -- aeson
