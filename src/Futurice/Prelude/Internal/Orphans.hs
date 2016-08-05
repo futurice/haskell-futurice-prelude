@@ -48,13 +48,15 @@ import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
 import Generics.SOP                 (I (..))
 import Lucid.Base                   (HtmlT (..))
-import Numeric.Interval             (Interval, sup, inf)
+import Numeric.Interval             (Interval, inf, sup)
 import Text.Parsec                  (parse)
 import Text.Parsec.String ()
 import Text.PrettyPrint.ANSI.Leijen (Doc)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
+import qualified Data.ByteString                      as BS
+import qualified Data.ByteString.Lazy                 as LBS
 import qualified Data.CaseInsensitive                 as CI
 import qualified Data.Csv                             as Csv
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
@@ -194,6 +196,15 @@ instance ToSchema GH.Language
 
 instance ToSchema DynamicImage where
     declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
+
+instance ToSchema (Image a) where
+    declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
+
+instance ToSchema BS.ByteString where
+    declareNamedSchema _ = pure $ NamedSchema (Just "Strict ByteString") mempty
+
+instance ToSchema LBS.ByteString where
+    declareNamedSchema _ = pure $ NamedSchema (Just "Lazy ByteString") mempty
 
 -------------------------------------------------------------------------------
 -- aeson
