@@ -2,16 +2,23 @@
 -- | "Generics.SOP" derivation for record types (i.e. products).
 module Futurice.Generics (
     -- * QuickCheck
+    QC.Arbitrary(..),
     sopArbitrary,
     sopShrink,
     -- * Cassava
+    Csv.ToNamedRecord(..),
     sopToNamedRecord,
+    Csv.DefaultOrdered(..),
     sopHeaderOrder,
+    Csv.FromRecord(..),
     sopParseRecord,
     -- * Aeson
+    Aeson.ToJSON(..),
+    Aeson.FromJSON(..),
     sopToJSON,
     sopParseJSON,
     -- * Swagger
+    Swagger.ToSchema(..),
     sopDeclareNamedSchema,
     ) where
 
