@@ -15,7 +15,7 @@ module Futurice.Prelude (
     NominalDiffTime,
     Proxy(..),
     Set,
-    Tagged, untag,
+    Tagged (..), untag,
     Text,
     UTCTime,
     Vector,
@@ -120,7 +120,7 @@ import Data.Proxy               (Proxy (..))
 import Data.Semigroup           (Semigroup (..))
 import Data.Set                 (Set)
 import Data.String              (IsString (..))
-import Data.Tagged              (Tagged, untag)
+import Data.Tagged              (Tagged (..), untag)
 import Data.Text                (Text)
 import Data.Text.Lens           (packed)
 import Data.Time                (UTCTime, Day, NominalDiffTime)
