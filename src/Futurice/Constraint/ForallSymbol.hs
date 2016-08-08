@@ -9,7 +9,6 @@ module Futurice.Constraint.ForallSymbol (
     ) where
 
 import Data.Constraint (Constraint, Dict (..))
-import Data.Proxy      (Proxy (..))
 import GHC.TypeLits    (KnownSymbol, Symbol)
 
 -- | 'ForallF' from "Data.Constraint.Forall", where f is @'Symbol' -> *@.
