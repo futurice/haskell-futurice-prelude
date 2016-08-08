@@ -11,4 +11,4 @@ import Futurice.Constraint.ForallSymbol
 class Unit1 a
 instance Unit1 a
 instance ForallFSymbol Unit1 b where
-    instFSymbol _ _ _ = Dict
+    instFSymbol = Dict
