@@ -38,6 +38,7 @@ module Futurice.Prelude (
     MonadThrow(..),
     MonadCatch(..),
     MonadReader(..),
+    MonadTrans(..),
     MonadLogger,
     -- * monad-logger
     logDebug,
@@ -60,27 +61,35 @@ module Futurice.Prelude (
     SomeException(..),
     evaluate,
     tryDeep,
-    -- * maybe
+    -- * Maybe
     fromMaybe,
     readMaybe,
-    -- * foldable
+    -- * Foldable
     fold,
     toList,
     traverse_,
     for_,
-    -- * monad
-    void, join, forever, iterateM, foldM,
-    -- * function
+    -- ** Indexed
+    itoList,
+    -- * Monad
+    void, join, forever, iterateM, foldM, guard, when,
+    -- * Function
     on, (&),
-    -- * lens
+    -- * Lens
     Lens', lens,
-    (^.), view,
+    -- ** Operators
+    (^.), (^..), view,
     (.~), (?~),
     from,
+    -- ** Misc
     packed,
     strict, lazy,
+    -- ** Common optics
+    _Just, _Nothing, _Left, _Right,
+    _1, _2,
+    -- ** TH
     makeLenses, makePrisms,
-    -- * list
+    -- * List
     sort, sortBy, nub,
     shuffleM,
     -- * Extras
@@ -88,50 +97,56 @@ module Futurice.Prelude (
     textShow,
     ) where
 
-import Prelude        ()
+import Prelude ()
 import Prelude.Compat
 
-import Control.Concurrent.Async (withAsync, waitCatch)
-import Control.Applicative      (Alternative(..), optional)
-import Control.Lens             ((^.), (.~), (?~), Lens', lens, from, makeLenses, makePrisms, strict, lazy, view, (&))
-import Control.DeepSeq          (NFData (..), ($!!))
-import Control.DeepSeq.Generics (genericRnf)
-import Control.Exception        (evaluate)
-import Control.Monad.Compat     (void, join, forever, foldM)
-import Control.Monad.Catch      (Exception, MonadCatch (..), MonadThrow (..), SomeException(..))
-import Control.Monad.IO.Class   (MonadIO (..))
-import Control.Monad.Reader     (MonadReader(..))
-import Control.Monad.Logger     (MonadLogger, logDebug, logInfo, logWarn, logError, runStderrLoggingT, runNoLoggingT)
-import Data.Binary              (Binary)
-import Data.Bifunctor           (first, second)
-import Data.Foldable            (toList, traverse_, fold, for_)
-import Data.Functor.Syntax      ((<$$>))
-import Data.Hashable            (Hashable (..))
-import Data.HashMap.Strict      (HashMap)
-import Data.HashSet             (HashSet)
+import Control.Applicative       (Alternative (..), optional)
+import Control.Concurrent.Async  (waitCatch, withAsync)
+import Control.DeepSeq           (NFData (..), ($!!))
+import Control.DeepSeq.Generics  (genericRnf)
+import Control.Exception         (evaluate)
+import Control.Lens
+       (Lens', from, itoList, lazy, lens, makeLenses, makePrisms, strict, view,
+       (&), (.~), (?~), (^.), (^..), _1, _2, _Just, _Left, _Nothing, _Right)
+import Control.Monad.Catch
+       (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
+import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
+import Control.Monad.IO.Class    (MonadIO (..))
+import Control.Monad.Logger
+       (MonadLogger, logDebug, logError, logInfo, logWarn, runNoLoggingT,
+       runStderrLoggingT)
+import Control.Monad.Reader      (MonadReader (..))
+import Control.Monad.Trans.Class (MonadTrans (..))
+import Data.Bifunctor            (first, second)
+import Data.Binary               (Binary)
+import Data.Foldable             (fold, for_, toList, traverse_)
+import Data.Function             (on)
+import Data.Functor.Syntax       ((<$$>))
+import Data.Hashable             (Hashable (..))
+import Data.HashMap.Strict       (HashMap)
+import Data.HashSet              (HashSet)
 import Data.Int
-import Data.IntMap.Strict       (IntMap)
-import Data.IntSet              (IntSet)
-import Data.Function            (on)
-import Data.List                (sort, sortBy, nub)
-import Data.Map.Strict          (Map)
-import Data.Maybe               (fromMaybe)
-import Data.Proxy               (Proxy (..))
-import Data.Semigroup           (Semigroup (..))
-import Data.Set                 (Set)
-import Data.String              (IsString (..))
-import Data.Tagged              (Tagged (..), untag)
-import Data.Text                (Text)
-import Data.Text.Lens           (packed)
-import Data.Time                (UTCTime, Day, NominalDiffTime)
-import Data.Typeable            (Typeable)
-import Data.Vector              (Vector)
+import Data.IntMap.Strict        (IntMap)
+import Data.IntSet               (IntSet)
+import Data.List                 (nub, sort, sortBy)
+import Data.Map.Strict           (Map)
+import Data.Maybe                (fromMaybe)
+import Data.Proxy                (Proxy (..))
+import Data.Semigroup            (Semigroup (..))
+import Data.Set                  (Set)
+import Data.String               (IsString (..))
+import Data.Tagged               (Tagged (..), untag)
+import Data.Text                 (Text)
+import Data.Text.Lens            (packed)
+import Data.Time                 (Day, NominalDiffTime, UTCTime)
+import Data.Typeable             (Typeable)
+import Data.Vector               (Vector)
 import Data.Word
-import Generics.SOP.TH          (deriveGeneric)
-import GHC.Generics             (Generic)
-import Numeric.Natural          (Natural)
-import System.Random.Shuffle    (shuffleM)
-import Text.Read                (readMaybe)
+import Generics.SOP.TH           (deriveGeneric)
+import GHC.Generics              (Generic)
+import Numeric.Natural           (Natural)
+import System.Random.Shuffle     (shuffleM)
+import Text.Read                 (readMaybe)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
@@ -148,12 +163,12 @@ import Control.Monad.Time.Instances ()
 #endif
 
 -- Orphans
-import Data.Binary.Orphans               ()
-import Data.Hashable.Time                ()
-import Data.Orphans                      ()
-import Data.Vector.Instances             ()
+import Data.Binary.Orphans ()
+import Data.Hashable.Time ()
+import Data.Orphans ()
+import Data.Vector.Instances ()
 import Futurice.Prelude.Internal.Orphans ()
-import Test.QuickCheck.Instances         ()
+import Test.QuickCheck.Instances ()
 
 -------------------------------------------------------------------------------
 -- Our additions
