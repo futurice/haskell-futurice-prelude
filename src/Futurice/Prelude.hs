@@ -71,7 +71,7 @@ module Futurice.Prelude (
     -- ** Indexed
     itoList,
     -- * Monad
-    void, join, forever, iterateM, foldM,
+    void, join, forever, iterateM, foldM, guard, when,
     -- * Function
     on, (&),
     -- * Lens
@@ -109,7 +109,7 @@ import Control.Lens
        (&), (.~), (?~), (^.), (^..), _1, _2, _Just, _Left, _Nothing, _Right)
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
-import Control.Monad.Compat     (foldM, forever, join, void)
+import Control.Monad.Compat     (foldM, forever, join, void, guard, when)
 import Control.Monad.IO.Class   (MonadIO (..))
 import Control.Monad.Logger
        (MonadLogger, logDebug, logError, logInfo, logWarn, runNoLoggingT,
