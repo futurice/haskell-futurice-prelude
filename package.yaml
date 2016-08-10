@@ -33,7 +33,7 @@ library:
     - base-orphans          ==0.5.4
     - bifunctors
     - binary
-    - binary-orphans
+    - binary-orphans        >=0.1.5.1
     - binary-tagged
     - bytestring
     - cassava

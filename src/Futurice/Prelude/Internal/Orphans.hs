@@ -57,7 +57,6 @@ import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
 import qualified Data.ByteString                      as BS
 import qualified Data.ByteString.Lazy                 as LBS
-import qualified Data.CaseInsensitive                 as CI
 import qualified Data.Csv                             as Csv
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
@@ -255,10 +254,6 @@ instance Binary (GH.StatusMap a) where
     get = undefined
     put GH.StatusOnlyOk = put (0 :: Int)
     put GH.StatusMerge  = put (1 :: Int)
-
-instance (CI.FoldCase a, Binary a) => Binary (CI.CI a) where
-    get = CI.mk <$> get
-    put = put . CI.original
 
 -------------------------------------------------------------------------------
 -- binary-tagged

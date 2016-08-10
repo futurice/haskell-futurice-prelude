@@ -1,0 +1,8 @@
+resolver: lts-6.10
+packages:
+- '.'
+extra-deps:
+- ansi-pretty-0.1.2.0
+- generics-sop-lens-0.1.2.0
+- these-0.7.1
+flags: {}
