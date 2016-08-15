@@ -50,7 +50,7 @@ main = defaultMain $ testGroup "Tests"
 tests :: TestTree
 tests = testGroup "Futurice.Generics"
     [ testCase "Arbitrary.shrink" $
-        length (shrink $ T 2 'a' "foo") > 0 @?= True
+        length (shrink $ T 2 'b' "foo") > 0 @?= True
     , testCase "DefaultOrdered" $
         Csv.headerOrder (undefined :: T) @?= V.fromList ["int", "char", "text"]
     , testProperty "FromJSON . ToJSON" aesonRoundtripT
