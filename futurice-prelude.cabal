@@ -78,15 +78,16 @@ library
     , quickcheck-instances
     , random-shuffle
     , semigroups
-    , swagger2              >= 2.0.2
+    , swagger2              >=2.0.2
     , tagged
     , text
-    , these >= 0.7.1
+    , these                 >=0.7.1 && <0.8
     , time
     , time-parsers
     , transformers
     , transformers-compat
     , unordered-containers
+    , uuid                  >=1.3.12 && <1.4
     , vector
     , vector-instances
   exposed-modules:

@@ -18,6 +18,7 @@ module Futurice.Prelude (
     Tagged (..), untag,
     Text,
     UTCTime,
+    UUID,
     Vector,
     module Data.Int,
     module Data.Word,
@@ -81,14 +82,16 @@ module Futurice.Prelude (
     (^.), (^..), view,
     (.~), (?~),
     from,
-    -- ** Misc
+    -- ** Text related
     packed,
     strict, lazy,
+    -- ** _Empty
+    isn't, _Empty,
     -- ** Common optics
     _Just, _Nothing, _Left, _Right,
     _1, _2,
     -- ** TH
-    makeLenses, makePrisms,
+    makeLenses, makePrisms, makeWrapped,
     -- * List
     sort, sortBy, nub,
     shuffleM,
@@ -106,8 +109,9 @@ import Control.DeepSeq           (NFData (..), ($!!))
 import Control.DeepSeq.Generics  (genericRnf)
 import Control.Exception         (evaluate)
 import Control.Lens
-       (Lens', from, itoList, lazy, lens, makeLenses, makePrisms, strict, view,
-       (&), (.~), (?~), (^.), (^..), _1, _2, _Just, _Left, _Nothing, _Right)
+       (Lens', from, isn't, itoList, lazy, lens, makeLenses, makePrisms,
+       makeWrapped, strict, view, (&), (.~), (?~), (^.), (^..), _1, _2, _Empty,
+       _Just, _Left, _Nothing, _Right)
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
@@ -140,6 +144,7 @@ import Data.Text                 (Text)
 import Data.Text.Lens            (packed)
 import Data.Time                 (Day, NominalDiffTime, UTCTime)
 import Data.Typeable             (Typeable)
+import Data.UUID                 (UUID)
 import Data.Vector               (Vector)
 import Data.Word
 import Generics.SOP.TH           (deriveGeneric)
