@@ -1,4 +1,9 @@
-{-# LANGUAGE CPP, DataKinds, FlexibleContexts, TypeFamilies, ScopedTypeVariables, RankNTypes #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
 -- | "Generics.SOP" derivation for record types (i.e. products).
 module Futurice.Generics (
     -- * QuickCheck
@@ -23,7 +28,7 @@ module Futurice.Generics (
     ) where
 
 import Futurice.Prelude hiding (Generic, from)
-import Prelude          ()
+import Prelude ()
 
 import Data.ByteString   (ByteString)
 import Data.Char         (toLower)
@@ -36,37 +41,38 @@ import qualified Data.Csv             as Csv
 import qualified Data.Swagger         as Swagger
 import qualified Data.Swagger.Declare as Swagger
 import qualified Data.Vector          as V
-import qualified Test.QuickCheck      as QC
 import qualified GHC.Exts             as Exts
+import qualified Test.QuickCheck      as QC
 
 -------------------------------------------------------------------------------
 -- QuickCheck
 -------------------------------------------------------------------------------
 
+-- | Works for non-recursive structures
 sopArbitrary
-    :: (Generic a, All QC.Arbitrary xs, Code a ~ '[xs])
+    :: (Generic a, All2 QC.Arbitrary (Code a))
     => QC.Gen a
-sopArbitrary = to . SOP . Z <$> sopArbitrary'
-
-sopArbitrary' :: All QC.Arbitrary xs => QC.Gen (NP I xs)
-sopArbitrary' = hsequence $ hcpure (Proxy :: Proxy QC.Arbitrary) QC.arbitrary
-
--- | Works for types isomorphic to some tuple.
-sopShrink
-    :: forall a xs. (Generic a, All QC.Arbitrary xs, Code a ~ '[xs])
-    => a -> [a]
-sopShrink = map (to . SOP . Z) . sopShrink' . unSOPZ . from
+sopArbitrary = to <$> QC.oneof (map hsequence $ apInjs_POP popArbitrary)
   where
-    unSOPZ :: SOP I '[xs] -> NP I xs
-    unSOPZ (SOP (Z xs)) = xs
-    unSOPZ _            = error "unSOPZ: impossible happened!"
+    popArbitrary :: All2 QC.Arbitrary xs => POP QC.Gen xs
+    popArbitrary = hcpure (Proxy :: Proxy QC.Arbitrary) QC.arbitrary
 
-    sopShrink' :: forall ys. All QC.Arbitrary ys => NP I ys -> [NP I ys]
-    sopShrink' Nil = []
-    sopShrink' (I x :* Nil) = map (^. isoI . singletonP) $ QC.shrink x 
-    sopShrink' (I x :* xs)  =
-        [ I x' :* xs  | x'  <- QC.shrink x ] ++
-        [ I x  :* xs' | xs' <- sopShrink' xs ]
+-- | Works for non-recursive structures
+sopShrink
+    :: forall a. (Generic a, All2 QC.Arbitrary (Code a))
+    => a -> [a]
+sopShrink = map (to . SOP) . sopShrink' . unSOP . from
+  where
+    sopShrink'
+      :: forall yss. All2 QC.Arbitrary yss
+      => NS (NP I) yss -> [NS (NP I) yss]
+    sopShrink' (Z x) = map Z (sopShrink'' x)
+    sopShrink' (S x) = map S (sopShrink' x)
+
+    sopShrink'' :: forall ys. All QC.Arbitrary ys => NP I ys -> [NP I ys]
+    sopShrink''
+        = hsequence
+        . hcmap (Proxy :: Proxy QC.Arbitrary) (QC.shrink . unI)
 
 -------------------------------------------------------------------------------
 -- Cassava
