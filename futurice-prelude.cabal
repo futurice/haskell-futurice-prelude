@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.14.0.
+-- This file has been generated from package.yaml by hpack version 0.14.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -59,7 +59,7 @@ library
     , generics-sop          >=0.2.1.0  && <0.3
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
-    , github >=0.14.1
+    , github  >=0.15 && <0.16
     , hashable >=1.2.4
     , hashable-time
     , intervals

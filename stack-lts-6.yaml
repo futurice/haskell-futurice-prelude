@@ -1,8 +1,13 @@
 resolver: lts-6.10
 packages:
 - '.'
+- location:
+    git: https://github.com/phadej/github.git
+    commit: 41f985d575393379954b76977c794d68de9dc6dd
+  extra-dep: true
 extra-deps:
 - ansi-pretty-0.1.2.0
 - generics-sop-lens-0.1.2.0
+- github-0.15.0
 - these-0.7.1
 flags: {}
