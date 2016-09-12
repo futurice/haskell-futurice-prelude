@@ -253,10 +253,8 @@ instance Binary (GH.Request k a) where
         put (2 :: Int) >> put m >> put ps >> put bs
     put (GH.StatusQuery sm r) =
         put (3 :: Int) >> put sm >> put r
-#if MIN_VERSION_github(0,15,0)
     put (GH.HeaderQuery hs r) =
         put (4 :: Int) >> put hs >> put r
-#endif
 
 instance Binary (GH.CommandMethod a) where
     get = undefined
@@ -278,8 +276,10 @@ instance HasStructuralInfo GH.OwnerType
 instance HasStructuralInfo GH.User
 instance HasStructuralInfo (GH.Name a)
 instance HasStructuralInfo (GH.Id a)
+instance HasStructuralInfo GH.URL
 
 instance HasSemanticVersion GH.OwnerType
 instance HasSemanticVersion GH.User
 instance HasSemanticVersion (GH.Name a)
 instance HasSemanticVersion (GH.Id a)
+instance HasSemanticVersion GH.URL

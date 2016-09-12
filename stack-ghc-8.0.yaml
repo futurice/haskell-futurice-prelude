@@ -11,7 +11,7 @@ packages:
   extra-dep: true
 - location:
     git: https://github.com/phadej/github.git
-    commit: 4dd62be8c5d380cc8f260cddb1510ac73f409663
+    commit: 41f985d575393379954b76977c794d68de9dc6dd
   extra-dep: true
 extra-deps:
 - aeson-0.11.2.1
