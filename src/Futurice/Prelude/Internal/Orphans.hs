@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
+{-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -21,7 +22,7 @@ import Prelude.Compat
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
-import Control.Lens                 ((^.))
+import Control.Lens                 ((&), (.~), (^.))
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom   (CRandT (..))
 import Control.Monad.Logger         (MonadLogger (..))
@@ -58,8 +59,10 @@ import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 import qualified Data.ByteString                      as BS
 import qualified Data.ByteString.Lazy                 as LBS
 import qualified Data.Csv                             as Csv
+import qualified Data.Swagger                         as Swagger
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
+import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
 import qualified Numeric.Interval.Kaucher             as Kaucher
@@ -204,6 +207,18 @@ instance ToSchema BS.ByteString where
 
 instance ToSchema LBS.ByteString where
     declareNamedSchema _ = pure $ NamedSchema (Just "Lazy ByteString") mempty
+
+instance ToSchema a => ToSchema (NonEmpty.Interval a) where
+    declareNamedSchema _ = NamedSchema (Just "NonEmpty.Interval") . schema <$> propA
+      where
+        propA = Swagger.declareSchemaRef (Proxy :: Proxy a)
+        schema prop = mempty
+          & Swagger.type_       .~ Swagger.SwaggerObject
+          & Swagger.properties  .~ Exts.fromList
+              [ ("inf", prop)
+              , ("sup", prop)
+              ]
+          & Swagger.required    .~ ["sup", "inf"]
 
 -------------------------------------------------------------------------------
 -- aeson
