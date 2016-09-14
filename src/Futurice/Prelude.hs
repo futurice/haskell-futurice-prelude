@@ -95,6 +95,9 @@ module Futurice.Prelude (
     -- * List
     sort, sortBy, nub,
     shuffleM,
+    -- * Time
+    -- ** TH
+    mkUTCTime, mkDay,
     -- * Extras
     type (:$),
     textShow,
@@ -143,6 +146,7 @@ import Data.Tagged               (Tagged (..), untag)
 import Data.Text                 (Text)
 import Data.Text.Lens            (packed)
 import Data.Time                 (Day, NominalDiffTime, UTCTime)
+import Data.Time.TH              (mkDay, mkUTCTime)
 import Data.Typeable             (Typeable)
 import Data.UUID                 (UUID)
 import Data.Vector               (Vector)

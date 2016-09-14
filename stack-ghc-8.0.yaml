@@ -1,4 +1,4 @@
-resolver: nightly-2016-05-29
+resolver: nightly-2016-09-13
 packages:
 - '.'
 - location:
@@ -7,22 +7,15 @@ packages:
   extra-dep: true
 - location:
     git: https://github.com/phadej/aeson-extra.git
-    commit: b2a191aec365abf4891285a8e03a308a9c9a64b2
+    commit: 2814b349046c364e4768d4cf530493cda1875b8d
   extra-dep: true
 - location:
     git: https://github.com/phadej/github.git
-    commit: 41f985d575393379954b76977c794d68de9dc6dd
+    commit: c479f07c9ffe903e5d8a5a8f89b1d5e59f3944cd
   extra-dep: true
 extra-deps:
-- aeson-0.11.2.1
+- aeson-1.0.0.0
 - ansi-pretty-0.1.2.0
-- bifunctors-5.4.1
-- binary-orphans-0.1.5.1
-- conduit-extra-1.1.13.2
 - generics-sop-lens-0.1.1.0
-- parsers-0.12.4
-- postgresql-simple-0.5.2.1
-- semigroupoids-5.1
-- these-0.7.1
-- time-parsers-0.1.0.0
+- insert-ordered-containers-0.2.0.0
 flags: {}

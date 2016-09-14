@@ -2,8 +2,16 @@ resolver: lts-2.22
 packages:
 - '.'
 - location:
+    git: https://github.com/ekmett/recursion-schemes.git
+    commit: 129df9bb5c5630781ba0c2dd6def698fce0f44df
+  extra-dep: true
+- location:
+    git: https://github.com/phadej/aeson-extra.git
+    commit: 2814b349046c364e4768d4cf530493cda1875b8d
+  extra-dep: true
+- location:
     git: https://github.com/phadej/github.git
-    commit: 41f985d575393379954b76977c794d68de9dc6dd
+    commit: c479f07c9ffe903e5d8a5a8f89b1d5e59f3944cd
   extra-dep: true
 extra-deps:
 - aeson-compat-0.3.3.0

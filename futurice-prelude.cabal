@@ -35,7 +35,7 @@ library
   ghc-options: -Wall
   build-depends:
       base                  >=4.7   && <4.10
-    , aeson
+    , aeson                 >=1.0   && <1.1
     , aeson-compat
     , aeson-extra >=0.3.1
     , ansi-pretty
@@ -59,13 +59,13 @@ library
     , generics-sop          >=0.2.1.0  && <0.3
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
-    , github  >=0.15 && <0.16
-    , hashable >=1.2.4
+    , github                >=0.15 && <0.16
+    , hashable              >=1.2.4
     , hashable-time
     , intervals
     , JuicyPixels
     , lens
-    , lucid == 2.9.5
+    , lucid                 == 2.9.6
     , monad-logger
     , monad-time
     , monadcryptorandom     >=0.7.0   && <=0.7.1
@@ -83,7 +83,7 @@ library
     , text
     , these                 >=0.7.1 && <0.8
     , time
-    , time-parsers
+    , time-parsers          >=0.1.1 && <0.2
     , transformers
     , transformers-compat
     , unordered-containers

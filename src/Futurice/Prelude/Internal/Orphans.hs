@@ -22,7 +22,7 @@ import Prelude.Compat
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
-import Control.Lens                 ((&), (.~), (^.))
+import Control.Lens                 ((&), (.~))
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom   (CRandT (..))
 import Control.Monad.Logger         (MonadLogger (..))
@@ -30,24 +30,25 @@ import Control.Monad.Reader         (MonadReader (..))
 import Control.Monad.Trans.Class    (lift)
 import Data.Aeson.Compat
        (FromJSON (..), ToJSON (..), Value (..), object, withObject, (.:), (.=))
-import Data.Aeson.Extra             (M (..), ToJSONKey (..))
+import Data.Aeson.Types
+       (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
+       ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
+       parseJSON1, toEncoding1, toJSON1)
 import Data.Binary                  (Binary (..))
 import Data.Binary.Orphans ()
 import Data.Binary.Tagged           (HasSemanticVersion, HasStructuralInfo)
 import Data.Foldable                (toList)
 import Data.Functor.Compose         (Compose (..))
 import Data.Hashable                (Hashable (..))
-import Data.Map                     (Map)
 import Data.Proxy                   (Proxy (..))
 import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
-import Data.Text.Lens               (packed)
 import Data.Time                    (Day)
 import Data.Time.Parsers            (day)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
-import Generics.SOP                 (I (..))
+import Generics.SOP                 (I (..), unI)
 import Lucid.Base                   (HtmlT (..))
 import Numeric.Interval             (Interval, inf, sup)
 import Text.Parsec                  (parse)
@@ -169,9 +170,6 @@ instance Csv.FromField Day where
     parseField s = either (fail . show) return $
         parse day "FromField Day" s
 
-instance Csv.ToField (M a) where
-    toField _ = ""
-
 -------------------------------------------------------------------------------
 -- Swagger schemas
 -------------------------------------------------------------------------------
@@ -181,12 +179,6 @@ instance ToSchema Value where
     declareNamedSchema _ = pure $ NamedSchema (Just "JSON Value") s
       where
         s = mempty
-
-instance ToJSONKey Day where
-    toJSONKey a = show a ^. packed
-
-instance ToSchema v => ToSchema (M (Map k v)) where
-    declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy (Map String v))
 
 instance ToSchema (f (g a)) => ToSchema (Compose f g a) where
     declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy (f (g a)))
@@ -224,12 +216,7 @@ instance ToSchema a => ToSchema (NonEmpty.Interval a) where
 -- aeson
 -------------------------------------------------------------------------------
 
-instance ToJSON (f (g a)) => ToJSON (Compose f g a) where
-    toJSON = toJSON . getCompose
-
-instance FromJSON (f (g a)) => FromJSON (Compose f g a) where
-    parseJSON = fmap Compose . parseJSON
-
+-- TODO: ToJSON1 ?
 instance ToJSON a => ToJSON (NonEmpty.Interval a) where
     toJSON i = object [ "inf" .= NonEmpty.inf i, "sup" .= NonEmpty.sup i ]
 
@@ -239,22 +226,80 @@ instance (Ord a, FromJSON a) => FromJSON (NonEmpty.Interval a) where
         <*> obj .: "sup"
 
 -------------------------------------------------------------------------------
+-- aeson + generics-sop
+-------------------------------------------------------------------------------
+
+instance FromJSON1 I where
+    liftParseJSON p _ a = I <$> p a
+    {-# INLINE liftParseJSON #-}
+
+    liftParseJSONList _ p a = fmap I <$> p a
+    {-# INLINE liftParseJSONList #-}
+
+instance (FromJSON a) => FromJSON (I a) where
+    parseJSON = parseJSON1
+    {-# INLINE parseJSON #-}
+
+    parseJSONList = liftParseJSONList parseJSON parseJSONList
+    {-# INLINE parseJSONList #-}
+
+instance (FromJSONKey a) => FromJSONKey (I a) where
+    fromJSONKey = coerceFromJSONKeyFunction (fromJSONKey :: FromJSONKeyFunction a)
+    fromJSONKeyList = coerceFromJSONKeyFunction (fromJSONKeyList :: FromJSONKeyFunction [a])
+
+
+instance ToJSON1 I where
+    liftToJSON t _ (I a) = t a
+    {-# INLINE liftToJSON #-}
+
+    liftToJSONList _ tl xs = tl (map unI xs)
+    {-# INLINE liftToJSONList #-}
+
+    liftToEncoding t _ (I a) = t a
+    {-# INLINE liftToEncoding #-}
+
+    liftToEncodingList _ tl xs = tl (map unI xs)
+    {-# INLINE liftToEncodingList #-}
+
+instance (ToJSON a) => ToJSON (I a) where
+    toJSON = toJSON1
+    {-# INLINE toJSON #-}
+
+    toJSONList = liftToJSONList toJSON toJSONList
+    {-# INLINE toJSONList #-}
+
+    toEncoding = toEncoding1
+    {-# INLINE toEncoding #-}
+
+    toEncodingList = liftToEncodingList toEncoding toEncodingList
+    {-# INLINE toEncodingList #-}
+
+instance (ToJSONKey a) => ToJSONKey (I a) where
+    toJSONKey = contramapToJSONKeyFunction unI toJSONKey
+    toJSONKeyList = contramapToJSONKeyFunction (map unI) toJSONKeyList
+
+-------------------------------------------------------------------------------
 -- Binary
 -------------------------------------------------------------------------------
 
-instance Binary (GH.Request k a) where
+instance Binary a => Binary (GH.Request k a) where
     get = undefined
 
+    put (GH.SimpleQuery r)    =
+        put (0 :: Int) >> put r
+    put (GH.StatusQuery sm r) =
+        put (1 :: Int) >> put sm >> put r
+    put (GH.HeaderQuery hs r) =
+        put (2 :: Int) >> put hs >> put r
+
+instance Binary (GH.SimpleRequest k a) where
+    get = undefined
     put (GH.Query ps qs) =
         put (0 :: Int) >> put ps >> put qs
     put (GH.PagedQuery ps qs c) =
         put (1 :: Int) >> put ps >> put qs >> put c
     put (GH.Command m ps bs) =
         put (2 :: Int) >> put m >> put ps >> put bs
-    put (GH.StatusQuery sm r) =
-        put (3 :: Int) >> put sm >> put r
-    put (GH.HeaderQuery hs r) =
-        put (4 :: Int) >> put hs >> put r
 
 instance Binary (GH.CommandMethod a) where
     get = undefined
@@ -262,11 +307,6 @@ instance Binary (GH.CommandMethod a) where
     put GH.Patch  = put (1 :: Int)
     put GH.Put    = put (2 :: Int)
     put GH.Delete = put (3 :: Int)
-
-instance Binary (GH.StatusMap a) where
-    get = undefined
-    put GH.StatusOnlyOk = put (0 :: Int)
-    put GH.StatusMerge  = put (1 :: Int)
 
 -------------------------------------------------------------------------------
 -- binary-tagged
