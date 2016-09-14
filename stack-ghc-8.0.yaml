@@ -1,4 +1,4 @@
-resolver: nightly-2016-09-13
+resolver: nightly-2016-09-14
 packages:
 - '.'
 - location:
@@ -16,6 +16,5 @@ packages:
 extra-deps:
 - aeson-1.0.0.0
 - ansi-pretty-0.1.2.0
-- generics-sop-lens-0.1.1.0
 - insert-ordered-containers-0.2.0.0
 flags: {}

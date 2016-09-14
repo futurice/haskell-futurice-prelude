@@ -1,11 +1,10 @@
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE PolyKinds          #-}
 {-# LANGUAGE TypeOperators      #-}
 module Futurice.Prelude (
     module Prelude.Compat,
     -- * Types
-    Day,
+    Day (..),
     HashMap,
     HashSet,
     IntMap,
@@ -16,31 +15,36 @@ module Futurice.Prelude (
     Proxy(..),
     Set,
     Tagged (..), untag,
+    These (..),
     Text,
-    UTCTime,
+    UTCTime (..),
     UUID,
     Vector,
     module Data.Int,
     module Data.Word,
     -- * Data Classes
+    Align (..),
+    AlignWithKey (..),
     Binary,
     Generic,
     Hashable(..),
     NFData(..),
-    genericRnf,
     Semigroup(..),
     Typeable,
     IsString(..),
     AnsiPretty,
+    Zip (..),
+    ZipWithKey (..),
     Exception,
     -- * Monad classes
     MonadIO(..),
-    MonadError(..),
-    MonadThrow(..),
     MonadCatch(..),
-    MonadReader(..),
-    MonadTrans(..),
+    MonadError(..),
     MonadLogger,
+    MonadReader(..),
+    MonadThrow(..),
+    MonadTime (..),
+    MonadTrans(..),
     -- * monad-logger
     logDebug,
     logInfo,
@@ -68,10 +72,13 @@ module Futurice.Prelude (
     -- * Foldable
     fold,
     toList,
-    traverse_,
-    for_,
+    traverse_, itraverse_,
+    for_, ifor_,
+    -- * Traversable
+    for,
     -- ** Indexed
     itoList,
+    ifor, itraverse,
     -- * Monad
     void, join, forever, iterateM, foldM, guard, when,
     -- * Function
@@ -104,26 +111,29 @@ module Futurice.Prelude (
     ) where
 
 import Prelude ()
-import Prelude.Compat
+import Prelude.Compat hiding (zip, zipWith)
 
 import Control.Applicative       (Alternative (..), optional)
 import Control.Concurrent.Async  (waitCatch, withAsync)
 import Control.DeepSeq           (NFData (..), ($!!))
-import Control.DeepSeq.Generics  (genericRnf)
 import Control.Exception         (evaluate)
 import Control.Lens
-       (Lens', from, isn't, itoList, lazy, lens, makeLenses, makePrisms,
-       makeWrapped, strict, view, (&), (.~), (?~), (^.), (^..), _1, _2, _Empty,
-       _Just, _Left, _Nothing, _Right)
+       (Lens', from, ifor, ifor_, isn't, itoList, itraverse, itraverse_, lazy,
+       lens, makeLenses, makePrisms, makeWrapped, strict, view, (&), (.~),
+       (?~), (^.), (^..), _1, _2, _Empty, _Just, _Left, _Nothing, _Right)
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
+import Control.Monad.Except      (MonadError (..))
 import Control.Monad.IO.Class    (MonadIO (..))
 import Control.Monad.Logger
        (MonadLogger, logDebug, logError, logInfo, logWarn, runNoLoggingT,
        runStderrLoggingT)
 import Control.Monad.Reader      (MonadReader (..))
+import Control.Monad.Time        (MonadTime (..))
 import Control.Monad.Trans.Class (MonadTrans (..))
+import Data.Align                (Align (..))
+import Data.Align.Key            (AlignWithKey (..))
 import Data.Bifunctor            (first, second)
 import Data.Binary               (Binary)
 import Data.Foldable             (fold, for_, toList, traverse_)
@@ -135,6 +145,7 @@ import Data.HashSet              (HashSet)
 import Data.Int
 import Data.IntMap.Strict        (IntMap)
 import Data.IntSet               (IntSet)
+import Data.Key                  (Zip (..), ZipWithKey (..))
 import Data.List                 (nub, sort, sortBy)
 import Data.Map.Strict           (Map)
 import Data.Maybe                (fromMaybe)
@@ -145,8 +156,10 @@ import Data.String               (IsString (..))
 import Data.Tagged               (Tagged (..), untag)
 import Data.Text                 (Text)
 import Data.Text.Lens            (packed)
-import Data.Time                 (Day, NominalDiffTime, UTCTime)
+import Data.These                (These (..))
+import Data.Time                 (Day (..), NominalDiffTime, UTCTime (..))
 import Data.Time.TH              (mkDay, mkUTCTime)
+import Data.Traversable          (for)
 import Data.Typeable             (Typeable)
 import Data.UUID                 (UUID)
 import Data.Vector               (Vector)
@@ -158,18 +171,6 @@ import System.Random.Shuffle     (shuffleM)
 import Text.Read                 (readMaybe)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
-
-#if MIN_VERSION_mtl(2,2,0)
-import Control.Monad.Except (MonadError (..))
-#else
-import Control.Monad.Error (MonadError (..))
-#endif
-
-#if MIN_VERSION_monad_time(0,2,0)
-import Control.Monad.Time ()
-#else
-import Control.Monad.Time.Instances ()
-#endif
 
 -- Orphans
 import Data.Binary.Orphans ()

@@ -5,7 +5,7 @@
 {-# LANGUAGE MagicHash           #-}
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-module Futurice.Reflection.TypeLits (
+module Futurice.Reflection.TypeLits {-# DEPRECATED "Only needed for base <4.8" #-} (
     reifyTypeableSymbol,
     ) where
 

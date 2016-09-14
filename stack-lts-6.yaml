@@ -1,4 +1,4 @@
-resolver: lts-6.10
+resolver: lts-6.16
 packages:
 - '.'
 - location:
@@ -15,8 +15,17 @@ packages:
   extra-dep: true
 extra-deps:
 - aeson-1.0.0.0
+- aeson-compat-0.3.6
 - ansi-pretty-0.1.2.0
+- bifunctors-5.4.1
 - generics-sop-lens-0.1.2.0
-- github-0.15.0
-- these-0.7.1
-flags: {}
+- insert-ordered-containers-0.2.0.0
+- semigroupoids-5.1
+- semigroups-0.18.2
+- swagger2-2.1.2.1
+- these-0.7.2
+- transformers-compat-0.5.1.4
+- time-parsers-0.1.1.0
+flags:
+  semigroups:
+    bytestring-builder: false

@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.14.1.
+-- This file has been generated from package.yaml by hpack version 0.15.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -34,62 +34,61 @@ library
       src
   ghc-options: -Wall
   build-depends:
-      base                  >=4.7   && <4.10
-    , aeson                 >=1.0   && <1.1
-    , aeson-compat
-    , aeson-extra >=0.3.1
+      base                  >=4.8      && <4.10
+    , aeson                 >=1.0      && <1.1
+    , aeson-compat          >=0.3.6    && <0.4
+    , aeson-extra           >=0.3.2.0  && <0.4
     , ansi-pretty
-    , ansi-wl-pprint
-    , async
+    , ansi-wl-pprint        >=0.6.7.3  && <0.7
+    , async                 >=2.1.0    && <2.2
     , base-compat           ==0.9.1
     , base-orphans          ==0.5.4
     , bifunctors
     , binary
-    , binary-orphans        >=0.1.5.1
-    , binary-tagged
+    , binary-orphans        ==0.1.5.1
+    , binary-tagged         ==0.1.4.0
     , bytestring
-    , cassava
-    , case-insensitive
-    , composition-extra     >=2.0.0
-    , constraints
+    , cassava               >=0.4.5.0  && <0.5
+    , case-insensitive      >=1.2.0.7  && <1.3
+    , composition-extra     >=2.0.0    && <2.1
+    , constraints           >=0.8      && <0.9
     , containers
-    , deepseq
-    , deepseq-generics      >=0.1.1.2  && <0.3
-    , exceptions
+    , deepseq               >=1.4.1.1  && <1.5
+    , exceptions            >=0.8.3    && <0.9
     , generics-sop          >=0.2.1.0  && <0.3
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
-    , github                >=0.15 && <0.16
+    , github                >=0.15     && <0.16
     , hashable              >=1.2.4
-    , hashable-time
-    , intervals
-    , JuicyPixels
-    , lens
-    , lucid                 == 2.9.6
-    , monad-logger
-    , monad-time
-    , monadcryptorandom     >=0.7.0   && <=0.7.1
-    , mtl
+    , hashable-time         >=0.2      && <0.3
+    , intervals             >=0.7.2    && <0.7.3
+    , JuicyPixels           >=3.2.8    && <3.3
+    , lens                  >=4.13     && <4.15
+    , lucid                 >=2.9.6    && <2.9.7
+    , keys                  >=3.11     && <3.12
+    , monad-logger          >=0.3.19   && <0.4
+    , monad-time            >=0.2      && <0.3
+    , monadcryptorandom     >=0.7.0    && <0.7.2
+    , mtl                   >=2.2.1    && <2.3
     , nats
-    , operational
-    , parsec
-    , postgresql-simple
+    , parsec                >=3.1.11   && <3.2
+    , postgresql-simple     >=0.5.2.1  && <0.6
     , QuickCheck
-    , quickcheck-instances
-    , random-shuffle
+    , quickcheck-instances  ==0.3.12
+    , random-shuffle        ==0.0.4
     , semigroups
-    , swagger2              >=2.0.2
-    , tagged
+    , swagger2              >=2.1.2
+    , tagged                >=0.8.4    && <0.9
     , text
-    , these                 >=0.7.1 && <0.8
-    , time
-    , time-parsers          >=0.1.1 && <0.2
+    , these                 >=0.7.2    && <0.8
+    , time                  >=1.5.0.1  && <1.7
+    , time-parsers          >=0.1.1.0  && <0.2
     , transformers
-    , transformers-compat
-    , unordered-containers
-    , uuid                  >=1.3.12 && <1.4
-    , vector
-    , vector-instances
+    , transformers-compat   >=0.4.0.4  && <0.6
+    , unordered-containers  >=0.2.7.1  && <0.3
+    , uuid                  >=1.3.12   && <1.4
+    , vector                >=0.11.0.0 && <0.12
+    , vector-instances      ==3.3.1
   exposed-modules:
       Futurice.Constraint.ForallSymbol
       Futurice.Constraint.Unit1
