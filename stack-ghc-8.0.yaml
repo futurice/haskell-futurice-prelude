@@ -2,10 +2,6 @@ resolver: nightly-2016-09-14
 packages:
 - '.'
 - location:
-    git: https://github.com/ekmett/recursion-schemes.git
-    commit: 129df9bb5c5630781ba0c2dd6def698fce0f44df
-  extra-dep: true
-- location:
     git: https://github.com/phadej/aeson-extra.git
     commit: 2814b349046c364e4768d4cf530493cda1875b8d
   extra-dep: true
@@ -17,4 +13,5 @@ extra-deps:
 - aeson-1.0.0.0
 - ansi-pretty-0.1.2.0
 - insert-ordered-containers-0.2.0.0
+- recursion-schemes-5
 flags: {}
