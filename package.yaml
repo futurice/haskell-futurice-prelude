@@ -25,7 +25,6 @@ library:
     - base                  >=4.8      && <4.10
     - aeson                 >=1.0      && <1.1
     - aeson-compat          >=0.3.6    && <0.4
-    - aeson-extra           >=0.3.2.0  && <0.4
     - ansi-pretty
     - ansi-wl-pprint        >=0.6.7.3  && <0.7
     - async                 >=2.1.0    && <2.2
