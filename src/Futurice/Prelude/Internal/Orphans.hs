@@ -40,6 +40,7 @@ import Data.Binary.Tagged           (HasSemanticVersion, HasStructuralInfo)
 import Data.Foldable                (toList)
 import Data.Functor.Compose         (Compose (..))
 import Data.Hashable                (Hashable (..))
+import Data.Map                     (Map)
 import Data.Proxy                   (Proxy (..))
 import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
@@ -169,6 +170,10 @@ instance Csv.ToField Day where
 instance Csv.FromField Day where
     parseField s = either (fail . show) return $
         parse day "FromField Day" s
+
+-- | TODO: this instance is suspicious!
+instance Csv.ToField (Map k v) where
+    toField _ = "{}"
 
 -------------------------------------------------------------------------------
 -- Swagger schemas
