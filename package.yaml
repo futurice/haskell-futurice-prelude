@@ -77,6 +77,9 @@ library:
     - vector                >=0.11.0.0 && <0.12
     - vector-instances      ==3.3.1
 
+    # Needed for swagger instances
+    - insert-ordered-containers
+
 tests:
   futurice-prelude-tests:
     main: Tests.hs
