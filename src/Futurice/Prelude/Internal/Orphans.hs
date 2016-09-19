@@ -4,10 +4,12 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -23,13 +25,15 @@ import Prelude.Compat
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
 import Control.Lens                 ((&), (.~))
+import Control.Monad                (when)
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom   (CRandT (..))
 import Control.Monad.Logger         (MonadLogger (..))
 import Control.Monad.Reader         (MonadReader (..))
 import Control.Monad.Trans.Class    (lift)
 import Data.Aeson.Compat
-       (FromJSON (..), ToJSON (..), Value (..), object, withObject, (.:), (.=))
+       (FromJSON (..), Parser, ToJSON (..), Value (..), object, withArray,
+       withObject, (.:), (.=))
 import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
        ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
@@ -49,7 +53,7 @@ import Data.Time                    (Day)
 import Data.Time.Parsers            (day)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
-import Generics.SOP                 (I (..), unI)
+import Generics.SOP                 (All, I (..), K (..), NP (..), unI)
 import Lucid.Base                   (HtmlT (..))
 import Numeric.Interval             (Interval, inf, sup)
 import Text.Parsec                  (parse)
@@ -61,9 +65,12 @@ import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 import qualified Data.ByteString                      as BS
 import qualified Data.ByteString.Lazy                 as LBS
 import qualified Data.Csv                             as Csv
+import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
 import qualified Data.Swagger                         as Swagger
+import qualified Data.Swagger.Declare                 as Swagger
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
+import qualified Generics.SOP                         as SOP
 import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
@@ -205,17 +212,52 @@ instance ToSchema BS.ByteString where
 instance ToSchema LBS.ByteString where
     declareNamedSchema _ = pure $ NamedSchema (Just "Lazy ByteString") mempty
 
-instance ToSchema a => ToSchema (NonEmpty.Interval a) where
-    declareNamedSchema _ = NamedSchema (Just "NonEmpty.Interval") . schema <$> propA
+instance ToSchema1 NonEmpty.Interval where
+    liftDeclareNamedSchema _ ns = do
+        ref <- namedSchemaToRef ns
+        pure $ NamedSchema (Just "NonEmpty.Interval") $ schema ref
       where
-        propA = Swagger.declareSchemaRef (Proxy :: Proxy a)
-        schema prop = mempty
+        schema s = mempty
           & Swagger.type_       .~ Swagger.SwaggerObject
           & Swagger.properties  .~ Exts.fromList
-              [ ("inf", prop)
-              , ("sup", prop)
+              [ ("inf", s)
+              , ("sup", s)
               ]
           & Swagger.required    .~ ["sup", "inf"]
+
+instance ToSchema a => ToSchema (NonEmpty.Interval a) where
+    declareNamedSchema = declareNamedSchema1
+
+class ToSchema1 (f :: * -> *) where
+    liftDeclareNamedSchema
+        :: proxy f
+        -> NamedSchema   -- ^ schema of the element
+        -> Swagger.Declare (Swagger.Definitions Swagger.Schema) NamedSchema
+
+namedSchemaToRef
+    :: NamedSchema
+    -> Swagger.Declare (Swagger.Definitions Swagger.Schema) (Swagger.Referenced Swagger.Schema)
+namedSchemaToRef (NamedSchema (Just name) schema) = do
+    -- From 'declareSchemaRef'
+    known <- Swagger.looks (InsOrdHashMap.member name)
+    when (not known) $ do
+        Swagger.declare $ InsOrdHashMap.fromList [(name, schema)]
+    return $ Swagger.Ref (Swagger.Reference name)
+namedSchemaToRef (NamedSchema Nothing schema) = pure $ Swagger.Inline schema
+
+declareNamedSchema1
+    :: forall f a proxy. (ToSchema1 f, ToSchema a)
+    => proxy (f a)
+    -> Swagger.Declare (Swagger.Definitions Swagger.Schema) NamedSchema
+declareNamedSchema1 _ = do
+    schema <- Swagger.declareNamedSchema (Proxy :: Proxy a)
+    liftDeclareNamedSchema (Proxy :: Proxy f) schema
+
+instance ToSchema a => ToSchema (I a) where
+    declareNamedSchema = declareNamedSchema1
+
+instance ToSchema1 I where
+    liftDeclareNamedSchema _ = pure
 
 -------------------------------------------------------------------------------
 -- aeson
@@ -282,6 +324,22 @@ instance (ToJSON a) => ToJSON (I a) where
 instance (ToJSONKey a) => ToJSONKey (I a) where
     toJSONKey = contramapToJSONKeyFunction unI toJSONKey
     toJSONKeyList = contramapToJSONKeyFunction (map unI) toJSONKeyList
+
+instance (ToJSON1 f, All ToJSON xs) => ToJSON (NP f xs) where
+    toJSON
+        = toJSON
+        . SOP.hcollapse
+        . SOP.hcmap (Proxy :: Proxy ToJSON) (K . toJSON1)
+
+    -- TODO: add toEncoding
+
+instance (FromJSON1 f, All FromJSON xs) => FromJSON (NP f xs) where
+    parseJSON = withArray "NP f xs" $ \arr -> case SOP.fromList (toList arr) of
+        Nothing -> fail "Invalid dimension"
+        Just np -> SOP.hsequence' (SOP.hcmap (Proxy :: Proxy FromJSON) f np)
+      where
+        f :: FromJSON a => K Value a -> (Parser SOP.:.: f) a
+        f (K v) = SOP.Comp $ parseJSON1 v
 
 -------------------------------------------------------------------------------
 -- Binary
