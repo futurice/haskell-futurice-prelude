@@ -1,4 +1,9 @@
-{-# LANGUAGE DataKinds, KindSignatures, GADTs, PolyKinds, TypeFamilies, TypeOperators #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE KindSignatures      #-}
+{-# LANGUAGE PolyKinds           #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 -- | Peano numbers.
 --
 -- Adopted rom "Data.Vinyl.TypeLevel" from @vinyl@-package.
@@ -14,7 +19,15 @@ module Futurice.Peano (
     PAdd,
     -- * Type aliases
     PZero, POne, PTwo, PThree, PFour, PFive,
+    -- * Proofs
+    proofPAddZeroN,
+    proofPAddNZero,
+    -- ** Safe variants of unsafe proofs
+    proofPAddNZero',
     ) where
+
+import Data.Type.Equality
+import Unsafe.Coerce      (unsafeCoerce)
 
 -- | Peano natural numbers. Better then 'Nat' for type-level usage.
 data Peano = PZ | PS Peano
@@ -59,3 +72,29 @@ type PTwo    = 'PS POne
 type PThree  = 'PS PTwo
 type PFour   = 'PS PThree
 type PFive   = 'PS PFour
+
+-------------------------------------------------------------------------------
+-- proofs
+-------------------------------------------------------------------------------
+
+-- | @0 + n = n@
+proofPAddZeroN :: PAdd PZero n :~: n
+proofPAddZeroN = Refl
+
+-- | @n + 0 = n@
+--
+-- Uses 'unsafeCoerce', see 'proofPAddNZero'' for safe proof.
+proofPAddNZero :: PAdd n PZero :~: n
+proofPAddNZero = unsafeCoerce trivialProof
+
+-- | @n + 0 = n@
+proofPAddNZero' :: SPeanoI n => PAdd n PZero :~: n
+proofPAddNZero' = proof singPeano
+  where
+    proof :: SPeano n -> PAdd n PZero :~: n
+    proof SPZ     = Refl
+    proof (SPS m) = case proof m of
+        Refl -> Refl
+
+trivialProof :: () :~: ()
+trivialProof = Refl
