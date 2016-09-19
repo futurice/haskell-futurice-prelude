@@ -1,13 +1,17 @@
-resolver: lts-6.10
+resolver: lts-6.18
 packages:
 - '.'
 - location:
     git: https://github.com/phadej/github.git
-    commit: 41f985d575393379954b76977c794d68de9dc6dd
+    commit: c479f07c9ffe903e5d8a5a8f89b1d5e59f3944cd
   extra-dep: true
 extra-deps:
+- aeson-1.0.0.0
 - ansi-pretty-0.1.2.0
+- bifunctors-5.4.1
 - generics-sop-lens-0.1.2.0
-- github-0.15.0
-- these-0.7.1
-flags: {}
+- insert-ordered-containers-0.2.0.0
+- semigroupoids-5.1
+- swagger2-2.1.2.1
+- these-0.7.2
+- transformers-compat-0.5.1.4

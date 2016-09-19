@@ -7,9 +7,9 @@
 module HasTests where
 
 import Futurice.Prelude
-import Prelude          ()
+import Prelude ()
 
-import Futurice.Has     (Has (..), In')
+import Futurice.Has (Has (..), In')
 import Generics.SOP (I (..), NP (..))
 
 import Test.Tasty
@@ -26,7 +26,7 @@ hereProp :: Bool -> Property
 hereProp b = b === getBool (I b :* Nil)
 
 thereProp :: Bool -> Property
-thereProp b = b ===  getBool (I (1 :: Int) :* I b :* Nil)
+thereProp b = b === getBool (I (1 :: Int) :* I b :* Nil)
 
 there2Prop :: Bool -> Property
 there2Prop b = b === getBool (I (1 :: Int) :* I b :* I (0.1 :: Double) :* Nil)

@@ -1,5 +1,5 @@
-{-# LANGUAGE CPP       #-}
 {-# LANGUAGE DataKinds #-}
+{-# OPTIONS_GHC -fno-warn-deprecations #-}
 module ReflectionTests where
 
 import Futurice.Prelude
@@ -14,17 +14,14 @@ import Test.Tasty.QuickCheck
 reflectionTests :: TestTree
 reflectionTests = testGroup "Futurice.Reflection.TypeLits"
     [ testProperty "Works" worksProp
-#if MIN_VERSION_base(4,8,0)
     , testProperty "Agrees on GHC 7.10" ghc710Prop
-#endif
     ]
 
 worksProp :: Property
 worksProp = once $ show "foo" === show (reifyTypeableSymbol p $ typeRep p)
   where p = Proxy :: Proxy "foo"
 
-#if MIN_VERSION_base(4,8,0)
+-- This tests compiles only with base >=4.8
 ghc710Prop :: Property
 ghc710Prop = once $ typeRep p === reifyTypeableSymbol p (typeRep p)
   where p = Proxy :: Proxy "foo"
-#endif
