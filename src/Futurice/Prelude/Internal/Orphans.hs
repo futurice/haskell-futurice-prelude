@@ -66,6 +66,7 @@ import qualified Data.ByteString                      as BS
 import qualified Data.ByteString.Lazy                 as LBS
 import qualified Data.Csv                             as Csv
 import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
+import qualified Data.Map                             as Map
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
@@ -91,6 +92,12 @@ instance Semigroup Doc where
 -- <https://github.com/ekmett/vector-instances/pull/4>
 instance Hashable a => Hashable (Vector a) where
     hashWithSalt salt = hashWithSalt salt . toList
+
+-- | Defined in 'Futurice.Prelude'
+--
+-- TODO: move into own package
+instance (Hashable k, Hashable v) => Hashable (Map k v) where
+    hashWithSalt salt = hashWithSalt salt . Map.toList
 
 -- | Defined in 'Futurice.Prelude'.
 instance Eq a => Eq (I a) where
