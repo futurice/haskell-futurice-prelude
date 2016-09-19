@@ -8,6 +8,7 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -29,7 +30,8 @@ import Control.Monad.Logger         (MonadLogger (..))
 import Control.Monad.Reader         (MonadReader (..))
 import Control.Monad.Trans.Class    (lift)
 import Data.Aeson.Compat
-       (FromJSON (..), ToJSON (..), Value (..), object, withObject, (.:), (.=))
+       (FromJSON (..), Parser, ToJSON (..), Value (..), object, withArray,
+       withObject, (.:), (.=))
 import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
        ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
@@ -49,7 +51,7 @@ import Data.Time                    (Day)
 import Data.Time.Parsers            (day)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
-import Generics.SOP                 (I (..), unI)
+import Generics.SOP                 (All, I (..), K (..), NP (..), unI)
 import Lucid.Base                   (HtmlT (..))
 import Numeric.Interval             (Interval, inf, sup)
 import Text.Parsec                  (parse)
@@ -64,6 +66,7 @@ import qualified Data.Csv                             as Csv
 import qualified Data.Swagger                         as Swagger
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
+import qualified Generics.SOP                         as SOP
 import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
@@ -282,6 +285,22 @@ instance (ToJSON a) => ToJSON (I a) where
 instance (ToJSONKey a) => ToJSONKey (I a) where
     toJSONKey = contramapToJSONKeyFunction unI toJSONKey
     toJSONKeyList = contramapToJSONKeyFunction (map unI) toJSONKeyList
+
+instance (ToJSON1 f, All ToJSON xs) => ToJSON (NP f xs) where
+    toJSON
+        = toJSON
+        . SOP.hcollapse
+        . SOP.hcmap (Proxy :: Proxy ToJSON) (K . toJSON1)
+
+    -- TODO: add toEncoding
+
+instance (FromJSON1 f, All FromJSON xs) => FromJSON (NP f xs) where
+    parseJSON = withArray "NP f xs" $ \arr -> case SOP.fromList (toList arr) of
+        Nothing -> fail "Invalid dimension"
+        Just np -> SOP.hsequence' (SOP.hcmap (Proxy :: Proxy FromJSON) f np)
+      where
+        f :: FromJSON a => K Value a -> (Parser SOP.:.: f) a
+        f (K v) = SOP.Comp $ parseJSON1 v
 
 -------------------------------------------------------------------------------
 -- Binary
