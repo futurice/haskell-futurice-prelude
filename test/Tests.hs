@@ -45,6 +45,8 @@ main = defaultMain $ testGroup "Tests"
     , hasTests
     , reflectionTests
     , tryDeepTests
+    , toMapOfTests
+    , swapMapMapTests
     ]
 
 tests :: TestTree
@@ -83,3 +85,23 @@ tryDeepTests = testGroup "tryDeep"
     ]
   where
     toMaybe = either (const Nothing) Just
+
+toMapOfTests :: TestTree
+toMapOfTests = testGroup "toMapOf"
+    [ testProperty "toMapOf ifolded = id" $ toMapOf_ifolded_prop
+    ]
+  where
+    toMapOf_ifolded_prop :: Map Int Char -> Property
+    toMapOf_ifolded_prop m = m === toMapOf ifolded m
+
+swapMapMapTests :: TestTree
+swapMapMapTests = testGroup "swapMapMap"
+    [ testProperty "length" $ lengthProp
+    ]
+  where
+    lengthProp :: Map Int (Map Char Bool) -> Property
+    lengthProp m = length2 m === length2 m'
+      where
+        length2 :: (Foldable f, Foldable f') => f (f' a) -> Sum Int
+        length2 = foldMap (Sum . length)
+        m'      = swapMapMap m

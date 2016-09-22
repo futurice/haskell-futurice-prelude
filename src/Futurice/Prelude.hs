@@ -22,6 +22,9 @@ module Futurice.Prelude (
     Vector,
     module Data.Int,
     module Data.Word,
+    -- ** Monoids
+    Sum (..),
+    UnionWith (..),
     -- * Data Classes
     Align (..),
     AlignWithKey (..),
@@ -89,6 +92,8 @@ module Futurice.Prelude (
     (^.), (^..), view,
     (.~), (?~),
     from,
+    -- ** Named
+    folded, ifolded,
     -- ** Text related
     packed,
     strict, lazy,
@@ -97,6 +102,8 @@ module Futurice.Prelude (
     -- ** Common optics
     _Just, _Nothing, _Left, _Right,
     _1, _2,
+    -- ** Constructors
+    toMapOf,
     -- ** TH
     makeLenses, makePrisms, makeWrapped,
     -- * List
@@ -108,6 +115,7 @@ module Futurice.Prelude (
     -- * Extras
     type (:$),
     textShow,
+    swapMapMap,
     ) where
 
 import Prelude ()
@@ -118,9 +126,11 @@ import Control.Concurrent.Async  (waitCatch, withAsync)
 import Control.DeepSeq           (NFData (..), ($!!))
 import Control.Exception         (evaluate)
 import Control.Lens
-       (Lens', from, ifor, ifor_, isn't, itoList, itraverse, itraverse_, lazy,
-       lens, makeLenses, makePrisms, makeWrapped, strict, view, (&), (.~),
-       (?~), (^.), (^..), _1, _2, _Empty, _Just, _Left, _Nothing, _Right)
+       (Lens', folded, from, ifolded, ifor, ifor_, isn't, itoList, itraverse,
+       itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, strict,
+       view, (&), (.~), (?~), (^.), (^..), _1, _2, _Empty, _Just, _Left,
+       _Nothing, _Right)
+import Control.Lens              (IndexedGetting, ifoldMapOf, iviews, (<.>))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
@@ -150,7 +160,8 @@ import Data.List                 (nub, sort, sortBy)
 import Data.Map.Strict           (Map)
 import Data.Maybe                (fromMaybe)
 import Data.Proxy                (Proxy (..))
-import Data.Semigroup            (Semigroup (..))
+import Data.Semigroup            (Semigroup (..), Sum (..))
+import Data.Semigroup.Union      (UnionWith (..))
 import Data.Set                  (Set)
 import Data.String               (IsString (..))
 import Data.Tagged               (Tagged (..), untag)
@@ -171,6 +182,8 @@ import System.Random.Shuffle     (shuffleM)
 import Text.Read                 (readMaybe)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
+
+import qualified Data.Map as Map
 
 -- Orphans
 import Data.Binary.Orphans ()
@@ -205,3 +218,34 @@ tryDeep :: NFData a => IO a -> IO (Either SomeException a)
 tryDeep action = flip withAsync waitCatch $ do
     x <- action
     evaluate $!! x
+
+-- | Like 'swap', but for 'Map'.
+swapMapMap :: (Ord k, Ord k') => Map k (Map k' v) -> Map k' (Map k v)
+swapMapMap = getUnionWith . ifoldMapOf (ifolded <.> ifolded) f
+  where
+    f (k, k') v = UnionWith $ Map.singleton k' $ Map.singleton k v
+
+-- | Construct a map from a 'IndexedGetter', 'Control.Lens.Fold.IndexedFold', 'Control.Lens.Traversal.IndexedTraversal' or 'Control.Lens.Lens.IndexedLens'
+--
+-- The construction is left-biased (see 'Data.Map.Lazy.union'), i.e. the first
+-- occurences of keys in the fold or traversal order are preferred.
+--
+-- >>> toMapOf folded ["hello", "world"]
+-- fromList [(0,"hello"),(1,"world")]
+--
+-- >>> toMapOf (folded <.> folded) ["foo", "bar"]
+-- fromList [((0,0),'f'),((0,1),'o'),((0,2),'o'),((1,0),'b'),((1,1),'a'),((1,2),'r')]
+--
+-- >>> toMapOf ifolded $ Map.fromList [('a', "hello"), ('b', "world")]
+-- fromList [('a',"hello"),('b',"world")]
+--
+-- @
+-- 'toMapOf' ::          'IndexedGetter' i s a     -> s -> 'Map.Map' i a
+-- 'toMapOf' :: 'Ord' i => 'IndexedFold' i s a       -> s -> 'Map.Map' i a
+-- 'toMapOf' ::          'IndexedLens'' i s a      -> s -> 'Map.Map' i a
+-- 'toMapOf' :: 'Ord' i => 'IndexedTraversal'' i s a -> s -> 'Map.Map' i a
+-- @
+--
+-- See https://github.com/ekmett/lens/pull/676
+toMapOf :: IndexedGetting i (Map i a) s a -> s -> Map i a
+toMapOf l = iviews l Map.singleton
