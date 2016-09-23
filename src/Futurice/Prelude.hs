@@ -94,6 +94,8 @@ module Futurice.Prelude (
     from,
     -- ** Named
     folded, ifolded,
+    -- ** At
+    ix, at,
     -- ** Text related
     packed,
     strict, lazy,
@@ -130,7 +132,7 @@ import Control.Lens
        itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, strict,
        view, (&), (.~), (?~), (^.), (^..), _1, _2, _Empty, _Just, _Left,
        _Nothing, _Right)
-import Control.Lens              (IndexedGetting, ifoldMapOf, iviews, (<.>))
+import Control.Lens              (Ixed (..), At (..), IndexedGetting, ifoldMapOf, iviews, (<.>))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
