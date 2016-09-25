@@ -118,6 +118,8 @@ module Futurice.Prelude (
     type (:$),
     textShow,
     swapMapMap,
+    -- ** Has classes
+    HasUUID (..),
     ) where
 
 import Prelude ()
@@ -251,3 +253,10 @@ swapMapMap = getUnionWith . ifoldMapOf (ifolded <.> ifolded) f
 -- See https://github.com/ekmett/lens/pull/676
 toMapOf :: IndexedGetting i (Map i a) s a -> s -> Map i a
 toMapOf l = iviews l Map.singleton
+
+-- | Elements with has an 'UUID'
+class HasUUID a where
+    uuid :: Lens' a UUID
+
+instance HasUUID UUID where
+    uuid = id
