@@ -10,4 +10,5 @@ extra-deps:
 - ansi-pretty-0.1.2.0
 - insert-ordered-containers-0.2.0.0
 - recursion-schemes-5
+- tz-0.1.2.0
 flags: {}
