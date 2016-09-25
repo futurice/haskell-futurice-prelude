@@ -1,5 +1,6 @@
 {-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE PolyKinds          #-}
+{-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeOperators      #-}
 module Futurice.Prelude (
     module Prelude.Compat,
@@ -9,14 +10,16 @@ module Futurice.Prelude (
     HashSet,
     IntMap,
     IntSet,
+    LocalTime (..),
     Map,
     Natural,
     NominalDiffTime,
     Proxy(..),
     Set,
+    TZ,
     Tagged (..), untag,
-    These (..),
     Text,
+    These (..),
     UTCTime (..),
     UUID,
     Vector,
@@ -118,6 +121,12 @@ module Futurice.Prelude (
     type (:$),
     textShow,
     swapMapMap,
+    -- ** Has classes
+    HasUUID (..),
+    -- ** Time
+    currentDay,
+    utcToHelsinkiTime,
+    helsinkiTz,
     ) where
 
 import Prelude ()
@@ -132,7 +141,8 @@ import Control.Lens
        itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, strict,
        view, (&), (.~), (?~), (^.), (^..), _1, _2, _Empty, _Just, _Left,
        _Nothing, _Right)
-import Control.Lens              (Ixed (..), At (..), IndexedGetting, ifoldMapOf, iviews, (<.>))
+import Control.Lens
+       (At (..), IndexedGetting, Ixed (..), ifoldMapOf, iviews, (<.>))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
@@ -170,8 +180,11 @@ import Data.Tagged               (Tagged (..), untag)
 import Data.Text                 (Text)
 import Data.Text.Lens            (packed)
 import Data.These                (These (..))
-import Data.Time                 (Day (..), NominalDiffTime, UTCTime (..))
+import Data.Time
+       (Day (..), LocalTime (..), NominalDiffTime, UTCTime (..))
 import Data.Time.TH              (mkDay, mkUTCTime)
+import Data.Time.Zones           (TZ, utcToLocalTimeTZ)
+import Data.Time.Zones.TH        (includeTZFromDB)
 import Data.Traversable          (for)
 import Data.Typeable             (Typeable)
 import Data.UUID                 (UUID)
@@ -251,3 +264,28 @@ swapMapMap = getUnionWith . ifoldMapOf (ifolded <.> ifolded) f
 -- See https://github.com/ekmett/lens/pull/676
 toMapOf :: IndexedGetting i (Map i a) s a -> s -> Map i a
 toMapOf l = iviews l Map.singleton
+
+-------------------------------------------------------------------------------
+-- UUID
+-------------------------------------------------------------------------------
+
+-- | Elements with has an 'UUID'
+class HasUUID a where
+    uuid :: Lens' a UUID
+
+instance HasUUID UUID where
+    uuid = id
+
+-------------------------------------------------------------------------------
+-- Time
+-------------------------------------------------------------------------------
+
+-- | Current day in Finland, @Europe/Helsinki@ timezone.
+currentDay :: MonadTime m => m Day
+currentDay = localDay . utcToHelsinkiTime <$> currentTime
+
+utcToHelsinkiTime :: UTCTime -> LocalTime
+utcToHelsinkiTime = utcToLocalTimeTZ helsinkiTz
+
+helsinkiTz :: TZ
+helsinkiTz = $(includeTZFromDB "Europe/Helsinki")
