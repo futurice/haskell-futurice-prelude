@@ -80,6 +80,7 @@ module Futurice.Prelude (
     toList,
     traverse_, itraverse_,
     for_, ifor_,
+    ifoldMap,
     -- * Traversable
     for,
     -- ** Indexed
@@ -142,7 +143,7 @@ import Control.Lens
        view, (&), (.~), (?~), (^.), (^..), _1, _2, _Empty, _Just, _Left,
        _Nothing, _Right)
 import Control.Lens
-       (At (..), IndexedGetting, Ixed (..), ifoldMapOf, iviews, (<.>))
+       (At (..), IndexedGetting, Ixed (..), ifoldMap, ifoldMapOf, iviews, (<.>))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
