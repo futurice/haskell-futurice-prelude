@@ -96,6 +96,7 @@ library
       Futurice.Constraint.Unit1
       Futurice.Generics
       Futurice.Has
+      Futurice.List
       Futurice.Peano
       Futurice.Prelude
       Futurice.Prelude.Internal.Orphans
