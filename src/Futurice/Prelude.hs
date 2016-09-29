@@ -94,6 +94,7 @@ module Futurice.Prelude (
     Lens', lens,
     -- ** Operators
     (^.), (^..), view,
+    (^?),
     (.~), (?~),
     from,
     -- ** Named
@@ -120,6 +121,7 @@ module Futurice.Prelude (
     mkUTCTime, mkDay,
     -- * Extras
     type (:$),
+    bool,
     textShow,
     swapMapMap,
     -- ** Has classes
@@ -140,10 +142,11 @@ import Control.Exception         (evaluate)
 import Control.Lens
        (Lens', folded, from, ifolded, ifor, ifor_, isn't, itoList, itraverse,
        itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, strict,
-       view, (&), (.~), (?~), (^.), (^..), _1, _2, _Empty, _Just, _Left,
+       view, (&), (.~), (?~), (^.), (^..), (^?), _1, _2, _Empty, _Just, _Left,
        _Nothing, _Right)
 import Control.Lens
-       (At (..), IndexedGetting, Ixed (..), ifoldMap, ifoldMapOf, iviews, (<.>))
+       (At (..), IndexedGetting, Ixed (..), ifoldMap, ifoldMapOf, iviews,
+       (<.>))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
@@ -159,6 +162,7 @@ import Data.Align                (Align (..))
 import Data.Align.Key            (AlignWithKey (..))
 import Data.Bifunctor            (first, second)
 import Data.Binary               (Binary)
+import Data.Bool.Compat          (bool)
 import Data.Foldable             (fold, for_, toList, traverse_)
 import Data.Function             (on)
 import Data.Functor.Syntax       ((<$$>))
