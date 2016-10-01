@@ -18,15 +18,33 @@ import Futurice.Prelude
 import Prelude ()
 
 import Control.Lens
-       (At (..), Getting, Index, IxValue, Ixed (..), Traversal', toListOf)
+       (At (..), Getting, Index, IxValue, Ixed (..), Traversal', set, toListOf)
 import Data.Monoid     (Endo)
 import Test.QuickCheck (Arbitrary (..), listOf1)
 
 import qualified Data.Map as Map
 
+-------------------------------------------------------------------------------
+-- HasKey
+-------------------------------------------------------------------------------
+
 class Ord (Key a) => HasKey a where
     type Key a :: *
     key :: Lens' a (Key a)
+
+instance (HasKey a, HasKey b, Key a ~ Key b) => HasKey (Either a b) where
+    type Key (Either a b) = Key a
+    key = lens getter setter
+      where
+        getter (Right x) = view key x
+        getter (Left x)  = view key x
+
+        setter (Right x) k = Right $ set key k x
+        setter (Left x)  k = Left  $ set key k x
+
+-------------------------------------------------------------------------------
+-- IdMap
+-------------------------------------------------------------------------------
 
 newtype IdMap a = IdMap (Map (Key a) a)
   deriving (Typeable, Generic)

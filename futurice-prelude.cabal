@@ -40,6 +40,7 @@ library
     , aeson-compat          >=0.3.6    && <0.4
     , ansi-pretty
     , ansi-wl-pprint        >=0.6.7.3  && <0.7
+    , array                 >=0.5.1.0  && <0.6
     , async                 >=2.1.0    && <2.2
     , base-compat           ==0.9.1
     , base-orphans          ==0.5.4
@@ -96,6 +97,7 @@ library
       Futurice.Constraint.ForallSymbol
       Futurice.Constraint.Unit1
       Futurice.Generics
+      Futurice.Graph
       Futurice.Has
       Futurice.IdMap
       Futurice.List
