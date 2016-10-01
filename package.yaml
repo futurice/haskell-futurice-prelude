@@ -19,6 +19,14 @@ extra-source-files:
 
 ghc-options: -Wall
 
+default-extensions:
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveGeneric
+  - DeriveTraversable
+  - ScopedTypeVariables
+
 library:
   source-dirs: src
   dependencies:
