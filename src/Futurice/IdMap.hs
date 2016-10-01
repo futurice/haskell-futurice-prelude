@@ -7,18 +7,24 @@ module Futurice.IdMap (
     IdMap,
     HasKey (..),
     fromFoldable,
+    unsafeFromMap,
     -- * Keys
     keysSet,
     -- * Lens
     toIdMapOf,
     unsafeTraversal,
+    -- * Conversions
+    toMap,
+    -- * Debug
+    valid,
     ) where
 
 import Futurice.Prelude
 import Prelude ()
 
 import Control.Lens
-       (At (..), Getting, Index, IxValue, Ixed (..), Traversal', set, toListOf)
+       (At (..), Getting, Index, IxValue, Ixed (..), Traversal', iall, set,
+       toListOf)
 import Data.Monoid     (Endo)
 import Test.QuickCheck (Arbitrary (..), listOf1)
 
@@ -56,14 +62,23 @@ deriving instance (Show (Key a), Show a) => Show (IdMap a)
 instance Foldable IdMap where
     foldMap f (IdMap m) = foldMap f m
 
-unIdMap :: IdMap a -> Map (Key a) a
-unIdMap (IdMap m) = m
+toMap :: IdMap a -> Map (Key a) a
+toMap (IdMap m) = m
+
+unsafeFromMap :: Map (Key a) a -> IdMap a
+unsafeFromMap = IdMap
 
 fromFoldable :: (HasKey a, Foldable f) => f a -> IdMap a
 fromFoldable = IdMap . Map.fromList . map (\x -> (x ^. key, x)) . toList
 
 keysSet :: IdMap a -> Set (Key a)
-keysSet = Map.keysSet . unIdMap
+keysSet = Map.keysSet . toMap
+
+-- | Check the internal invariants
+valid :: HasKey a => IdMap a -> Bool
+valid (IdMap m) =
+    iall (\k v -> k == v ^. key) m &&
+    Map.valid m
 
 -------------------------------------------------------------------------------
 -- Lens
@@ -79,6 +94,9 @@ unsafeTraversal f (IdMap m) = IdMap <$> traverse f m
 -------------------------------------------------------------------------------
 -- Instances
 -------------------------------------------------------------------------------
+
+instance (NFData (Key a), NFData a) => NFData (IdMap a) where
+    rnf (IdMap m) = rnf m
 
 instance (HasKey a, Arbitrary a) => Arbitrary (IdMap a) where
     arbitrary = fromFoldable <$> listOf1 arbitrary
