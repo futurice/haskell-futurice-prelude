@@ -68,7 +68,9 @@ module Futurice.Graph (
     revTopSort,
     -- * Conversions
     -- ** Maps
+    fromIdMap,
     toMap,
+    toIdMap,
     -- ** Lists
     fromList,
     toList,
@@ -87,7 +89,8 @@ import Futurice.Prelude hiding (lookup, null, empty, toList)
 
 import qualified Futurice.Prelude as P
 
-import Futurice.IdMap (HasKey (..))
+import Futurice.IdMap (IdMap, HasKey (..))
+import qualified Futurice.IdMap as IdMap
 
 import Data.Graph (SCC(..))
 import qualified Data.Graph as G
@@ -100,17 +103,16 @@ import Data.Either (partitionEithers)
 
 -- | A graph of nodes @a@.  The nodes are expected to have instance
 -- of class 'IsNode'.
-data Graph a
-    = Graph {
-        graphMap          :: !(Map (Key a) a),
-        -- Lazily cached graph representation
-        graphForward      :: G.Graph,
-        graphAdjoint      :: G.Graph,
-        graphVertexToNode :: G.Vertex -> a,
-        graphKeyToVertex  :: Key a -> Maybe G.Vertex,
-        graphBroken       :: [(a, [Key a])]
+data Graph a = Graph
+    { graphMap          :: !(IdMap a)
+     -- Lazily cached graph representation
+    , graphForward      :: G.Graph
+    , graphAdjoint      :: G.Graph
+    , graphVertexToNode :: G.Vertex -> a
+    , graphKeyToVertex  :: Key a -> Maybe G.Vertex
+    , graphBroken       :: [(a, [Key a])]
     }
-    deriving (Typeable)
+  deriving (Typeable)
 
 -- NB: Not a Functor! (or Traversable), because you need
 -- to restrict Key a ~ Key b.  We provide our own mapping
@@ -201,11 +203,11 @@ instance Ord k => IsNode (Node k a) where
 
 -- | /O(1)/. Is the graph empty?
 null :: Graph a -> Bool
-null = Map.null . toMap
+null = P.null . toIdMap
 
 -- | /O(1)/. The number of nodes in the graph.
 size :: Graph a -> Int
-size = Map.size . toMap
+size = P.length . toIdMap
 
 -- | /O(log V)/. Check if the key is in the graph.
 member :: HasKey a => Key a -> Graph a -> Bool
@@ -327,6 +329,10 @@ revTopSort g = map (graphVertexToNode g) $ G.topSort (graphAdjoint g)
 
 -- Conversions
 
+-- | /O(1)/. Convert an 'IdMap' into a graph.
+fromIdMap :: IsNode a => IdMap a -> Graph a
+fromIdMap m = fromMap (IdMap.toMap m)
+
 -- | /O(1)/. Convert a map from keys to nodes into a graph.
 -- The map must satisfy the invariant that
 -- @'fromMap' m == 'fromList' ('Data.Map.elems' m)@;
@@ -334,15 +340,15 @@ revTopSort g = map (graphVertexToNode g) $ G.topSort (graphAdjoint g)
 -- instead.  The values of the map are assumed to already
 -- be in WHNF.
 fromMap :: IsNode a => Map (Key a) a -> Graph a
-fromMap m
-    = Graph { graphMap = m
-            -- These are lazily computed!
-            , graphForward = g
-            , graphAdjoint = G.transposeG g
-            , graphVertexToNode = vertex_to_node
-            , graphKeyToVertex = key_to_vertex
-            , graphBroken = broke
-            }
+fromMap m = Graph
+    { graphMap          = IdMap.unsafeFromMap m
+    -- These are lazily computed!
+    , graphForward      = g
+    , graphAdjoint      = G.transposeG g
+    , graphVertexToNode = vertex_to_node
+    , graphKeyToVertex  = key_to_vertex
+    , graphBroken       = broke
+    }
   where
     try_key_to_vertex k = maybe (Left k) Right (key_to_vertex k)
 
@@ -366,10 +372,7 @@ fromMap m
 
 -- | /O(V log V)/. Convert a list of nodes into a graph.
 fromList :: IsNode a => [a] -> Graph a
-fromList ns = fromMap
-            . Map.fromList
-            . map (\n -> n `seq` (nodeKey n, n))
-            $ ns
+fromList = fromIdMap . IdMap.fromFoldable
 
 -- Map-like operations
 
@@ -389,7 +392,10 @@ keysSet g = Map.keysSet (toMap g)
 -- The resulting map @m@ is guaranteed to have the property that
 -- @'P.all' (\(k,n) -> k == 'nodeKey' n) ('Data.Map.toList' m)@.
 toMap :: Graph a -> Map (Key a) a
-toMap = graphMap
+toMap = IdMap.toMap . graphMap
+
+toIdMap :: Graph a -> IdMap a
+toIdMap = graphMap 
 
 -- Graph-like operations
 
