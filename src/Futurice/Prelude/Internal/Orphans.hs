@@ -48,11 +48,13 @@ import Data.Aeson.Types
 import Data.Binary                  (Binary (..))
 import Data.Binary.Orphans ()
 import Data.Binary.Tagged           (HasSemanticVersion, HasStructuralInfo)
+import Data.Fixed                   (Fixed, HasResolution)
 import Data.Foldable                (toList)
 import Data.Functor.Compose         (Compose (..))
 import Data.Hashable                (Hashable (..))
 import Data.Map                     (Map)
 import Data.Proxy                   (Proxy (..))
+import Data.Scientific              (Scientific)
 import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
@@ -69,9 +71,12 @@ import Text.PrettyPrint.ANSI.Leijen (Doc)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
+import qualified Data.Attoparsec.ByteString.Char8     as Atto
 import qualified Data.Csv                             as Csv
+import qualified Data.Fixed                           as Fixed
 import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
 import qualified Data.Map                             as Map
+import qualified Data.Scientific                      as Scientific
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
 import qualified Data.UUID                            as UUID
@@ -201,6 +206,25 @@ instance Csv.ToField UUID.UUID where
 instance Csv.FromField UUID.UUID where
     parseField = maybe (fail "invalid UUID") pure . UUID.fromASCIIBytes
 
+instance HasResolution a => Csv.ToField (Fixed a) where
+    toField = Csv.toField . Fixed.showFixed False
+
+instance HasResolution a => Csv.FromField (Fixed a) where
+    parseField bs = fromRational . scientificToSmallRational <$> Csv.parseField bs
+
+scientificToSmallRational :: Scientific -> Rational
+scientificToSmallRational s
+    | c >= -100 && c < 100 = toRational s
+    | otherwise            = 0
+  where
+    c = Scientific.coefficient s
+
+
+instance Csv.FromField Scientific where
+    parseField
+        = either fail pure
+        . Atto.parseOnly (Atto.scientific <* Atto.endOfInput)
+
 -------------------------------------------------------------------------------
 -- Swagger schemas
 -------------------------------------------------------------------------------
@@ -224,6 +248,11 @@ instance ToSchema DynamicImage where
 
 instance ToSchema (Image a) where
     declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
+
+instance HasResolution a => ToSchema (Fixed a) where
+    declareNamedSchema _ = pure $ NamedSchema (Just . fromString $ n) mempty
+      where
+        n = "Fixed " <> show (Fixed.resolution (Proxy :: Proxy a))
 
 instance ToSchema1 NonEmpty.Interval where
     liftDeclareNamedSchema _ ns = do
@@ -271,7 +300,6 @@ instance ToSchema a => ToSchema (I a) where
 
 instance ToSchema1 I where
     liftDeclareNamedSchema _ = pure
-
 -------------------------------------------------------------------------------
 -- aeson
 -------------------------------------------------------------------------------

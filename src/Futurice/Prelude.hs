@@ -15,6 +15,7 @@ module Futurice.Prelude (
     Natural,
     NominalDiffTime,
     Proxy(..),
+    Scientific,
     Set,
     TZ,
     Tagged (..), untag,
@@ -177,6 +178,7 @@ import Data.List                 (nub, sort, sortBy)
 import Data.Map.Strict           (Map)
 import Data.Maybe                (fromMaybe)
 import Data.Proxy                (Proxy (..))
+import Data.Scientific           (Scientific)
 import Data.Semigroup            (Semigroup (..), Sum (..))
 import Data.Semigroup.Union      (UnionWith (..))
 import Data.Set                  (Set)
