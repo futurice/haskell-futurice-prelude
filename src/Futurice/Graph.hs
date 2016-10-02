@@ -164,6 +164,13 @@ instance (NFData a, NFData (Key a)) => NFData (Graph a) where
 
 -- TODO: Data instance?
 
+instance IsNode a => Semigroup (Graph a) where
+    a <> b = fromMap (toMap a <> toMap b)
+
+instance IsNode a => Monoid (Graph a) where
+    mempty  = empty
+    mappend = (<>)
+
 -- | The 'IsNode' class is used for datatypes which represent directed
 -- graph nodes.  A node of type @a@ is associated with some unique key of
 -- type @'Key' a@; given a node we can determine its key ('nodeKey')
@@ -395,7 +402,7 @@ toMap :: Graph a -> Map (Key a) a
 toMap = IdMap.toMap . graphMap
 
 toIdMap :: Graph a -> IdMap a
-toIdMap = graphMap 
+toIdMap = graphMap
 
 -- Graph-like operations
 
