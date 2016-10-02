@@ -205,13 +205,7 @@ import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
 import qualified Data.Map as Map
 
--- Orphans
-import Data.Binary.Orphans ()
-import Data.Hashable.Time ()
-import Data.Orphans ()
-import Data.Vector.Instances ()
 import Futurice.Prelude.Internal.Orphans ()
-import Test.QuickCheck.Instances ()
 
 -------------------------------------------------------------------------------
 -- Our additions
