@@ -22,6 +22,13 @@ module Futurice.Prelude.Internal.Orphans () where
 import Prelude ()
 import Prelude.Compat
 
+import Data.Binary.Orphans ()
+import Data.Hashable.Time ()
+import Data.Orphans ()
+import Data.UUID.Aeson ()
+import Data.Vector.Instances ()
+import Test.QuickCheck.Instances ()
+
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
 import Control.Lens                 ((&), (.~))
@@ -62,13 +69,12 @@ import Text.PrettyPrint.ANSI.Leijen (Doc)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
-import qualified Data.ByteString                      as BS
-import qualified Data.ByteString.Lazy                 as LBS
 import qualified Data.Csv                             as Csv
 import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
 import qualified Data.Map                             as Map
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
+import qualified Data.UUID                            as UUID
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
 import qualified Generics.SOP                         as SOP
@@ -189,6 +195,12 @@ instance Csv.FromField Day where
 instance Csv.ToField (Map k v) where
     toField _ = "{}"
 
+instance Csv.ToField UUID.UUID where
+    toField = UUID.toASCIIBytes
+
+instance Csv.FromField UUID.UUID where
+    parseField = maybe (fail "invalid UUID") pure . UUID.fromASCIIBytes
+
 -------------------------------------------------------------------------------
 -- Swagger schemas
 -------------------------------------------------------------------------------
@@ -212,12 +224,6 @@ instance ToSchema DynamicImage where
 
 instance ToSchema (Image a) where
     declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
-
-instance ToSchema BS.ByteString where
-    declareNamedSchema _ = pure $ NamedSchema (Just "Strict ByteString") mempty
-
-instance ToSchema LBS.ByteString where
-    declareNamedSchema _ = pure $ NamedSchema (Just "Lazy ByteString") mempty
 
 instance ToSchema1 NonEmpty.Interval where
     liftDeclareNamedSchema _ ns = do
