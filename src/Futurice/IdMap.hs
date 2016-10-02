@@ -1,18 +1,21 @@
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE StandaloneDeriving   #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE UndecidableInstances  #-}
 module Futurice.IdMap (
     -- * Constructing
     IdMap,
     HasKey (..),
     fromFoldable,
+    idMapOf,
     unsafeFromMap,
     -- * Keys
     keysSet,
     -- * Lens
     toIdMapOf,
     unsafeTraversal,
+    Futurice.IdMap.ifolded,
     -- * Conversions
     toMap,
     -- * Debug
@@ -23,8 +26,8 @@ import Futurice.Prelude
 import Prelude ()
 
 import Control.Lens
-       (At (..), Getting, Index, IxValue, Ixed (..), Traversal', iall, set,
-       toListOf)
+       (At (..), Getting, Index, IndexedFold, IxValue, Ixed (..), Traversal',
+       iall, ifolded, set, to, toListOf, views)
 import Data.Monoid     (Endo)
 import Test.QuickCheck (Arbitrary (..), listOf1)
 
@@ -59,9 +62,6 @@ deriving instance (Eq   (Key a), Eq a)   => Eq   (IdMap a)
 deriving instance (Ord  (Key a), Ord a)  => Ord  (IdMap a)
 deriving instance (Show (Key a), Show a) => Show (IdMap a)
 
-instance Foldable IdMap where
-    foldMap f (IdMap m) = foldMap f m
-
 toMap :: IdMap a -> Map (Key a) a
 toMap (IdMap m) = m
 
@@ -69,7 +69,10 @@ unsafeFromMap :: Map (Key a) a -> IdMap a
 unsafeFromMap = IdMap
 
 fromFoldable :: (HasKey a, Foldable f) => f a -> IdMap a
-fromFoldable = IdMap . Map.fromList . map (\x -> (x ^. key, x)) . toList
+fromFoldable = idMapOf folded
+
+idMapOf :: HasKey a => Getting (IdMap a) s a -> s -> IdMap a
+idMapOf l = views l (\x -> IdMap $ Map.singleton (x ^. key) x)
 
 keysSet :: IdMap a -> Set (Key a)
 keysSet = Map.keysSet . toMap
@@ -95,6 +98,13 @@ unsafeTraversal f (IdMap m) = IdMap <$> traverse f m
 -- Instances
 -------------------------------------------------------------------------------
 
+instance HasKey a => Semigroup (IdMap a) where
+    IdMap a <> IdMap b = IdMap (a <> b)
+
+instance HasKey a => Monoid (IdMap a) where
+    mempty  = IdMap mempty
+    mappend = (<>)
+
 instance (NFData (Key a), NFData a) => NFData (IdMap a) where
     rnf (IdMap m) = rnf m
 
@@ -110,3 +120,9 @@ instance Ord (Key a) => Ixed (IdMap a) where
 
 instance Ord (Key a) => At (IdMap a) where
     at i f (IdMap m) = IdMap <$> at i f m
+
+instance Foldable IdMap where
+    foldMap f (IdMap m) = foldMap f m
+
+ifolded :: IndexedFold (Key a) (IdMap a) a
+ifolded = to toMap . Control.Lens.ifolded
