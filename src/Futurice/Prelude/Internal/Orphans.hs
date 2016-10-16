@@ -22,6 +22,8 @@ module Futurice.Prelude.Internal.Orphans () where
 import Prelude ()
 import Prelude.Compat
 
+import Futurice.UUID
+
 import Data.Binary.Orphans ()
 import Data.Hashable.Time ()
 import Data.Orphans ()
@@ -31,7 +33,7 @@ import Test.QuickCheck.Instances ()
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
-import Control.Lens                 ((&), (.~))
+import Control.Lens                 (from, view, (&), (.~))
 import Control.Monad                (when)
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom   (CRandT (..))
@@ -65,6 +67,7 @@ import Data.Vector                  (Vector)
 import Generics.SOP                 (All, I (..), K (..), NP (..), unI)
 import Lucid.Base                   (HtmlT (..))
 import Numeric.Interval             (Interval, inf, sup)
+import Test.QuickCheck              (Arbitrary (..))
 import Text.Parsec                  (parse)
 import Text.Parsec.String ()
 import Text.PrettyPrint.ANSI.Leijen (Doc)
@@ -381,6 +384,14 @@ instance (FromJSON1 f, All FromJSON xs) => FromJSON (NP f xs) where
       where
         f :: FromJSON a => K Value a -> (Parser SOP.:.: f) a
         f (K v) = SOP.Comp $ parseJSON1 v
+
+-------------------------------------------------------------------------------
+-- QuickCheck
+-------------------------------------------------------------------------------
+
+instance Arbitrary UUID.UUID where
+    arbitrary = view (from uuidWords) <$> arbitrary
+    shrink = fmap (view $ from uuidWords) . shrink . view uuidWords
 
 -------------------------------------------------------------------------------
 -- Binary
