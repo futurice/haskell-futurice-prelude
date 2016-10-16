@@ -36,7 +36,8 @@ import Control.DeepSeq              (NFData (..))
 import Control.Lens                 (from, view, (&), (.~))
 import Control.Monad                (when)
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
-import Control.Monad.CryptoRandom   (CRandT (..))
+import Control.Monad.CryptoRandom
+       (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
 import Control.Monad.Logger         (MonadLogger (..))
 import Control.Monad.Reader         (MonadReader (..))
 import Control.Monad.Trans.Class    (lift)
@@ -303,6 +304,7 @@ instance ToSchema a => ToSchema (I a) where
 
 instance ToSchema1 I where
     liftDeclareNamedSchema _ = pure
+
 -------------------------------------------------------------------------------
 -- aeson
 -------------------------------------------------------------------------------
@@ -384,6 +386,34 @@ instance (FromJSON1 f, All FromJSON xs) => FromJSON (NP f xs) where
       where
         f :: FromJSON a => K Value a -> (Parser SOP.:.: f) a
         f (K v) = SOP.Comp $ parseJSON1 v
+
+-------------------------------------------------------------------------------
+-- CRandom
+-------------------------------------------------------------------------------
+
+instance (CRandom a, CRandom b) => CRandom (a, b) where
+    crandom = runCRand $ do
+        a <- getCRandom
+        b <- getCRandom
+        return (a, b)
+
+instance (CRandom a, CRandom b, CRandom c) => CRandom (a, b, c) where
+    crandom = runCRand $ do
+        a <- getCRandom
+        b <- getCRandom
+        c <- getCRandom
+        return (a, b, c)
+
+instance (CRandom a, CRandom b, CRandom c, CRandom d) => CRandom (a, b, c, d) where
+    crandom = runCRand $ do
+        a <- getCRandom
+        b <- getCRandom
+        c <- getCRandom
+        d <- getCRandom
+        return (a, b, c, d)
+
+instance CRandom UUID.UUID where
+    crandom = runCRand $ view (from uuidWords) <$> getCRandom
 
 -------------------------------------------------------------------------------
 -- QuickCheck
