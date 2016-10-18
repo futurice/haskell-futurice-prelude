@@ -26,7 +26,6 @@ import Data.Aeson         (FromJSON (..), ToJSON (..))
 import Data.Binary        (Binary (..))
 import Data.Binary.Tagged (HasSemanticVersion, HasStructuralInfo)
 import Data.Fixed         (Fixed, HasResolution)
-import Data.Ratio         ((%))
 import Data.Swagger       (NamedSchema (..), ToSchema (..))
 import GHC.TypeLits       (KnownNat, Nat, natVal)
 import Lucid              (ToHtml (..))
@@ -143,7 +142,9 @@ toNominalDiffTime (NDT x) = fromInteger x
 ndtConvert
     :: forall t u a. (IsTimeUnit t, IsTimeUnit u, Fractional a)
     => NDT t a -> NDT u a
-ndtConvert (NDT x) = NDT $ x * fromRational (natVal pu % natVal pt)
+ndtConvert (NDT x) = NDT $
+    -- first multiply, then divide. Important when using fixed-precision data types
+    (x * fromInteger (natVal pt)) / fromInteger (natVal pu)
   where
     pt = Proxy :: Proxy (InSeconds t)
     pu = Proxy :: Proxy (InSeconds u)
