@@ -27,13 +27,17 @@ import Data.Binary        (Binary (..))
 import Data.Binary.Tagged (HasSemanticVersion, HasStructuralInfo)
 import Data.Fixed         (Fixed, HasResolution)
 import Data.Swagger       (NamedSchema (..), ToSchema (..))
-import GHC.TypeLits       (KnownNat, Nat, natVal)
+import GHC.TypeLits
+       (KnownNat, KnownSymbol, Nat, Symbol, natVal, symbolVal)
 import Lucid              (ToHtml (..))
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty (..))
 
-import qualified Data.Csv        as Csv
-import qualified Data.Scientific as Scientific
+import qualified Data.Aeson         as Aeson
+import qualified Data.Csv           as Csv
+import qualified Data.Scientific    as Scientific
+import qualified Data.Text.Encoding as TE
+import qualified Lucid
 
 data TimeUnit
     = Fortnights
@@ -44,15 +48,30 @@ data TimeUnit
     | Seconds
   deriving (Eq, Ord, Show, Typeable, Enum, Bounded)
 
-class KnownNat (InSeconds tu) => IsTimeUnit (tu :: TimeUnit) where
-    type InSeconds tu :: Nat
+class (KnownNat (InSeconds tu), KnownSymbol (TimeUnitSfx tu))
+    => IsTimeUnit (tu :: TimeUnit)
+  where
+    type InSeconds   tu :: Nat
+    type TimeUnitSfx tu :: Symbol
 
-instance IsTimeUnit 'Seconds    where type InSeconds 'Seconds    = 1
-instance IsTimeUnit 'Minutes    where type InSeconds 'Minutes    = 60
-instance IsTimeUnit 'Hours      where type InSeconds 'Hours      = 3600
-instance IsTimeUnit 'Days       where type InSeconds 'Days       = 86400
-instance IsTimeUnit 'Weeks      where type InSeconds 'Weeks      = 604800
-instance IsTimeUnit 'Fortnights where type InSeconds 'Fortnights = 1209600
+instance IsTimeUnit 'Seconds where
+    type InSeconds   'Seconds    = 1
+    type TimeUnitSfx 'Seconds    = "s"
+instance IsTimeUnit 'Minutes where
+    type InSeconds   'Minutes    = 60
+    type TimeUnitSfx 'Minutes    = "m"
+instance IsTimeUnit 'Hours where
+    type InSeconds   'Hours      = 3600
+    type TimeUnitSfx 'Hours      = "h"
+instance IsTimeUnit 'Days where
+    type InSeconds   'Days       = 86400
+    type TimeUnitSfx 'Days       = "d"
+instance IsTimeUnit 'Weeks where
+    type InSeconds   'Weeks      = 604800
+    type TimeUnitSfx 'Weeks      = "w"
+instance IsTimeUnit 'Fortnights where
+    type InSeconds   'Fortnights = 1209600
+    type TimeUnitSfx 'Fortnights = "fn"
 
 -- | Nominal diff time with unit
 newtype NDT (tu :: TimeUnit) a = NDT a
@@ -86,9 +105,15 @@ instance AsScientific a => ToJSON (NDT tu a) where
     toJSON (NDT x) = toJSON (_Scientific # x)
 
 -- | /TODO/ use unit
-instance Show a => ToHtml (NDT tu a) where
-    toHtml (NDT x) = toHtml (show x)
+instance (ToJSON a, Show a, IsTimeUnit tu) => ToHtml (NDT tu a) where
     toHtmlRaw = toHtml
+    toHtml (NDT x) = Lucid.span_
+        [ Lucid.data_ "futu-value" $ TE.decodeUtf8 (json ^. strict) ]
+        $ toHtmlRaw $ show x <> nbsp <> sfx
+      where
+        json = Aeson.encode x
+        sfx  = symbolVal (Proxy :: Proxy (TimeUnitSfx tu))
+        nbsp = "&nbsp;" :: String
 
 instance Num a => Num (NDT tu a) where
     NDT x + NDT y = NDT (x + y)
