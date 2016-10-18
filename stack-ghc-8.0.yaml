@@ -6,8 +6,8 @@ packages:
     commit: d47f3165d62feab85e85cc271d519cf87d1d3b78
   extra-dep: true
 - location:
-    git: https://github.com/phadej/uuid-aeson.git
-    commit: 2f26dabbc8ff257d3bf49a0fafa23fc20a4f7bed
+    git: https://github.com/necrobious/uuid-aeson.git
+    commit: f5fd573c7cb098515d0093acb2879520e190cc08
   extra-dep: true
 extra-deps:
 - aeson-1.0.0.0

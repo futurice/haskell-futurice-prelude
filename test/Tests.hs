@@ -5,8 +5,11 @@
 module Main (main) where
 
 import Futurice.Generics
+import Futurice.Time
 import Futurice.Prelude
 import Prelude           ()
+
+import Data.Fixed (Centi)
 
 import Test.QuickCheck
 import Test.Tasty
@@ -47,6 +50,7 @@ main = defaultMain $ testGroup "Tests"
     , tryDeepTests
     , toMapOfTests
     , swapMapMapTests
+    , timeTests
     ]
 
 tests :: TestTree
@@ -105,3 +109,11 @@ swapMapMapTests = testGroup "swapMapMap"
         length2 :: (Foldable f, Foldable f') => f (f' a) -> Sum Int
         length2 = foldMap (Sum . length)
         m'      = swapMapMap m
+
+timeTests :: TestTree
+timeTests = testGroup "Futurice.Time"
+    [ testCase "conversions" $ do
+        let a = fromNominalDiffTime 3600
+        let b = 60 :: NDT 'Minutes Centi
+        ndtConvert' a @?= b
+    ]
