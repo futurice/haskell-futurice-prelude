@@ -1,4 +1,5 @@
 .stack-work/
+.stack-work-docker/
 venv/
 src/highlight.js
 src/style.css
