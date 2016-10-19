@@ -49,8 +49,8 @@ import Data.Aeson.Types
        ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
        parseJSON1, toEncoding1, toJSON1)
 import Data.Binary                  (Binary (..))
-import Data.Binary.Orphans ()
-import Data.Binary.Tagged           (HasSemanticVersion, HasStructuralInfo)
+import Data.Binary.Tagged
+       (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
 import Data.Fixed                   (Fixed, HasResolution)
 import Data.Foldable                (toList)
 import Data.Functor.Compose         (Compose (..))
@@ -427,6 +427,10 @@ instance Arbitrary UUID.UUID where
 -- Binary
 -------------------------------------------------------------------------------
 
+instance (Binary a, Ord a) => Binary (NonEmpty.Interval a) where
+    put i = put (NonEmpty.inf i) >> put (NonEmpty.sup i)
+    get = (NonEmpty....) <$> get <*> get
+
 instance Binary a => Binary (GH.Request k a) where
     get = undefined
 
@@ -468,3 +472,15 @@ instance HasSemanticVersion GH.User
 instance HasSemanticVersion (GH.Name a)
 instance HasSemanticVersion (GH.Id a)
 instance HasSemanticVersion GH.URL
+
+instance HasStructuralInfo a => HasStructuralInfo (Interval a) where
+    structuralInfo _ =
+        NominalNewtype "Interval" $ structuralInfo (Proxy :: Proxy a)
+
+instance HasStructuralInfo a => HasStructuralInfo (NonEmpty.Interval a) where
+    structuralInfo _ =
+        NominalNewtype "Interval.NonEmpty" $ structuralInfo (Proxy :: Proxy a)
+
+instance HasStructuralInfo a => HasStructuralInfo (Kaucher.Interval a) where
+    structuralInfo _ =
+        NominalNewtype "Interval.Kaucher" $ structuralInfo (Proxy :: Proxy a)
