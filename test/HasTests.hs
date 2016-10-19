@@ -10,7 +10,6 @@ import Futurice.Prelude
 import Prelude ()
 
 import Futurice.Has (Has (..), In')
-import Generics.SOP (I (..), NP (..))
 
 import Test.Tasty
 import Test.Tasty.QuickCheck

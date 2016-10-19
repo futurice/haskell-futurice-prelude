@@ -91,6 +91,10 @@ module Futurice.Prelude (
     void, join, forever, iterateM, foldM, guard, when,
     -- * Function
     on, (&),
+    -- * SOP
+    I (..), unI,
+    K (..), unK,
+    NP (..), NS (..),
     -- * Lens
     Lens', lens,
     -- ** Operators
@@ -197,6 +201,7 @@ import Data.Typeable             (Typeable)
 import Data.UUID                 (UUID)
 import Data.Vector               (Vector)
 import Data.Word
+import Generics.SOP              (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH           (deriveGeneric)
 import GHC.Generics              (Generic)
 import Numeric.Natural           (Natural)
