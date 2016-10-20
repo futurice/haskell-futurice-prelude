@@ -140,6 +140,12 @@ instance Hashable a => Hashable (Kaucher.Interval a)
 instance Hashable a => Hashable (NonEmpty.Interval a)
 
 -- | Defined in 'Futurice.Prelude'.
+instance Hashable a => Hashable (I a)
+
+-- | Defined in 'Futurice.Prelude'.
+instance Hashable a => Hashable (K a b)
+
+-- | Defined in 'Futurice.Prelude'.
 instance NFData a => NFData (Interval a) where
     rnf a = rnf (sup a) `seq` rnf (inf a)
 instance NFData a => NFData (Kaucher.Interval a) where
