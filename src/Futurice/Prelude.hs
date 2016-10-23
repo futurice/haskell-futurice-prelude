@@ -5,11 +5,16 @@
 module Futurice.Prelude (
     module Prelude.Compat,
     -- * Types
+    ByteString,
     Day (..),
     HashMap,
     HashSet,
     IntMap,
     IntSet,
+    List,
+    Pair,
+    LazyText,
+    LazyByteString,
     LocalTime (..),
     Map,
     Natural,
@@ -17,6 +22,7 @@ module Futurice.Prelude (
     Proxy(..),
     Scientific,
     Set,
+    StrictPair,
     TZ,
     Tagged (..), untag,
     Text,
@@ -168,6 +174,7 @@ import Data.Align.Key            (AlignWithKey (..))
 import Data.Bifunctor            (first, second)
 import Data.Binary               (Binary)
 import Data.Bool.Compat          (bool)
+import Data.ByteString           (ByteString)
 import Data.Foldable             (fold, for_, toList, traverse_)
 import Data.Function             (on)
 import Data.Functor.Syntax       ((<$$>))
@@ -207,6 +214,10 @@ import GHC.Generics              (Generic)
 import Numeric.Natural           (Natural)
 import System.Random.Shuffle     (shuffleM)
 import Text.Read                 (readMaybe)
+
+import qualified Data.ByteString.Lazy as LBS
+import qualified Data.Text.Lazy       as LBS
+import qualified Data.Tuple.Strict    as STuple
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
@@ -295,3 +306,13 @@ utcToHelsinkiTime = utcToLocalTimeTZ helsinkiTz
 
 helsinkiTz :: TZ
 helsinkiTz = $(includeTZFromDB "Europe/Helsinki")
+
+-------------------------------------------------------------------------------
+-- type aliases
+-------------------------------------------------------------------------------
+
+type Pair = (,)
+type List = []
+type LazyByteString = LBS.ByteString
+type LazyText       = LBS.Text
+type StrictPair     = STuple.Pair
