@@ -84,6 +84,7 @@ import qualified Data.Scientific                      as Scientific
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
 import qualified Data.UUID                            as UUID
+import qualified Data.Vector                          as V
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
 import qualified Generics.SOP                         as SOP
@@ -234,6 +235,12 @@ instance Csv.FromField Scientific where
     parseField
         = either fail pure
         . Atto.parseOnly (Atto.scientific <* Atto.endOfInput)
+
+instance All Csv.ToField xs => Csv.ToRecord (NP I xs) where
+    toRecord
+        = V.fromList
+        . SOP.hcollapse
+        . SOP.hcmap (Proxy :: Proxy Csv.ToField) (K . Csv.toField . unI)
 
 -------------------------------------------------------------------------------
 -- Swagger schemas
