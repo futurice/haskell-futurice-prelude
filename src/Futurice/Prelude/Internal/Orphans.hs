@@ -257,6 +257,9 @@ instance All Csv.ToField xs => Csv.ToRecord (NP Maybe xs) where
         . SOP.hcollapse
         . SOP.hcmap (Proxy :: Proxy Csv.ToField) (K . maybe "" Csv.toField)
 
+instance Csv.ToField (GH.Name a) where
+    toField = Csv.toField . GH.untagName
+
 -------------------------------------------------------------------------------
 -- Swagger schemas
 -------------------------------------------------------------------------------
@@ -282,7 +285,9 @@ instance ToSchema (Image a) where
     declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
 
 instance HasResolution a => ToSchema (Fixed a) where
-    declareNamedSchema _ = pure $ NamedSchema (Just . fromString $ n) mempty
+    declareNamedSchema _ = do
+        NamedSchema _ schema <- declareNamedSchema (Proxy :: Proxy Scientific)
+        pure $ NamedSchema (Just . fromString $ n) schema
       where
         n = "Fixed " <> show (Fixed.resolution (Proxy :: Proxy a))
 
