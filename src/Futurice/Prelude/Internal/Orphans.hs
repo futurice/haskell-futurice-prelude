@@ -76,6 +76,7 @@ import Text.PrettyPrint.ANSI.Leijen (Doc)
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
+import qualified Data.Aeson.Encoding                  as Aeson
 import qualified Data.Attoparsec.ByteString.Char8     as Atto
 import qualified Data.Csv                             as Csv
 import qualified Data.Fixed                           as Fixed
@@ -419,13 +420,18 @@ instance (ToJSONKey a) => ToJSONKey (I a) where
     toJSONKey = contramapToJSONKeyFunction unI toJSONKey
     toJSONKeyList = contramapToJSONKeyFunction (map unI) toJSONKeyList
 
+-- NP
+
 instance (ToJSON1 f, All ToJSON xs) => ToJSON (NP f xs) where
     toJSON
         = toJSON
         . SOP.hcollapse
         . SOP.hcmap (Proxy :: Proxy ToJSON) (K . toJSON1)
 
-    -- TODO: add toEncoding
+    toEncoding
+        = Aeson.list id
+        . SOP.hcollapse
+        . SOP.hcmap (Proxy :: Proxy ToJSON) (K . toEncoding1)
 
 instance (FromJSON1 f, All FromJSON xs) => FromJSON (NP f xs) where
     parseJSON = withArray "NP f xs" $ \arr -> case SOP.fromList (toList arr) of
