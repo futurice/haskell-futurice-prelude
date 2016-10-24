@@ -242,6 +242,12 @@ instance All Csv.ToField xs => Csv.ToRecord (NP I xs) where
         . SOP.hcollapse
         . SOP.hcmap (Proxy :: Proxy Csv.ToField) (K . Csv.toField . unI)
 
+instance All Csv.ToField xs => Csv.ToRecord (NP Maybe xs) where
+    toRecord
+        = V.fromList
+        . SOP.hcollapse
+        . SOP.hcmap (Proxy :: Proxy Csv.ToField) (K . maybe "" Csv.toField)
+
 -------------------------------------------------------------------------------
 -- Swagger schemas
 -------------------------------------------------------------------------------
