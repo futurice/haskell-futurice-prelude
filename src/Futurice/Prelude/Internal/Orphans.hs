@@ -62,8 +62,8 @@ import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
 import Data.These                   (These (..))
-import Data.Time                    (Day)
-import Data.Time.Parsers            (day)
+import Data.Time                    (Day, UTCTime)
+import Data.Time.Parsers            (day, utcTime)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
 import Generics.SOP                 (All, I (..), K (..), NP (..), unI)
@@ -208,6 +208,13 @@ instance Csv.ToField Day where
 instance Csv.FromField Day where
     parseField s = either (fail . show) return $
         parse day "FromField Day" s
+
+instance Csv.ToField UTCTime where
+    toField = fromString . show
+
+instance Csv.FromField UTCTime where
+    parseField s = either (fail . show) return $
+        parse utcTime "FromField UTCTime" s
 
 -- | TODO: this instance is suspicious!
 instance Csv.ToField (Map k v) where
