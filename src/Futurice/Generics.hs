@@ -26,6 +26,8 @@ module Futurice.Generics (
     -- * Swagger
     Swagger.ToSchema(..),
     sopDeclareNamedSchema,
+    -- * Internal
+    sopRecordFieldNames,
     ) where
 
 import Futurice.Prelude hiding (Generic, from)
@@ -303,6 +305,22 @@ lowerFirst (c:cs) = toLower c : cs
 
 processFieldName :: String -> String -> String
 processFieldName pfx = lowerFirst . drop (length pfx)
+
+-- | /TODO/ use this in "Futurice.Generics"
+sopRecordFieldNames
+    :: forall a xs. (HasDatatypeInfo a, Code a ~ '[xs], SListI xs)
+    => Proxy a
+    -> NP (K Text) xs
+sopRecordFieldNames proxy = hmap mk fieldInfos
+  where
+    mk :: forall x. FieldInfo x -> K Text x
+    mk (FieldInfo n) = K $ processFieldName prefix n ^. packed
+
+    prefix :: String
+    prefix = longestFieldInfoPrefix fieldInfos
+
+    fieldInfos :: NP FieldInfo xs
+    fieldInfos = datatypeInfo proxy ^. constructorInfo . unSingletonP . fieldInfo
 
 -------------------------------------------------------------------------------
 -- generics-sop-lens
