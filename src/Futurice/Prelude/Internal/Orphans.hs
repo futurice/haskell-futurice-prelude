@@ -33,7 +33,7 @@ import Test.QuickCheck.Instances ()
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
-import Control.Lens                 (from, view, (&), (.~))
+import Control.Lens                 (from, view, (&), (.~), (?~))
 import Control.Monad                (when)
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom
@@ -61,6 +61,7 @@ import Data.Scientific              (Scientific)
 import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
+import Data.These                   (These (..))
 import Data.Time                    (Day)
 import Data.Time.Parsers            (day)
 import Data.Typeable                (Typeable)
@@ -83,6 +84,7 @@ import qualified Data.Map                             as Map
 import qualified Data.Scientific                      as Scientific
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
+import qualified Data.Tuple.Strict                    as S
 import qualified Data.UUID                            as UUID
 import qualified Data.Vector                          as V
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
@@ -318,11 +320,26 @@ declareNamedSchema1 _ = do
     schema <- Swagger.declareNamedSchema (Proxy :: Proxy a)
     liftDeclareNamedSchema (Proxy :: Proxy f) schema
 
-instance ToSchema a => ToSchema (I a) where
-    declareNamedSchema = declareNamedSchema1
-
+instance ToSchema a => ToSchema (I a)
 instance ToSchema1 I where
     liftDeclareNamedSchema _ = pure
+
+instance (ToSchema a, ToSchema b) => ToSchema (S.Pair a b)
+
+instance (ToSchema a, ToSchema b) => ToSchema (These a b) where
+    declareNamedSchema _ = do
+        aSchema <- Swagger.declareSchemaRef (Proxy :: Proxy a)
+        bSchema <- Swagger.declareSchemaRef (Proxy :: Proxy b)
+        return $ NamedSchema (Just "These") $ mempty
+            & Swagger.type_ .~ Swagger.SwaggerObject
+            & Swagger.properties .~ InsOrdHashMap.fromList
+                [ ("This", aSchema)
+                , ("That", bSchema)
+                ]
+            -- At least 1 property, but both can be present!
+            & Swagger.maxProperties ?~ 2
+            & Swagger.minProperties ?~ 1
+
 
 -------------------------------------------------------------------------------
 -- aeson
