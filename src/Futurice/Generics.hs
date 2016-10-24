@@ -21,6 +21,7 @@ module Futurice.Generics (
     Aeson.ToJSON(..),
     Aeson.FromJSON(..),
     sopToJSON,
+    sopToEncoding,
     sopParseJSON,
     -- * Swagger
     Swagger.ToSchema(..),
@@ -148,6 +149,7 @@ sopParseRecord' r = go (sList :: SList xs) 0
 -- Aeson
 -------------------------------------------------------------------------------
 
+-- | /TODO/ use hczipWith to simplify implemenetations
 sopToJSON
     :: forall a xs.
        (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, Code a ~ '[xs])
@@ -174,6 +176,36 @@ sopToJSON' fs' xs' = go fs' xs'
     go Nil Nil = []
     go (FieldInfo f :* fs) (I x :* xs) =
         (fromString $ processFieldName prefix f) Aeson..= x : go fs xs
+#if __GLASGOW_HASKELL__ < 800
+    go _ _ = error "sopToNamedRecord' go: impossible happened"
+#endif
+
+sopToEncoding
+    :: forall a xs.
+       (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, Code a ~ '[xs])
+    => a
+    -> Aeson.Encoding
+sopToEncoding
+    = Aeson.pairs
+    . sopToEncoding' fieldInfos
+    . (^. unsop . unSingletonS)
+    . from
+  where
+    fieldInfos = datatypeInfo (Proxy :: Proxy a) ^.
+        constructorInfo . unSingletonP . fieldInfo
+
+sopToEncoding'
+    :: All Aeson.ToJSON xs => NP FieldInfo xs -> NP I xs
+    -> Aeson.Series
+sopToEncoding' fs' xs' = go fs' xs'
+  where
+    prefix :: String
+    prefix = longestFieldInfoPrefix fs'
+
+    go :: All Aeson.ToJSON xs => NP FieldInfo xs -> NP I xs -> Aeson.Series
+    go Nil Nil = mempty
+    go (FieldInfo f :* fs) (I x :* xs) =
+        (fromString $ processFieldName prefix f) Aeson..= x <> go fs xs
 #if __GLASGOW_HASKELL__ < 800
     go _ _ = error "sopToNamedRecord' go: impossible happened"
 #endif
