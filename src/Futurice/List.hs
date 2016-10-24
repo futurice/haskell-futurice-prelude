@@ -11,6 +11,7 @@ module Futurice.List (
     TMap,
     npCompToTMap,
     Head,
+    UnSingleton,
     ) where
 
 import Prelude ()
@@ -71,4 +72,26 @@ npCompToTMap (fg :* xs) = coerce fg :* npCompToTMap xs -- use coerce!
 --
 type family Head (xs :: [k]) where
     Head (x ': xs) = x
+    -- TODO: add TypeError on GHC 8.0?
+
+-------------------------------------------------------------------------------
+-- UnSingleton
+-------------------------------------------------------------------------------
+
+-- | More partial function then 'Head'.
+--
+-- >>> λ *Futurice.List > :kind! UnSingleton '[Int]
+-- UnSingleton '[Int] :: *
+-- = Int
+--
+-- >>> λ *Futurice.List > :kind! UnSingleton '[]
+-- UnSingleton '[] :: k
+-- = UnSingleton '[]
+--
+-- >>> λ *Futurice.List > :kind! UnSingleton '[Int, Bool]
+-- UnSingleton '[Int, Bool] :: *
+-- = UnSingleton '[Int, Bool]
+--
+type family UnSingleton (xs :: [k]) where
+    UnSingleton '[x] = x
     -- TODO: add TypeError on GHC 8.0?
