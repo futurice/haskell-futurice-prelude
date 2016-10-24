@@ -9,6 +9,7 @@
 module Futurice.Time (
     NDT (..),
     TimeUnit (..),
+    IsTimeUnit (..),
     -- * Conversions
     -- ** NominalDiffTime
     toNominalDiffTime,
@@ -16,6 +17,8 @@ module Futurice.Time (
     -- ** Units
     ndtConvert,
     ndtConvert',
+    -- * Internal
+    AsScientific,
     ) where
 
 import Futurice.Prelude
@@ -96,6 +99,8 @@ instance HasStructuralInfo a => HasStructuralInfo (NDT tu a)
 instance HasSemanticVersion (NDT tu a)
 
 -- | Instances are encoded / decoded as is. I.e. unit is irrelevant
+--
+-- /TODO/: encode as object?
 instance AsScientific a => FromJSON (NDT tu a) where
     parseJSON x = do
         s <- parseJSON x
@@ -104,7 +109,6 @@ instance AsScientific a => FromJSON (NDT tu a) where
 instance AsScientific a => ToJSON (NDT tu a) where
     toJSON (NDT x) = toJSON (_Scientific # x)
 
--- | /TODO/ use unit
 instance (ToJSON a, Show a, IsTimeUnit tu) => ToHtml (NDT tu a) where
     toHtmlRaw = toHtml
     toHtml (NDT x) = Lucid.span_
@@ -130,9 +134,12 @@ instance Csv.ToField a => Csv.ToField (NDT tu a) where
 instance Csv.FromField a => Csv.FromField (NDT tu a) where
     parseField = fmap NDT . Csv.parseField
 
--- | /todo/ use unit
-instance ToSchema (NDT tu a) where
-    declareNamedSchema _ = pure $ NamedSchema (Just "NDT") mempty
+instance (ToSchema a,  IsTimeUnit tu) => ToSchema (NDT tu a) where
+    declareNamedSchema _ = do
+        NamedSchema _ schema <- declareNamedSchema (Proxy :: Proxy a)
+        pure $ NamedSchema (Just $ "NDT " <> sfx ^. packed) schema
+     where
+       sfx  = symbolVal (Proxy :: Proxy (TimeUnitSfx tu))
 
 -------------------------------------------------------------------------------
 -- Helper class to convert from/to Scientific

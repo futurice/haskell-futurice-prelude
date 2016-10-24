@@ -33,7 +33,7 @@ import Test.QuickCheck.Instances ()
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
-import Control.Lens                 (from, view, (&), (.~))
+import Control.Lens                 (from, view, (&), (.~), (?~))
 import Control.Monad                (when)
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom
@@ -61,8 +61,9 @@ import Data.Scientific              (Scientific)
 import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
-import Data.Time                    (Day)
-import Data.Time.Parsers            (day)
+import Data.These                   (These (..))
+import Data.Time                    (Day, UTCTime)
+import Data.Time.Parsers            (day, utcTime)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
 import Generics.SOP                 (All, I (..), K (..), NP (..), unI)
@@ -83,6 +84,7 @@ import qualified Data.Map                             as Map
 import qualified Data.Scientific                      as Scientific
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
+import qualified Data.Tuple.Strict                    as S
 import qualified Data.UUID                            as UUID
 import qualified Data.Vector                          as V
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
@@ -207,6 +209,13 @@ instance Csv.FromField Day where
     parseField s = either (fail . show) return $
         parse day "FromField Day" s
 
+instance Csv.ToField UTCTime where
+    toField = fromString . show
+
+instance Csv.FromField UTCTime where
+    parseField s = either (fail . show) return $
+        parse utcTime "FromField UTCTime" s
+
 -- | TODO: this instance is suspicious!
 instance Csv.ToField (Map k v) where
     toField _ = "{}"
@@ -242,6 +251,15 @@ instance All Csv.ToField xs => Csv.ToRecord (NP I xs) where
         . SOP.hcollapse
         . SOP.hcmap (Proxy :: Proxy Csv.ToField) (K . Csv.toField . unI)
 
+instance All Csv.ToField xs => Csv.ToRecord (NP Maybe xs) where
+    toRecord
+        = V.fromList
+        . SOP.hcollapse
+        . SOP.hcmap (Proxy :: Proxy Csv.ToField) (K . maybe "" Csv.toField)
+
+instance Csv.ToField (GH.Name a) where
+    toField = Csv.toField . GH.untagName
+
 -------------------------------------------------------------------------------
 -- Swagger schemas
 -------------------------------------------------------------------------------
@@ -267,7 +285,9 @@ instance ToSchema (Image a) where
     declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
 
 instance HasResolution a => ToSchema (Fixed a) where
-    declareNamedSchema _ = pure $ NamedSchema (Just . fromString $ n) mempty
+    declareNamedSchema _ = do
+        NamedSchema _ schema <- declareNamedSchema (Proxy :: Proxy Scientific)
+        pure $ NamedSchema (Just . fromString $ n) schema
       where
         n = "Fixed " <> show (Fixed.resolution (Proxy :: Proxy a))
 
@@ -312,11 +332,26 @@ declareNamedSchema1 _ = do
     schema <- Swagger.declareNamedSchema (Proxy :: Proxy a)
     liftDeclareNamedSchema (Proxy :: Proxy f) schema
 
-instance ToSchema a => ToSchema (I a) where
-    declareNamedSchema = declareNamedSchema1
-
+instance ToSchema a => ToSchema (I a)
 instance ToSchema1 I where
     liftDeclareNamedSchema _ = pure
+
+instance (ToSchema a, ToSchema b) => ToSchema (S.Pair a b)
+
+instance (ToSchema a, ToSchema b) => ToSchema (These a b) where
+    declareNamedSchema _ = do
+        aSchema <- Swagger.declareSchemaRef (Proxy :: Proxy a)
+        bSchema <- Swagger.declareSchemaRef (Proxy :: Proxy b)
+        return $ NamedSchema (Just "These") $ mempty
+            & Swagger.type_ .~ Swagger.SwaggerObject
+            & Swagger.properties .~ InsOrdHashMap.fromList
+                [ ("This", aSchema)
+                , ("That", bSchema)
+                ]
+            -- At least 1 property, but both can be present!
+            & Swagger.maxProperties ?~ 2
+            & Swagger.minProperties ?~ 1
+
 
 -------------------------------------------------------------------------------
 -- aeson

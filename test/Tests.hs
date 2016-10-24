@@ -40,7 +40,9 @@ instance Csv.DefaultOrdered T where headerOrder = sopHeaderOrder
 instance Csv.FromRecord T where parseRecord = sopParseRecord
 instance Csv.ToNamedRecord T where toNamedRecord = sopToNamedRecord
 instance Aeson.FromJSON T where parseJSON = sopParseJSON
-instance Aeson.ToJSON T where toJSON = sopToJSON
+instance Aeson.ToJSON T where
+    toJSON     = sopToJSON
+    toEncoding = sopToEncoding
 
 main :: IO ()
 main = defaultMain $ testGroup "Tests"
@@ -59,7 +61,8 @@ tests = testGroup "Futurice.Generics"
         length (shrink $ T 2 'b' "foo") > 0 @?= True
     , testCase "DefaultOrdered" $
         Csv.headerOrder (undefined :: T) @?= V.fromList ["int", "char", "text"]
-    , testProperty "FromJSON . ToJSON" aesonRoundtripT
+    , testProperty "FromJSON . ToEncoding" aesonRoundtripT
+    , testProperty "FromJSON . ToJSON" aesonRoundtripT'
     , testProperty "FromRecord . ToNamedRecord" cassavaRoundtripT
     ]
 
@@ -67,6 +70,12 @@ aesonRoundtripT :: T -> Property
 aesonRoundtripT t = lhs === rhs
   where
     lhs = Aeson.eitherDecode (Aeson.encode t)
+    rhs = Right t
+
+aesonRoundtripT' :: T -> Property
+aesonRoundtripT' t = lhs === rhs
+  where
+    lhs = Aeson.eitherDecode (Aeson.encode (Aeson.toJSON t))
     rhs = Right t
 
 cassavaRoundtripT :: [T] -> Property

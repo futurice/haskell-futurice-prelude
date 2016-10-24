@@ -1,22 +1,28 @@
-resolver: lts-6.20
+resolver: lts-6.23
 packages:
 - '.'
 - location:
-    git: https://github.com/phadej/github.git
-    commit: d47f3165d62feab85e85cc271d519cf87d1d3b78
-  extra-dep: true
-- location:
     git: https://github.com/necrobious/uuid-aeson.git
     commit: f5fd573c7cb098515d0093acb2879520e190cc08
+  extra-dep: true
+- location:
+    git: https://github.com/phadej/github.git
+    commit: d47f3165d62feab85e85cc271d519cf87d1d3b78
   extra-dep: true
 extra-deps:
 - aeson-1.0.0.0
 - ansi-pretty-0.1.2.0
 - bifunctors-5.4.1
+- binary-tagged-0.1.4.1
+- comonad-5
 - generics-sop-lens-0.1.2.0
 - http-api-data-0.3.1
 - insert-ordered-containers-0.2.0.0
+- kan-extensions-5.0.1
+- lens-4.15.1
+- pointed-5
 - semigroupoids-5.1
 - swagger2-2.1.3
 - these-0.7.2
 - transformers-compat-0.5.1.4
+flags: {}

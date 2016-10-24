@@ -156,8 +156,7 @@ import Control.Lens
        view, (&), (.~), (?~), (^.), (^..), (^?), _1, _2, _Empty, _Just, _Left,
        _Nothing, _Right)
 import Control.Lens
-       (At (..), IndexedGetting, Ixed (..), ifoldMap, ifoldMapOf, iviews,
-       (<.>))
+       (At (..), Ixed (..), ifoldMap, ifoldMapOf, (<.>))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
@@ -186,6 +185,7 @@ import Data.IntMap.Strict        (IntMap)
 import Data.IntSet               (IntSet)
 import Data.Key                  (Zip (..), ZipWithKey (..))
 import Data.List                 (nub, sort, sortBy)
+import Data.Map.Lens             (toMapOf)
 import Data.Map.Strict           (Map)
 import Data.Maybe                (fromMaybe)
 import Data.Proxy                (Proxy (..))
@@ -256,31 +256,6 @@ swapMapMap :: (Ord k, Ord k') => Map k (Map k' v) -> Map k' (Map k v)
 swapMapMap = getUnionWith . ifoldMapOf (ifolded <.> ifolded) f
   where
     f (k, k') v = UnionWith $ Map.singleton k' $ Map.singleton k v
-
--- | Construct a map from a 'IndexedGetter', 'Control.Lens.Fold.IndexedFold', 'Control.Lens.Traversal.IndexedTraversal' or 'Control.Lens.Lens.IndexedLens'
---
--- The construction is left-biased (see 'Data.Map.Lazy.union'), i.e. the first
--- occurences of keys in the fold or traversal order are preferred.
---
--- >>> toMapOf folded ["hello", "world"]
--- fromList [(0,"hello"),(1,"world")]
---
--- >>> toMapOf (folded <.> folded) ["foo", "bar"]
--- fromList [((0,0),'f'),((0,1),'o'),((0,2),'o'),((1,0),'b'),((1,1),'a'),((1,2),'r')]
---
--- >>> toMapOf ifolded $ Map.fromList [('a', "hello"), ('b', "world")]
--- fromList [('a',"hello"),('b',"world")]
---
--- @
--- 'toMapOf' ::          'IndexedGetter' i s a     -> s -> 'Map.Map' i a
--- 'toMapOf' :: 'Ord' i => 'IndexedFold' i s a       -> s -> 'Map.Map' i a
--- 'toMapOf' ::          'IndexedLens'' i s a      -> s -> 'Map.Map' i a
--- 'toMapOf' :: 'Ord' i => 'IndexedTraversal'' i s a -> s -> 'Map.Map' i a
--- @
---
--- See https://github.com/ekmett/lens/pull/676
-toMapOf :: IndexedGetting i (Map i a) s a -> s -> Map i a
-toMapOf l = iviews l Map.singleton
 
 -------------------------------------------------------------------------------
 -- UUID
