@@ -88,6 +88,7 @@ module Futurice.Prelude (
     traverse_, itraverse_,
     for_, ifor_,
     ifoldMap,
+    sequenceA_,
     -- * Traversable
     for,
     -- ** Indexed
@@ -119,7 +120,7 @@ module Futurice.Prelude (
     isn't, _Empty,
     -- ** Common optics
     _Just, _Nothing, _Left, _Right,
-    _1, _2,
+    _1, _2, _3,
     -- ** Constructors
     toMapOf,
     -- ** TH
@@ -153,8 +154,8 @@ import Control.Exception         (evaluate)
 import Control.Lens
        (Lens', folded, from, ifolded, ifor, ifor_, isn't, itoList, itraverse,
        itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, strict,
-       view, (&), (.~), (?~), (^.), (^..), (^?), _1, _2, _Empty, _Just, _Left,
-       _Nothing, _Right)
+       view, (&), (.~), (?~), (^.), (^..), (^?), _1, _2, _3, _Empty, _Just,
+       _Left, _Nothing, _Right)
 import Control.Lens
        (At (..), Ixed (..), ifoldMap, ifoldMapOf, (<.>))
 import Control.Monad.Catch
@@ -174,7 +175,7 @@ import Data.Bifunctor            (first, second)
 import Data.Binary               (Binary)
 import Data.Bool.Compat          (bool)
 import Data.ByteString           (ByteString)
-import Data.Foldable             (fold, for_, toList, traverse_)
+import Data.Foldable             (fold, for_, toList, sequenceA_, traverse_)
 import Data.Function             (on)
 import Data.Functor.Syntax       ((<$$>))
 import Data.Hashable             (Hashable (..))
