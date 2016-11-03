@@ -33,6 +33,7 @@ import Data.Swagger       (NamedSchema (..), ToSchema (..))
 import GHC.TypeLits
        (KnownNat, KnownSymbol, Nat, Symbol, natVal, symbolVal)
 import Lucid              (ToHtml (..))
+import Test.QuickCheck    (Arbitrary (..), CoArbitrary (..))
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty (..))
 
@@ -97,6 +98,13 @@ instance AnsiPretty a => AnsiPretty (NDT tu a) where
 -- | /TODO/ use unit
 instance HasStructuralInfo a => HasStructuralInfo (NDT tu a)
 instance HasSemanticVersion (NDT tu a)
+
+instance Arbitrary a => Arbitrary (NDT tu a) where
+    arbitrary      = NDT <$> arbitrary
+    shrink (NDT x) = NDT <$> shrink x
+
+instance CoArbitrary a => CoArbitrary (NDT tu a) where
+    coarbitrary (NDT x) = coarbitrary x
 
 -- | Instances are encoded / decoded as is. I.e. unit is irrelevant
 --
