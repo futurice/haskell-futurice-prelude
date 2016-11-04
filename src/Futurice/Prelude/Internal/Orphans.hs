@@ -203,6 +203,15 @@ instance Postgres.ToField (GH.Name entity) where
 -- cassava
 -------------------------------------------------------------------------------
 
+instance Csv.ToField Bool where
+    toField True  = "true"
+    toField False = "false"
+
+instance Csv.FromField Bool where
+    parseField "true"  = pure True
+    parseField "false" = pure False
+    parseField s       = fail $ "not a bool " ++ show s
+
 instance Csv.ToField Day where
     toField = fromString . show
 
