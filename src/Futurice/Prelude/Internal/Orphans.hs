@@ -203,6 +203,15 @@ instance Postgres.ToField (GH.Name entity) where
 -- cassava
 -------------------------------------------------------------------------------
 
+instance Csv.ToField Bool where
+    toField True  = "true"
+    toField False = "false"
+
+instance Csv.FromField Bool where
+    parseField "true"  = pure True
+    parseField "false" = pure False
+    parseField s       = fail $ "not a bool " ++ show s
+
 instance Csv.ToField Day where
     toField = fromString . show
 
@@ -509,7 +518,8 @@ instance Binary (GH.CommandMethod a) where
     put GH.Post   = put (0 :: Int)
     put GH.Patch  = put (1 :: Int)
     put GH.Put    = put (2 :: Int)
-    put GH.Delete = put (3 :: Int)
+    put GH.Put'   = put (3 :: Int)
+    put GH.Delete = put (4 :: Int)
 
 -------------------------------------------------------------------------------
 -- binary-tagged
