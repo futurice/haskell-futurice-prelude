@@ -126,8 +126,9 @@ module Futurice.Prelude (
     -- ** TH
     makeLenses, makePrisms, makeWrapped,
     -- * List
-    sort, sortBy, nub,
+    sort, sortBy, sortOn, nub,
     shuffleM,
+    chunksOf,
     -- * Time
     -- ** TH
     mkUTCTime, mkDay,
@@ -185,7 +186,8 @@ import Data.Int
 import Data.IntMap.Strict        (IntMap)
 import Data.IntSet               (IntSet)
 import Data.Key                  (Zip (..), ZipWithKey (..))
-import Data.List                 (nub, sort, sortBy)
+import Data.List.Compat          (nub, sort, sortBy, sortOn)
+import Data.List.Extra           (chunksOf)
 import Data.Map.Lens             (toMapOf)
 import Data.Map.Strict           (Map)
 import Data.Maybe                (fromMaybe)

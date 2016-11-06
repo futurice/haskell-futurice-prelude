@@ -1,4 +1,4 @@
-resolver: lts-6.23
+resolver: lts-6.24
 packages:
 - '.'
 - location:
@@ -9,8 +9,8 @@ extra-deps:
 - aeson-1.0.0.0
 - ansi-pretty-0.1.2.0
 - bifunctors-5.4.1
-- binary-tagged-0.1.4.1
 - comonad-5
+- extra-1.5.1
 - generics-sop-lens-0.1.2.0
 - github-0.15.0
 - http-api-data-0.3.1
