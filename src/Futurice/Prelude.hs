@@ -72,7 +72,11 @@ module Futurice.Prelude (
     -- * alternative
     Alternative(..), optional,
     -- * bifunctors
-    first, second,
+    bimap, first, second,
+    -- * profunctors
+    dimap, lmap, rmap,
+    -- * contravariant
+    contramap, (>$<), (>$),
     -- * deepseq
     ($!!),
     -- * exception
@@ -148,10 +152,10 @@ module Futurice.Prelude (
 import Prelude ()
 import Prelude.Compat hiding (zip, zipWith)
 
-import Control.Applicative       (Alternative (..), optional)
-import Control.Concurrent.Async  (waitCatch, withAsync)
-import Control.DeepSeq           (NFData (..), ($!!))
-import Control.Exception         (evaluate)
+import Control.Applicative        (Alternative (..), optional)
+import Control.Concurrent.Async   (waitCatch, withAsync)
+import Control.DeepSeq            (NFData (..), ($!!))
+import Control.Exception          (evaluate)
 import Control.Lens
        (Lens', folded, from, ifolded, ifor, ifor_, isn't, itoList, itraverse,
        itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, strict,
@@ -161,62 +165,64 @@ import Control.Lens
        (At (..), Ixed (..), ifoldMap, ifoldMapOf, (<.>))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
-import Control.Monad.Compat      (foldM, forever, guard, join, void, when)
-import Control.Monad.Except      (MonadError (..))
-import Control.Monad.IO.Class    (MonadIO (..))
+import Control.Monad.Compat       (foldM, forever, guard, join, void, when)
+import Control.Monad.Except       (MonadError (..))
+import Control.Monad.IO.Class     (MonadIO (..))
 import Control.Monad.Logger
        (MonadLogger, logDebug, logError, logInfo, logWarn, runNoLoggingT,
        runStderrLoggingT)
-import Control.Monad.Reader      (MonadReader (..))
-import Control.Monad.Time        (MonadTime (..))
-import Control.Monad.Trans.Class (MonadTrans (..))
-import Data.Align                (Align (..))
-import Data.Align.Key            (AlignWithKey (..))
-import Data.Bifunctor            (first, second)
-import Data.Binary               (Binary)
-import Data.Bool.Compat          (bool)
-import Data.ByteString           (ByteString)
-import Data.Foldable             (fold, for_, toList, sequenceA_, traverse_)
-import Data.Function             (on)
-import Data.Functor.Syntax       ((<$$>))
-import Data.Hashable             (Hashable (..))
-import Data.HashMap.Strict       (HashMap)
-import Data.HashSet              (HashSet)
+import Control.Monad.Reader       (MonadReader (..))
+import Control.Monad.Time         (MonadTime (..))
+import Control.Monad.Trans.Class  (MonadTrans (..))
+import Data.Align                 (Align (..))
+import Data.Align.Key             (AlignWithKey (..))
+import Data.Bifunctor             (bimap, first, second)
+import Data.Binary                (Binary)
+import Data.Bool.Compat           (bool)
+import Data.ByteString            (ByteString)
+import Data.Foldable              (fold, for_, sequenceA_, toList, traverse_)
+import Data.Function              (on)
+import Data.Functor.Contravariant (contramap, (>$), (>$<))
+import Data.Functor.Syntax        ((<$$>))
+import Data.Hashable              (Hashable (..))
+import Data.HashMap.Strict        (HashMap)
+import Data.HashSet               (HashSet)
 import Data.Int
-import Data.IntMap.Strict        (IntMap)
-import Data.IntSet               (IntSet)
-import Data.Key                  (Zip (..), ZipWithKey (..))
-import Data.List.Compat          (nub, sort, sortBy, sortOn)
-import Data.List.Extra           (chunksOf)
-import Data.Map.Lens             (toMapOf)
-import Data.Map.Strict           (Map)
-import Data.Maybe                (fromMaybe)
-import Data.Proxy                (Proxy (..))
-import Data.Scientific           (Scientific)
-import Data.Semigroup            (Semigroup (..), Sum (..))
-import Data.Semigroup.Union      (UnionWith (..))
-import Data.Set                  (Set)
-import Data.String               (IsString (..))
-import Data.Tagged               (Tagged (..), untag)
-import Data.Text                 (Text)
-import Data.Text.Lens            (packed)
-import Data.These                (These (..))
+import Data.IntMap.Strict         (IntMap)
+import Data.IntSet                (IntSet)
+import Data.Key                   (Zip (..), ZipWithKey (..))
+import Data.List.Compat           (nub, sort, sortBy, sortOn)
+import Data.List.Extra            (chunksOf)
+import Data.Map.Lens              (toMapOf)
+import Data.Map.Strict            (Map)
+import Data.Maybe                 (fromMaybe)
+import Data.Profunctor            (dimap, lmap, rmap)
+import Data.Proxy                 (Proxy (..))
+import Data.Scientific            (Scientific)
+import Data.Semigroup             (Semigroup (..), Sum (..))
+import Data.Semigroup.Union       (UnionWith (..))
+import Data.Set                   (Set)
+import Data.String                (IsString (..))
+import Data.Tagged                (Tagged (..), untag)
+import Data.Text                  (Text)
+import Data.Text.Lens             (packed)
+import Data.These                 (These (..))
 import Data.Time
        (Day (..), LocalTime (..), NominalDiffTime, UTCTime (..))
-import Data.Time.TH              (mkDay, mkUTCTime)
-import Data.Time.Zones           (TZ, utcToLocalTimeTZ)
-import Data.Time.Zones.TH        (includeTZFromDB)
-import Data.Traversable          (for)
-import Data.Typeable             (Typeable)
-import Data.UUID                 (UUID)
-import Data.Vector               (Vector)
+import Data.Time.TH               (mkDay, mkUTCTime)
+import Data.Time.Zones            (TZ, utcToLocalTimeTZ)
+import Data.Time.Zones.TH         (includeTZFromDB)
+import Data.Traversable           (for)
+import Data.Typeable              (Typeable)
+import Data.UUID                  (UUID)
+import Data.Vector                (Vector)
 import Data.Word
-import Generics.SOP              (I (..), K (..), NP (..), NS (..), unI, unK)
-import Generics.SOP.TH           (deriveGeneric)
-import GHC.Generics              (Generic)
-import Numeric.Natural           (Natural)
-import System.Random.Shuffle     (shuffleM)
-import Text.Read                 (readMaybe)
+import Generics.SOP               (I (..), K (..), NP (..), NS (..), unI, unK)
+import Generics.SOP.TH            (deriveGeneric)
+import GHC.Generics               (Generic)
+import Numeric.Natural            (Natural)
+import System.Random.Shuffle      (shuffleM)
+import Text.Read                  (readMaybe)
 
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Text.Lazy       as LBS
