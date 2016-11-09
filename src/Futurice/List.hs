@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE EmptyCase            #-}
 {-# LANGUAGE KindSignatures       #-}
 {-# LANGUAGE PolyKinds            #-}
 {-# LANGUAGE RankNTypes           #-}
@@ -10,6 +11,8 @@ module Futurice.List (
     append,
     TMap,
     npCompToTMap,
+    tmapToNSComp,
+    splitAppend,
     Head,
     UnSingleton,
     ) where
@@ -17,7 +20,7 @@ module Futurice.List (
 import Prelude ()
 import Futurice.Prelude
 import Data.Coerce      (coerce)
-import Generics.SOP     ((:.:) (..))
+import Generics.SOP     ((:.:) (..), SList (..), SListI (..))
 
 -------------------------------------------------------------------------------
 -- Append
@@ -55,6 +58,24 @@ type family TMap f (xs :: [k]) :: [k] where
 npCompToTMap :: NP (f :.: g) xs -> NP f (TMap g xs)
 npCompToTMap Nil = Nil
 npCompToTMap (fg :* xs) = coerce fg :* npCompToTMap xs -- use coerce!
+
+tmapToNSComp
+    :: forall xs f g. SListI xs
+    => NS f (TMap g xs) -> NS (f :.: g) xs
+tmapToNSComp ns = case sList :: SList xs of
+    SNil  -> case ns of {}
+    SCons -> case ns of
+        Z fg  -> Z (Comp fg) -- use coerce?
+        S ns' -> S (tmapToNSComp ns')
+
+splitAppend
+    :: forall xs ys f. SListI xs
+    => NS f (Append xs ys) -> Either (NS f xs) (NS f ys)
+splitAppend ns = case sList :: SList xs of
+    SNil  -> Right ns
+    SCons -> case ns of
+        Z f -> Left (Z f)
+        S n -> first S (splitAppend n)
 
 -------------------------------------------------------------------------------
 -- Head
