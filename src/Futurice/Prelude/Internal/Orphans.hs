@@ -525,14 +525,52 @@ instance Binary (GH.CommandMethod a) where
 -- binary-tagged
 -------------------------------------------------------------------------------
 
+instance HasStructuralInfo GH.Event
+instance HasStructuralInfo GH.Issue
+instance HasStructuralInfo GH.IssueLabel
+instance HasStructuralInfo GH.IssueState
+instance HasStructuralInfo GH.Language
+instance HasStructuralInfo GH.Milestone
+instance HasStructuralInfo GH.Organization
+instance HasStructuralInfo GH.Owner
 instance HasStructuralInfo GH.OwnerType
+instance HasStructuralInfo GH.Permission
+instance HasStructuralInfo GH.Privacy
+instance HasStructuralInfo GH.PullRequestReference
+instance HasStructuralInfo GH.Repo
+instance HasStructuralInfo GH.RepoRef
+instance HasStructuralInfo GH.SimpleOrganization
+instance HasStructuralInfo GH.SimpleOwner
+instance HasStructuralInfo GH.SimpleTeam
+instance HasStructuralInfo GH.SimpleUser
 instance HasStructuralInfo GH.User
+instance HasStructuralInfo GH.Team
+
 instance HasStructuralInfo (GH.Name a)
 instance HasStructuralInfo (GH.Id a)
 instance HasStructuralInfo GH.URL
 
+instance HasSemanticVersion GH.Event
+instance HasSemanticVersion GH.Issue
+instance HasSemanticVersion GH.IssueState
+instance HasSemanticVersion GH.Language
+instance HasSemanticVersion GH.Milestone
+instance HasSemanticVersion GH.Organization
+instance HasSemanticVersion GH.Owner
 instance HasSemanticVersion GH.OwnerType
+instance HasSemanticVersion GH.Permission
+instance HasSemanticVersion GH.Privacy
+instance HasSemanticVersion GH.PullRequestReference
+instance HasSemanticVersion GH.Repo
+instance HasSemanticVersion GH.RepoRef
+instance HasSemanticVersion GH.SimpleOrganization
+instance HasSemanticVersion GH.SimpleOwner
+instance HasSemanticVersion GH.SimpleTeam
+instance HasSemanticVersion GH.SimpleUser
 instance HasSemanticVersion GH.User
+instance HasSemanticVersion GH.IssueLabel
+instance HasSemanticVersion GH.Team
+
 instance HasSemanticVersion (GH.Name a)
 instance HasSemanticVersion (GH.Id a)
 instance HasSemanticVersion GH.URL
