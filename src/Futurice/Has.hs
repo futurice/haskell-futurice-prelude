@@ -22,6 +22,7 @@ module Futurice.Has (
     IsSubset(..),
     IsSubset',
     In, In', AllIn, AllIn',
+    FlipIn, FlipIn',
 --    type (∈),
 --    type (⊆),
     ) where
@@ -109,6 +110,16 @@ type In     x  ys = IsElem    x  ys (Index x  ys)
 type In'    x  ys = IsElem'   x  ys (Index x  ys)
 type AllIn  xs ys = IsSubset  xs ys (Image xs ys)
 type AllIn' xs ys = IsSubset' xs ys (Image xs ys)
+
+-------------------------------------------------------------------------------
+-- Flipped instances
+-------------------------------------------------------------------------------
+
+class In x ys => FlipIn ys x
+instance In x ys => FlipIn ys x
+
+class In' x ys => FlipIn' ys x
+instance In' x ys => FlipIn' ys x
 
 -- type x  ∈ ys = In' x ys
 -- type xs ⊆ ys = AllIn' xs ys
