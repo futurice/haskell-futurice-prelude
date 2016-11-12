@@ -1,4 +1,4 @@
-resolver: nightly-2016-11-02
+resolver: nightly-2016-11-11
 packages:
 - '.'
 - location:
@@ -8,5 +8,4 @@ packages:
 extra-deps:
 - ansi-pretty-0.1.2.0
 - lens-4.15.1
-- github-0.15.0
 flags: {}

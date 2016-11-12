@@ -66,7 +66,7 @@ library:
     - JuicyPixels           >=3.2.8    && <3.3
     - keys                  >=3.11     && <3.12
     - lens                  >=4.15     && <4.16
-    - lucid                 >=2.9.6    && <2.9.7  # MonadReader instance
+    - lucid                 >=2.9.7    && <2.10
     - monad-logger          >=0.3.19   && <0.4
     - monad-time            >=0.2      && <0.3
     - monadcryptorandom     >=0.7.0    && <0.7.2
