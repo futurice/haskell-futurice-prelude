@@ -39,7 +39,6 @@ import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
 import Control.Monad.Logger         (MonadLogger (..))
-import Control.Monad.Reader         (MonadReader (..))
 import Control.Monad.Trans.Class    (lift)
 import Data.Aeson.Compat
        (FromJSON (..), Parser, ToJSON (..), Value (..), object, withArray,
@@ -67,7 +66,6 @@ import Data.Time.Parsers            (day, utcTime)
 import Data.Typeable                (Typeable)
 import Data.Vector                  (Vector)
 import Generics.SOP                 (All, I (..), K (..), NP (..), unI)
-import Lucid.Base                   (HtmlT (..))
 import Numeric.Interval             (Interval, inf, sup)
 import Test.QuickCheck              (Arbitrary (..))
 import Text.Parsec                  (parse)
@@ -172,15 +170,6 @@ deriving instance Typeable PixelRGBA8
 --
 -- <https://github.com/Twinside/Juicy.Pixels/pull/126>
 deriving instance Typeable DynamicImage
-
--------------------------------------------------------------------------------
--- lucid
--------------------------------------------------------------------------------
-
--- | See <https://github.com/chrisdone/lucid/pull/53>
-instance MonadReader r m => MonadReader r (HtmlT m) where
-    ask = lift ask
-    local f (HtmlT x) = HtmlT (local f x)
 
 -------------------------------------------------------------------------------
 -- ansi-pretty instances
