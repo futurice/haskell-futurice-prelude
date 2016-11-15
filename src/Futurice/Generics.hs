@@ -1,9 +1,10 @@
-{-# LANGUAGE CPP                 #-}
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE FlexibleContexts    #-}
-{-# LANGUAGE RankNTypes          #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE CPP                   #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeFamilies          #-}
 -- | "Generics.SOP" derivation for record types (i.e. products).
 module Futurice.Generics (
     -- * QuickCheck
@@ -30,16 +31,17 @@ module Futurice.Generics (
     sopRecordFieldNames,
     ) where
 
-import Futurice.Prelude hiding (Generic, from)
-import Prelude ()
-
 import Data.Char         (toLower)
+import Futurice.IsMaybe
+import Futurice.Prelude  hiding (Generic, from)
 import Generics.SOP
 import Generics.SOP.Lens
+import Prelude ()
 
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as Aeson
 import qualified Data.Csv             as Csv
+import qualified Data.HashMap.Strict  as HM
 import qualified Data.Swagger         as Swagger
 import qualified Data.Swagger.Declare as Swagger
 import qualified Data.Vector          as V
@@ -151,10 +153,12 @@ sopParseRecord' r = go (sList :: SList xs) 0
 -- Aeson
 -------------------------------------------------------------------------------
 
+
+
 -- | /TODO/ use hczipWith to simplify implemenetations
 sopToJSON
     :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, Code a ~ '[xs])
+       (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, All IsMaybe xs, Code a ~ '[xs])
     => a
     -> Aeson.Value
 sopToJSON
@@ -167,24 +171,33 @@ sopToJSON
         constructorInfo . unSingletonP . fieldInfo
 
 sopToJSON'
-    :: All Aeson.ToJSON xs => NP FieldInfo xs -> NP I xs
+    :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs
     -> [Aeson.Pair]
 sopToJSON' fs' xs' = go fs' xs'
   where
     prefix :: String
     prefix = longestFieldInfoPrefix fs'
 
-    go :: All Aeson.ToJSON xs => NP FieldInfo xs -> NP I xs -> [Aeson.Pair]
+    go :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs -> [Aeson.Pair]
     go Nil Nil = []
-    go (FieldInfo f :* fs) (I x :* xs) =
-        (fromString $ processFieldName prefix f) Aeson..= x : go fs xs
+    go (FieldInfo f :* fs) (I x :* xs) = maybe id (:) (single f x) $ go fs xs
 #if __GLASGOW_HASKELL__ < 800
     go _ _ = error "sopToNamedRecord' go: impossible happened"
 #endif
 
+    single :: forall x. (Aeson.ToJSON x, IsMaybe x) => String -> x -> Maybe Aeson.Pair
+    single f x = case sIsMaybe (Proxy :: Proxy x) of
+        SIsMaybe _ -> case x of
+            Nothing -> Nothing
+            Just _  -> Just $ key Aeson..= x
+        SIsNotMaybe -> Just $ key Aeson..= x
+      where
+        key :: Text
+        key = fromString $ processFieldName prefix f
+
 sopToEncoding
     :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, Code a ~ '[xs])
+       (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, All IsMaybe xs, Code a ~ '[xs])
     => a
     -> Aeson.Encoding
 sopToEncoding
@@ -197,24 +210,33 @@ sopToEncoding
         constructorInfo . unSingletonP . fieldInfo
 
 sopToEncoding'
-    :: All Aeson.ToJSON xs => NP FieldInfo xs -> NP I xs
+    :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs
     -> Aeson.Series
 sopToEncoding' fs' xs' = go fs' xs'
   where
     prefix :: String
     prefix = longestFieldInfoPrefix fs'
 
-    go :: All Aeson.ToJSON xs => NP FieldInfo xs -> NP I xs -> Aeson.Series
+    go :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs -> Aeson.Series
     go Nil Nil = mempty
-    go (FieldInfo f :* fs) (I x :* xs) =
-        (fromString $ processFieldName prefix f) Aeson..= x <> go fs xs
+    go (FieldInfo f :* fs) (I x :* xs) = single f x <> go fs xs
 #if __GLASGOW_HASKELL__ < 800
     go _ _ = error "sopToNamedRecord' go: impossible happened"
 #endif
 
+    single :: forall x. (Aeson.ToJSON x, IsMaybe x) => String -> x -> Aeson.Series
+    single f x = case sIsMaybe (Proxy :: Proxy x) of
+        SIsMaybe _ -> case x of
+            Nothing -> mempty
+            Just _  -> key Aeson..= x
+        SIsNotMaybe -> key Aeson..= x
+      where
+        key :: Text
+        key = fromString $ processFieldName prefix f
+
 sopParseJSON
     :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Aeson.FromJSON xs, Code a ~ '[xs])
+       (Generic a, HasDatatypeInfo a, All Aeson.FromJSON xs, All IsMaybe xs, Code a ~ '[xs])
     => Aeson.Value
     -> Aeson.Parser a
 sopParseJSON = Aeson.withObject tName $ \obj ->
@@ -225,19 +247,30 @@ sopParseJSON = Aeson.withObject tName $ \obj ->
     fieldInfos = dInfo ^. constructorInfo . unSingletonP . fieldInfo
 
 sopParseJSON'
-    :: All Aeson.FromJSON xs
+    :: (All Aeson.FromJSON xs, All IsMaybe xs)
     => Aeson.Object -> NP FieldInfo xs -> Aeson.Parser (NP I xs)
 sopParseJSON' obj fs' = go fs'
   where
     prefix :: String
     prefix = longestFieldInfoPrefix fs'
 
-    go :: All Aeson.FromJSON ys => NP FieldInfo ys -> Aeson.Parser (NP I ys)
+    go :: (All Aeson.FromJSON ys, All IsMaybe ys) => NP FieldInfo ys -> Aeson.Parser (NP I ys)
     go Nil  = pure Nil
-    go (FieldInfo f :* fs) = (\h t -> I h :* t)
-        <$> obj Aeson..: (fromString $ processFieldName prefix f)
-        <*> go fs
+    go (FieldInfo f :* fs) = (:*) <$> single f <*> go fs
 
+    single :: forall y. (Aeson.FromJSON y, IsMaybe y) => String -> Aeson.Parser (I y)
+    single f = I <$> case sIsMaybe (Proxy :: Proxy y) of
+        SIsMaybe _  -> case HM.lookup key obj of
+            Nothing -> pure Nothing
+            _       -> obj Aeson..: key
+            -- here we lookup key twice, cannot do better right now.
+            -- We cannot deduce @ToJSON c@ from @ToJSON (Maybe c)@.
+            -- One way is to encose ToJSON in IsMaybe, but let's not complicate
+            -- things right now.
+        SIsNotMaybe -> obj Aeson..: key
+      where
+        key :: Text
+        key = fromString $ processFieldName prefix f
 
 -------------------------------------------------------------------------------
 -- swagger
