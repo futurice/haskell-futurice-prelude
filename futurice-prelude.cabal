@@ -109,6 +109,7 @@ library
       Futurice.Graph
       Futurice.Has
       Futurice.IdMap
+      Futurice.IsMaybe
       Futurice.List
       Futurice.Peano
       Futurice.Prelude
@@ -129,14 +130,15 @@ test-suite futurice-prelude-tests
   ghc-options: -Wall
   build-depends:
       base
-    , cassava
     , aeson
-    , generics-sop
+    , cassava
     , futurice-prelude
+    , generics-sop
     , QuickCheck
     , tasty
     , tasty-hunit
     , tasty-quickcheck
+    , unordered-containers
     , vector
   other-modules:
       HasTests

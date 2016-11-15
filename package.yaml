@@ -106,12 +106,13 @@ tests:
     source-dirs: test
     dependencies:
       - base
-      - cassava
       - aeson
-      - generics-sop
+      - cassava
       - futurice-prelude
+      - generics-sop
       - QuickCheck
       - tasty
       - tasty-hunit
       - tasty-quickcheck
+      - unordered-containers
       - vector

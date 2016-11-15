@@ -19,14 +19,16 @@ import Test.Tasty.HUnit
 import qualified Data.Csv as Csv
 import qualified Data.Aeson as Aeson
 import qualified Data.Vector as V
+import qualified Data.HashMap.Strict as HM
 
 import HasTests
 import ReflectionTests
 
 data T  = T
-    { _tInt  :: !Int
-    , _tChar :: !Char
-    , _tText :: !Text
+    { _tInt   :: !Int
+    , _tChar  :: !Char
+    , _tText  :: !Text
+    , _tMaybe :: !(Maybe Bool)
     }
     deriving (Eq, Show)
 
@@ -58,9 +60,15 @@ main = defaultMain $ testGroup "Tests"
 tests :: TestTree
 tests = testGroup "Futurice.Generics"
     [ testCase "Arbitrary.shrink" $
-        length (shrink $ T 2 'b' "foo") > 0 @?= True
+        length (shrink $ T 2 'b' "foo" (Just True)) > 0 @?= True
     , testCase "DefaultOrdered" $
-        Csv.headerOrder (undefined :: T) @?= V.fromList ["int", "char", "text"]
+        Csv.headerOrder (undefined :: T) @?= V.fromList ["int", "char", "text", "maybe"]
+    , testCase "ToJSON omits Nothing" $
+          Aeson.toJSON (T 0 'a' "foo" Nothing) @?= Aeson.Object (HM.fromList
+              [ ("int", Aeson.Number 0)
+              , ("char", "a")
+              , ("text", "foo")
+              ])
     , testProperty "FromJSON . ToEncoding" aesonRoundtripT
     , testProperty "FromJSON . ToJSON" aesonRoundtripT'
     , testProperty "FromRecord . ToNamedRecord" cassavaRoundtripT
