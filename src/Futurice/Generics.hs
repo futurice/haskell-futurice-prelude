@@ -5,6 +5,7 @@
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeOperators         #-}
 -- | "Generics.SOP" derivation for record types (i.e. products).
 module Futurice.Generics (
     -- * QuickCheck
@@ -65,18 +66,19 @@ sopArbitrary = to <$> QC.oneof (map hsequence $ apInjs_POP popArbitrary)
 sopShrink
     :: forall a. (Generic a, All2 QC.Arbitrary (Code a))
     => a -> [a]
-sopShrink = map (to . SOP) . sopShrink' . unSOP . from
+sopShrink
+    = map (to . SOP)
+    . hsequence'
+    . hcmap (Proxy :: Proxy (All QC.Arbitrary)) sopShrink'
+    . unSOP
+    . from
   where
-    sopShrink'
-      :: forall yss. All2 QC.Arbitrary yss
-      => NS (NP I) yss -> [NS (NP I) yss]
-    sopShrink' (Z x) = map Z (sopShrink'' x)
-    sopShrink' (S x) = map S (sopShrink' x)
-
-    sopShrink'' :: forall ys. All QC.Arbitrary ys => NP I ys -> [NP I ys]
-    sopShrink''
-        = hsequence
-        . hcmap (Proxy :: Proxy QC.Arbitrary) (QC.shrink . unI)
+    sopShrink' :: forall ys. All QC.Arbitrary ys => NP I ys -> ([] :.: NP I) ys
+    sopShrink' Nil          = Comp $ []
+    sopShrink' (I x :* Nil) = Comp $ (\x' -> I x' :* Nil) <$> QC.shrink x
+    sopShrink' (I x :* xs)  = Comp $
+        [ I x' :* xs  | x'  <- QC.shrink x ] ++
+        [ I x  :* xs' | xs' <- unComp $ sopShrink' xs ]
 
 -------------------------------------------------------------------------------
 -- Cassava
