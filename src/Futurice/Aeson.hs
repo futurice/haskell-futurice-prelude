@@ -6,6 +6,7 @@ module Futurice.Aeson (
 import Prelude ()
 import Futurice.Prelude
 import Data.Aeson.Compat
+import Data.Aeson.Types  (modifyFailure)
 import Data.Foldable     (foldl')
 
 -- | TODO: improve when https://github.com/bos/aeson/pull/483 is merged
@@ -13,7 +14,14 @@ import Data.Foldable     (foldl')
 -- >>> parseEither (withValueDump parseJSON) (fromJust $ decode "[1,2,3,[4,5]]") :: Either String Int
 -- Left "Error in $: invalid json: [1.0,2.0,3.0,[...]]"
 withValueDump :: (Value -> Parser a) -> Value -> Parser a
-withValueDump f v = f v <|> fail ((++) "invalid json: " . toplevel v $ [])
+withValueDump f v = modifyFailure modify (f v)
+  where
+    modify s
+        = showString "invalid json: "
+        . toplevel v
+        . showString " -- "
+        . showString s
+        $ []
 
 toplevel :: Value -> String -> String
 toplevel = go
