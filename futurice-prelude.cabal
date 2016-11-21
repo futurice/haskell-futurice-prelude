@@ -103,6 +103,7 @@ library
     , vector-instances      ==3.3.1
     , insert-ordered-containers
   exposed-modules:
+      Futurice.Aeson
       Futurice.Constraint.ForallSymbol
       Futurice.Constraint.Unit1
       Futurice.Generics
