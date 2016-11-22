@@ -7,8 +7,10 @@
 {-# LANGUAGE KindSignatures        #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
 {-# LANGUAGE UndecidableInstances  #-}
@@ -38,8 +40,10 @@ import Control.Monad                (when)
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
-import Control.Monad.Logger         (MonadLogger (..))
 import Control.Monad.Trans.Class    (lift)
+import Control.Monad.Trans.Control  (MonadTransControl (..))
+import Control.Monad.Trans.Except   (ExceptT)
+import Control.Monad.Trans.State    (StateT)
 import Data.Aeson.Compat
        (FromJSON (..), Parser, ToJSON (..), Value (..), object, withArray,
        withObject, (.:), (.=))
@@ -131,8 +135,12 @@ instance MonadCatch m => MonadCatch (CRandT g e m) where
     catch m h = CRandT $ catch (unCRandT m) (unCRandT . h)
 
 -- | Defined in 'Futurice.Prelude'.
-instance MonadLogger m => MonadLogger (CRandT g e m) where
-    monadLoggerLog a b c d = lift $ monadLoggerLog a b c d
+instance MonadTransControl (CRandT g e) where
+    type StT (CRandT g e) a = StT (ExceptT e) (StT (StateT g) a)
+    liftWith = defaultLiftWith2 CRandT unCRandT
+    restoreT = defaultRestoreT2 CRandT
+    {-# INLINABLE liftWith #-}
+    {-# INLINABLE restoreT #-}
 
 -- | Defined in 'Futurice.Prelude'.
 --
@@ -575,3 +583,30 @@ instance HasStructuralInfo a => HasStructuralInfo (NonEmpty.Interval a) where
 instance HasStructuralInfo a => HasStructuralInfo (Kaucher.Interval a) where
     structuralInfo _ =
         NominalNewtype "Interval.Kaucher" $ structuralInfo (Proxy :: Proxy a)
+
+-------------------------------------------------------------------------------
+-- monad-control https://github.com/basvandijk/monad-control/pull/36
+-------------------------------------------------------------------------------
+
+-- | A function like 'Run' that runs a monad transformer @t@ which wraps the
+-- monad transformers @n@ and @n'@. This is used in 'defaultLiftWith2'.
+type RunDefault2 t n n' = forall m b. (Monad m, Monad (n' m)) => t m b -> m (StT n' (StT n b))
+
+-- | Default definition for the 'liftWith' method.
+defaultLiftWith2
+    :: (Monad m, Monad (n' m), MonadTransControl n, MonadTransControl n')
+    => (forall b.   n (n' m) b -> t m b)     -- ^ Monad constructor
+    -> (forall o b. t o b -> n (n' o) b)     -- ^ Monad deconstructor
+    -> (RunDefault2 t n n' -> m a)
+    -> t m a
+defaultLiftWith2 t unT = \f -> t $ liftWith $ \run -> liftWith $ \run' -> f $ run' . run . unT
+{-# INLINABLE defaultLiftWith2 #-}
+
+-- | Default definition for the 'restoreT' method for double 'MonadTransControl'.
+defaultRestoreT2
+    :: (Monad m, Monad (n' m), MonadTransControl n, MonadTransControl n')
+    => (n (n' m) a -> t m a)     -- ^ Monad constructor
+    -> m (StT n' (StT n a))
+    -> t m a
+defaultRestoreT2 t = t . restoreT . restoreT
+{-# INLINABLE defaultRestoreT2 #-}

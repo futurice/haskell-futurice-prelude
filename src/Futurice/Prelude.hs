@@ -1,5 +1,7 @@
 {-# LANGUAGE ExplicitNamespaces #-}
+{-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE PolyKinds          #-}
+{-# LANGUAGE RecordWildCards    #-}
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeOperators      #-}
 module Futurice.Prelude (
@@ -45,7 +47,7 @@ module Futurice.Prelude (
     Semigroup(..),
     Typeable,
     IsString(..),
-    AnsiPretty,
+    AnsiPretty.AnsiPretty,
     Zip (..),
     ZipWithKey (..),
     Exception,
@@ -53,18 +55,25 @@ module Futurice.Prelude (
     MonadIO(..),
     MonadCatch(..),
     MonadError(..),
-    MonadLogger,
+    MonadLog,
     MonadReader(..),
     MonadThrow(..),
     MonadTime (..),
     MonadTrans(..),
-    -- * monad-logger
-    logDebug,
+    -- * log
+    Logger,
+    LogT,
+    logAttention,
     logInfo,
-    logWarn,
-    logError,
-    runStderrLoggingT,
-    runNoLoggingT,
+    logTrace,
+    logAttention_,
+    logInfo_,
+    logTrace_,
+    logLocalData,
+    logLocalDomain,
+    runLogT,
+    mkStderrLogger,
+    withStderrLogger,
     -- * generics-sop
     deriveGeneric,
     -- * composition-extra
@@ -168,9 +177,6 @@ import Control.Monad.Catch
 import Control.Monad.Compat       (foldM, forever, guard, join, void, when)
 import Control.Monad.Except       (MonadError (..))
 import Control.Monad.IO.Class     (MonadIO (..))
-import Control.Monad.Logger
-       (MonadLogger, logDebug, logError, logInfo, logWarn, runNoLoggingT,
-       runStderrLoggingT)
 import Control.Monad.Reader       (MonadReader (..))
 import Control.Monad.Time         (MonadTime (..))
 import Control.Monad.Trans.Class  (MonadTrans (..))
@@ -208,7 +214,8 @@ import Data.Text                  (Text)
 import Data.Text.Lens             (packed)
 import Data.These                 (These (..))
 import Data.Time
-       (Day (..), LocalTime (..), NominalDiffTime, UTCTime (..))
+       (Day (..), LocalTime (..), NominalDiffTime, UTCTime (..),
+       defaultTimeLocale, formatTime)
 import Data.Time.TH               (mkDay, mkUTCTime)
 import Data.Time.Zones            (TZ, utcToLocalTimeTZ)
 import Data.Time.Zones.TH         (includeTZFromDB)
@@ -220,17 +227,27 @@ import Data.Word
 import Generics.SOP               (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH            (deriveGeneric)
 import GHC.Generics               (Generic)
+import Log
+       (LogLevel (..), LogMessage (..), LogT, Logger, MonadLog, localData,
+       localDomain, logAttention, logAttention_, logInfo, logInfo_, logTrace,
+       logTrace_, mkBulkLogger, runLogT)
+import Log.Internal.Logger        (withLogger)
 import Numeric.Natural            (Natural)
+import System.Console.ANSI ()
+import System.IO                  (hFlush, stderr)
 import System.Random.Shuffle      (shuffleM)
 import Text.Read                  (readMaybe)
 
+import qualified Data.Aeson.Types     as Aeson
 import qualified Data.ByteString.Lazy as LBS
-import qualified Data.Text.Lazy       as LBS
+import qualified Data.Map             as Map
+import qualified Data.Text            as T
+import qualified Data.Text.IO         as T
+import qualified Data.Text.Lazy       as LT
 import qualified Data.Tuple.Strict    as STuple
+import qualified System.Console.ANSI  as ANSI
 
-import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
-
-import qualified Data.Map as Map
+import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
 
 import Futurice.Prelude.Internal.Orphans ()
 
@@ -298,5 +315,52 @@ helsinkiTz = $(includeTZFromDB "Europe/Helsinki")
 type Pair = (,)
 type List = []
 type LazyByteString = LBS.ByteString
-type LazyText       = LBS.Text
+type LazyText       = LT.Text
 type StrictPair     = STuple.Pair
+
+-------------------------------------------------------------------------------
+-- Logger
+-------------------------------------------------------------------------------
+
+mkStderrLogger :: IO Logger
+mkStderrLogger = mkBulkLogger "ansi-stderr" (traverse_ log') (hFlush stderr)
+  where
+    log' LogMessage {..} = do
+        time lmTime
+        T.putStr " "
+        level lmLevel
+        T.putStr " "
+        withColour ANSI.Magenta $ T.putStr $ T.justifyLeft 25 ' ' $
+            T.intercalate "/" $ lmComponent : lmDomain
+        T.putStr " "
+        T.putStrLn lmMessage
+
+        when (lmData /= Aeson.emptyObject) $ do
+            let doc = AnsiPretty.ansiPretty lmData <> AnsiPretty.linebreak
+            AnsiPretty.putDoc $ AnsiPretty.indent 4 doc
+
+    level LogAttention = withColour ANSI.Red   (T.putStr "ERR")
+    level LogInfo      = withColour ANSI.Green (T.putStr "INF")
+    level LogTrace     = withColour ANSI.Cyan  (T.putStr "TRC")
+
+    time t = withColour ANSI.Blue $
+        putStr $ formatTime defaultTimeLocale "%F %T" t
+
+    withColour :: ANSI.Color -> IO () -> IO ()
+    withColour c m = do
+        ANSI.setSGR [ANSI.SetColor ANSI.Foreground ANSI.Vivid c]
+        m
+        ANSI.setSGR [ANSI.Reset]
+
+withStderrLogger :: (Logger -> IO r) -> IO r
+withStderrLogger act = do
+    logger <- mkStderrLogger
+    withLogger logger act
+
+-- | Renamed 'Log.localData'.
+logLocalData :: MonadLog m => [Aeson.Pair] -> m a -> m a
+logLocalData = localData
+
+-- | Renamed 'Log.localDomain'.
+logLocalDomain :: MonadLog m => Text -> m a -> m a
+logLocalDomain = localDomain
