@@ -325,7 +325,16 @@ type StrictPair     = STuple.Pair
 mkStderrLogger :: IO Logger
 mkStderrLogger = mkBulkLogger "ansi-stderr" (traverse_ log') (hFlush stderr)
   where
-    log' LogMessage {..} = do
+    log' lm@LogMessage { lmMessage = msg, lmData = data_ } = do
+        -- Split multiline log messages, e.g. exception dumps
+        for_ (T.lines msg) $ \l -> prefix lm >> T.putStrLn l
+
+        when (data_ /= Aeson.emptyObject && data_ /= Aeson.Null) $ do
+            let doc = AnsiPretty.nest 4 $ AnsiPretty.ansiPretty data_
+            AnsiPretty.putDoc doc
+            T.putStrLn ""
+
+    prefix LogMessage {..} = do
         time lmTime
         T.putStr " "
         level lmLevel
@@ -333,11 +342,6 @@ mkStderrLogger = mkBulkLogger "ansi-stderr" (traverse_ log') (hFlush stderr)
         withColour ANSI.Magenta $ T.putStr $ T.justifyLeft 25 ' ' $
             T.intercalate "/" $ lmComponent : lmDomain
         T.putStr " "
-        T.putStrLn lmMessage
-
-        when (lmData /= Aeson.emptyObject) $ do
-            let doc = AnsiPretty.ansiPretty lmData <> AnsiPretty.linebreak
-            AnsiPretty.putDoc $ AnsiPretty.indent 4 doc
 
     level LogAttention = withColour ANSI.Red   (T.putStr "ERR")
     level LogInfo      = withColour ANSI.Green (T.putStr "INF")

@@ -103,6 +103,7 @@ library
     , uuid-aeson            >=0.1.1.0  && <0.2
     , vector                >=0.11.0.0 && <0.12
     , vector-instances      ==3.3.1
+    , wai
     , insert-ordered-containers
   exposed-modules:
       Futurice.Aeson
