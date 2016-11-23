@@ -34,6 +34,7 @@ library:
     - aeson                 >=1.0      && <1.1
     - aeson-compat          >=0.3.6    && <0.4
     - ansi-pretty
+    - ansi-terminal         >=0.6.2.3  && <0.7
     - ansi-wl-pprint        >=0.6.7.3  && <0.7
     - array                 >=0.5.1.0  && <0.6
     - async                 >=2.1.0    && <2.2
@@ -66,8 +67,9 @@ library:
     - JuicyPixels           >=3.2.8    && <3.3
     - keys                  >=3.11     && <3.12
     - lens                  >=4.15     && <4.16
+    - log                   >=0.6      && <0.7
     - lucid                 >=2.9.7    && <2.10
-    - monad-logger          >=0.3.19   && <0.4
+    - monad-control         >=1.0.1.0  && <1.1
     - monad-time            >=0.2      && <0.3
     - monadcryptorandom     >=0.7.0    && <0.7.2
     - mtl                   >=2.2.1    && <2.3
