@@ -51,9 +51,11 @@ import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
        ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
        parseJSON1, toEncoding1, toJSON1)
+import Data.Bifunctor               (bimap)
 import Data.Binary                  (Binary (..))
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
+import Data.ByteString              (ByteString)
 import Data.Fixed                   (Fixed, HasResolution)
 import Data.Foldable                (toList)
 import Data.Functor.Compose         (Compose (..))
@@ -64,6 +66,7 @@ import Data.Scientific              (Scientific)
 import Data.Semigroup               (Semigroup (..))
 import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
+import Data.Text                    (Text)
 import Data.These                   (These (..))
 import Data.Time                    (Day, UTCTime)
 import Data.Time.Parsers            (day, utcTime)
@@ -80,6 +83,7 @@ import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
 import qualified Data.Aeson.Encoding                  as Aeson
 import qualified Data.Attoparsec.ByteString.Char8     as Atto
+import qualified Data.CaseInsensitive                 as CI
 import qualified Data.Csv                             as Csv
 import qualified Data.Fixed                           as Fixed
 import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
@@ -87,6 +91,8 @@ import qualified Data.Map                             as Map
 import qualified Data.Scientific                      as Scientific
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
+import qualified Data.Text.Encoding                   as TE
+import qualified Data.Text.Encoding.Error             as TE
 import qualified Data.Tuple.Strict                    as S
 import qualified Data.UUID                            as UUID
 import qualified Data.Vector                          as V
@@ -96,6 +102,7 @@ import qualified Generics.SOP                         as SOP
 import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
+import qualified Network.Wai                          as Wai
 import qualified Numeric.Interval.Kaucher             as Kaucher
 import qualified Numeric.Interval.NonEmpty            as NonEmpty
 
@@ -373,6 +380,25 @@ instance (Ord a, FromJSON a) => FromJSON (NonEmpty.Interval a) where
         <$> obj .: "inf"
         <*> obj .: "sup"
 
+-- | This istance is used in logging
+instance ToJSON Wai.Request where
+    toJSON r = object
+        [ "method"         .= decodeUtf8Lenient (Wai.requestMethod r)
+        , "rawPathInfo"    .= decodeUtf8Lenient (Wai.rawPathInfo r)
+        , "rawQueryString" .= decodeUtf8Lenient (Wai.rawQueryString r)
+        , "headers"        .= headers
+        ]
+      where
+        headers
+            = map (bimap (CI.map decodeUtf8Lenient) decodeUtf8Lenient)
+            -- we filter headers
+            . filter (flip elem ["Accept", "Content-Type"] . fst)
+            $ Wai.requestHeaders r
+
+instance ToJSON a => ToJSON (CI.CI a) where
+    toJSON     = toJSON . CI.foldedCase
+    toEncoding = toEncoding . CI.foldedCase
+
 -------------------------------------------------------------------------------
 -- aeson + generics-sop
 -------------------------------------------------------------------------------
@@ -583,6 +609,9 @@ instance HasStructuralInfo a => HasStructuralInfo (NonEmpty.Interval a) where
 instance HasStructuralInfo a => HasStructuralInfo (Kaucher.Interval a) where
     structuralInfo _ =
         NominalNewtype "Interval.Kaucher" $ structuralInfo (Proxy :: Proxy a)
+
+decodeUtf8Lenient :: ByteString -> Text
+decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 
 -------------------------------------------------------------------------------
 -- monad-control https://github.com/basvandijk/monad-control/pull/36
