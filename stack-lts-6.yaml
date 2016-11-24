@@ -5,16 +5,12 @@ packages:
     git: https://github.com/necrobious/uuid-aeson.git
     commit: f5fd573c7cb098515d0093acb2879520e190cc08
   extra-dep: true
-# https://github.com/bitemyapp/bloodhound/pull/155
-- location:
-    git: https://github.com/bitemyapp/bloodhound.git
-    commit: 0ee54ec08793d742225645aa80321c6158966d6a
-  extra-dep: true
 extra-deps:
-- aeson-pretty-0.8.2
 - aeson-1.0.0.0
+- aeson-pretty-0.8.2
 - ansi-pretty-0.1.2.0
 - bifunctors-5.4.1
+- bloodhound-0.12.0.0
 - comonad-5
 - extra-1.5.1
 - generics-sop-lens-0.1.2.0
