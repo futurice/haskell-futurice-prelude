@@ -72,7 +72,7 @@ library
     , JuicyPixels           >=3.2.8    && <3.3
     , keys                  >=3.11     && <3.12
     , lens                  >=4.15     && <4.16
-    , log                   >=0.6      && <0.7
+    , log-base              >=0.7      && <0.8
     , lucid                 >=2.9.7    && <2.10
     , monad-control         >=1.0.1.0  && <1.1
     , monad-time            >=0.2      && <0.3
