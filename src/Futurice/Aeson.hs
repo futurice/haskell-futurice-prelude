@@ -1,5 +1,6 @@
 module Futurice.Aeson (
     withValueDump,
+    withObjectDump,
     module Data.Aeson.Compat,
     ) where
 
@@ -13,15 +14,21 @@ import Data.Foldable     (foldl')
 --
 -- >>> parseEither (withValueDump parseJSON) (fromJust $ decode "[1,2,3,[4,5]]") :: Either String Int
 -- Left "Error in $: invalid json: [1.0,2.0,3.0,[...]]"
-withValueDump :: (Value -> Parser a) -> Value -> Parser a
-withValueDump f v = modifyFailure modify (f v)
+withValueDump :: String -> (Value -> Parser a) -> Value -> Parser a
+withValueDump n f v = modifyFailure modify (f v)
   where
     modify s
-        = showString "invalid json: "
+        = showString "invalid json for "
+        . showString n
+        . showString ": "
         . toplevel v
         . showString " -- "
         . showString s
         $ []
+
+withObjectDump :: String -> (Object -> Parser a) -> Value -> Parser a
+withObjectDump name f = withValueDump name $ withObject name f
+
 
 toplevel :: Value -> String -> String
 toplevel = go
