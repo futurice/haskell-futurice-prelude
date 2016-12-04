@@ -51,6 +51,9 @@ module Futurice.Prelude (
     Zip (..),
     ZipWithKey (..),
     Exception,
+    -- * Functor classes
+    module Data.Functor.Classes,
+    showsTernaryWith,
     -- * Monad classes
     MonadIO(..),
     MonadCatch(..),
@@ -188,6 +191,7 @@ import Data.Bool.Compat           (bool)
 import Data.ByteString            (ByteString)
 import Data.Foldable              (fold, for_, sequenceA_, toList, traverse_)
 import Data.Function              (on)
+import Data.Functor.Classes
 import Data.Functor.Contravariant (contramap, (>$), (>$<))
 import Data.Functor.Syntax        ((<$$>))
 import Data.Hashable              (Hashable (..))
@@ -317,6 +321,21 @@ type List = []
 type LazyByteString = LBS.ByteString
 type LazyText       = LT.Text
 type StrictPair     = STuple.Pair
+
+-------------------------------------------------------------------------------
+-- Show
+-------------------------------------------------------------------------------
+
+showsTernaryWith
+    :: (Int -> a -> ShowS)
+    -> (Int -> b -> ShowS)
+    -> (Int -> c -> ShowS)
+    -> String -> Int -> a -> b -> c -> ShowS
+showsTernaryWith sp1 sp2 sp3 name d x y z = showParen (d > 10)
+    $ showString name
+    . showChar ' ' . sp1 11 x
+    . showChar ' ' . sp2 11 y
+    . showChar ' ' . sp3 11 z
 
 -------------------------------------------------------------------------------
 -- Logger
