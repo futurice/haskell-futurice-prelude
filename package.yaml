@@ -91,6 +91,7 @@ library:
     - time                  >=1.5.0.1  && <1.7
     - time-parsers          >=0.1.1.0  && <0.2
     - transformers          >=0.5.2.0  && <0.6
+    - transformers-base     >=0.4.4    && <0.5
     - transformers-compat   >=0.5.1.4  && <0.6 ## Bump to 0.5?
     - tz                    >=0.1.2.0  && <0.2
     - unordered-containers  >=0.2.7.1  && <0.3
