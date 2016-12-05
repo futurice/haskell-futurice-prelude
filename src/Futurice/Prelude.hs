@@ -130,7 +130,7 @@ module Futurice.Prelude (
     -- ** At
     ix, at,
     -- ** Text related
-    packed,
+    packed, unpacked,
     strict, lazy,
     -- ** _Empty
     isn't, _Empty,
@@ -215,7 +215,7 @@ import Data.Set                   (Set)
 import Data.String                (IsString (..))
 import Data.Tagged                (Tagged (..), untag)
 import Data.Text                  (Text)
-import Data.Text.Lens             (packed)
+import Data.Text.Lens             (packed, unpacked)
 import Data.These                 (These (..))
 import Data.Time
        (Day (..), LocalTime (..), NominalDiffTime, UTCTime (..),
