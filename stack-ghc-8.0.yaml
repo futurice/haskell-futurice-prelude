@@ -1,4 +1,4 @@
-resolver: nightly-2016-11-26
+resolver: nightly-2016-12-07
 packages:
 - '.'
 - location:
@@ -6,6 +6,6 @@ packages:
     commit: f5fd573c7cb098515d0093acb2879520e190cc08
   extra-dep: true
 extra-deps:
-- ansi-pretty-0.1.2.0
-- log-base-0.7
+- ansi-pretty-0.1.2.1
+- time-parsers-0.1.2.0
 flags: {}
