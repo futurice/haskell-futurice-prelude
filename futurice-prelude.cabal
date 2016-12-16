@@ -38,7 +38,7 @@ library
       base                  >=4.8      && <4.10
     , aeson                 >=1.0      && <1.1
     , aeson-compat          >=0.3.6    && <0.4
-    , ansi-pretty
+    , ansi-pretty           >=0.1.2.1
     , ansi-terminal         >=0.6.2.3  && <0.7
     , ansi-wl-pprint        >=0.6.7.3  && <0.7
     , array                 >=0.5.1.0  && <0.6
@@ -49,7 +49,7 @@ library
     , bifunctors
     , binary
     , binary-orphans        ==0.1.5.1
-    , binary-tagged         ==0.1.4.1
+    , binary-tagged         ==0.1.4.2
     , bytestring
     , case-insensitive      >=1.2.0.7  && <1.3
     , cassava               >=0.4.5.0  && <0.5
@@ -62,7 +62,7 @@ library
     , DRBG                  >=0.5.5    && <0.6
     , exceptions            >=0.8.3    && <0.9
     , extra                 >=1.5.1    && <1.6
-    , generics-sop          >=0.2.1.0  && <0.3
+    , generics-sop          >=0.2.3.0  && <0.3
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
     , github                >=0.15     && <0.16
@@ -95,7 +95,7 @@ library
     , text
     , these                 >=0.7.2    && <0.8
     , time                  >=1.5.0.1  && <1.7
-    , time-parsers          >=0.1.1.0  && <0.2
+    , time-parsers          >=0.1.2.0  && <0.2
     , transformers          >=0.5.2.0  && <0.6
     , transformers-base     >=0.4.4    && <0.5
     , transformers-compat   >=0.5.1.4  && <0.6
@@ -125,6 +125,7 @@ library
       Futurice.Reflection.TypeLits
       Futurice.REPL
       Futurice.Time
+      Futurice.Time.Month
       Futurice.UUID
   default-language: Haskell2010
 

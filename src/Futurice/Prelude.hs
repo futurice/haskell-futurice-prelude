@@ -9,6 +9,7 @@ module Futurice.Prelude (
     -- * Types
     ByteString,
     Day (..),
+    Month,
     HashMap,
     HashSet,
     IntMap,
@@ -171,6 +172,9 @@ module Futurice.Prelude (
     HasUUID (..),
     -- ** Time
     currentDay,
+    currentMonth,
+    firstDayOfMonth,
+    lastDayOfMonth,
     utcToHelsinkiTime,
     helsinkiTz,
     ) where
@@ -274,6 +278,8 @@ import qualified System.Console.ANSI  as ANSI
 
 import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
 
+import Futurice.Time.Month
+
 import Futurice.Prelude.Internal.Orphans ()
 
 -------------------------------------------------------------------------------
@@ -326,6 +332,10 @@ instance HasUUID UUID where
 -- | Current day in Finland, @Europe/Helsinki@ timezone.
 currentDay :: MonadTime m => m Day
 currentDay = localDay . utcToHelsinkiTime <$> currentTime
+
+-- | Current month in Finland, @Europe/Helsinki@ timezone.
+currentMonth :: MonadTime m => m Month
+currentMonth = dayToMonth <$> currentDay
 
 utcToHelsinkiTime :: UTCTime -> LocalTime
 utcToHelsinkiTime = utcToLocalTimeTZ helsinkiTz

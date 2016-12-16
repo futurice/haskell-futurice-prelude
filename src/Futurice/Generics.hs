@@ -32,12 +32,12 @@ module Futurice.Generics (
     sopRecordFieldNames,
     ) where
 
+import Prelude ()
+import Futurice.Prelude  hiding (Generic, from)
 import Data.Char         (toLower)
 import Futurice.IsMaybe
-import Futurice.Prelude  hiding (Generic, from)
-import Generics.SOP
+import Generics.SOP      hiding (constructorInfo, datatypeName)
 import Generics.SOP.Lens
-import Prelude ()
 
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as Aeson
