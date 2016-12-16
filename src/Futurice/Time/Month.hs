@@ -10,9 +10,11 @@ module Futurice.Time.Month (
 
 import Prelude ()
 import Prelude.Compat
+import Control.DeepSeq (NFData (..))
 import Control.Lens    ((&), (.~), (?~))
 import Data.Aeson      (FromJSON (..), ToJSON (..), withText)
 import Data.Bifunctor  (first)
+import Data.Hashable   (Hashable (..))
 import Data.String     (fromString)
 import Data.Swagger    (ToParamSchema (..), ToSchema (..))
 import Data.Time       (Day, fromGregorian, gregorianMonthLength, toGregorian)
@@ -40,6 +42,9 @@ data MonthName
     | November
     | December
   deriving (Eq, Ord, Show, Read, Generic, Typeable, Bounded)
+
+instance Hashable MonthName
+instance NFData MonthName
 
 instance Enum MonthName where
     fromEnum January   = 1
@@ -71,6 +76,9 @@ instance Enum MonthName where
 
 data Month = Month { monthYear :: !Integer, monthName :: !MonthName }
   deriving (Eq, Ord, Show, Read, Generic, Typeable)
+
+instance Hashable Month
+instance NFData Month where rnf (Month _ _) = ()
 
 instance Enum Month where
     succ (Month y December) = Month (y + 1) January
