@@ -133,6 +133,9 @@ module Futurice.Prelude (
     I (..), unI,
     K (..), unK,
     NP (..), NS (..),
+    -- * http-client
+    Manager, newManager,
+    tlsManagerSettings,
     -- * Lens
     Lens', lens,
     -- ** Operators
@@ -261,6 +264,8 @@ import Log
        localDomain, logAttention, logAttention_, logInfo, logInfo_, logTrace,
        logTrace_, mkBulkLogger, runLogT)
 import Log.Internal.Logger         (withLogger)
+import Network.HTTP.Client         (Manager, newManager)
+import Network.HTTP.Client.TLS     (tlsManagerSettings)
 import Numeric.Natural             (Natural)
 import System.Console.ANSI ()
 import System.IO                   (hFlush, stderr)

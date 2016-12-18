@@ -1,4 +1,4 @@
-resolver: lts-6.26
+resolver: lts-6.27
 packages:
 - '.'
 - location:
@@ -6,17 +6,17 @@ packages:
     commit: f5fd573c7cb098515d0093acb2879520e190cc08
   extra-dep: true
 extra-deps:
-- aeson-1.0.0.0
+- aeson-1.0.2.1
 - aeson-pretty-0.8.2
 - ansi-pretty-0.1.2.1
 - bifunctors-5.4.1
-- binary-tagged-0.1.4.2
 - comonad-5
 - extra-1.5.1
-- generics-sop-0.2.3.0
 - generics-sop-lens-0.1.2.1
 - github-0.15.0
 - http-api-data-0.3.1
+- http-client-0.5.4
+- http-client-tls-0.3.3
 - insert-ordered-containers-0.2.0.0
 - kan-extensions-5.0.1
 - lens-4.15.1
