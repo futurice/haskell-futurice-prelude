@@ -10,17 +10,19 @@ module Futurice.Time.Month (
 
 import Prelude ()
 import Prelude.Compat
-import Control.DeepSeq (NFData (..))
-import Control.Lens    ((&), (.~), (?~))
-import Data.Aeson      (FromJSON (..), ToJSON (..), withText)
-import Data.Bifunctor  (first)
-import Data.Hashable   (Hashable (..))
-import Data.String     (fromString)
-import Data.Swagger    (ToParamSchema (..), ToSchema (..))
-import Data.Time       (Day, fromGregorian, gregorianMonthLength, toGregorian)
-import Data.Typeable   (Typeable)
-import GHC.Generics    (Generic)
-import Web.HttpApiData (FromHttpApiData (..), ToHttpApiData (..))
+import Control.DeepSeq  (NFData (..))
+import Control.Lens     ((&), (.~), (?~))
+import Data.Aeson
+       (FromJSON (..), FromJSONKey (..), ToJSON (..), ToJSONKey (..), withText)
+import Data.Aeson.Types (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
+import Data.Bifunctor   (first)
+import Data.Hashable    (Hashable (..))
+import Data.String      (fromString)
+import Data.Swagger     (ToParamSchema (..), ToSchema (..))
+import Data.Time        (Day, fromGregorian, gregorianMonthLength, toGregorian)
+import Data.Typeable    (Typeable)
+import GHC.Generics     (Generic)
+import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
 
 import qualified Data.Aeson.Encoding  as Aeson.Encoding
 import qualified Data.Attoparsec.Text as AT
@@ -99,6 +101,15 @@ instance ToJSON Month where
 
 instance FromJSON Month where
     parseJSON = withText "Month" $
+        either fail pure . AT.parseOnly (mkMonth <$> Parsers.month)
+
+instance ToJSONKey Month where
+    toJSONKey = ToJSONKeyText
+        (fromString . monthToString)
+        (Aeson.Encoding.string . monthToString)
+
+instance FromJSONKey Month where
+    fromJSONKey = FromJSONKeyTextParser $
         either fail pure . AT.parseOnly (mkMonth <$> Parsers.month)
 
 instance ToSchema Month where
