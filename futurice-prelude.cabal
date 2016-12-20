@@ -120,6 +120,7 @@ library
       Futurice.IdMap
       Futurice.IsMaybe
       Futurice.List
+      Futurice.Monoid
       Futurice.Peano
       Futurice.Prelude
       Futurice.Prelude.Internal.Orphans
