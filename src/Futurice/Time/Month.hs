@@ -10,17 +10,20 @@ module Futurice.Time.Month (
 
 import Prelude ()
 import Prelude.Compat
-import Control.DeepSeq (NFData (..))
-import Control.Lens    ((&), (.~), (?~))
-import Data.Aeson      (FromJSON (..), ToJSON (..), withText)
-import Data.Bifunctor  (first)
-import Data.Hashable   (Hashable (..))
-import Data.String     (fromString)
-import Data.Swagger    (ToParamSchema (..), ToSchema (..))
-import Data.Time       (Day, fromGregorian, gregorianMonthLength, toGregorian)
-import Data.Typeable   (Typeable)
-import GHC.Generics    (Generic)
-import Web.HttpApiData (FromHttpApiData (..), ToHttpApiData (..))
+import Control.DeepSeq  (NFData (..))
+import Control.Lens     ((&), (.~), (?~))
+import Data.Aeson
+       (FromJSON (..), FromJSONKey (..), ToJSON (..), ToJSONKey (..), withText)
+import Data.Aeson.Types (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
+import Data.Bifunctor   (first)
+import Data.Hashable    (Hashable (..))
+import Data.String      (fromString)
+import Data.Swagger     (ToParamSchema (..), ToSchema (..))
+import Data.Time        (Day, fromGregorian, gregorianMonthLength, toGregorian)
+import Data.Typeable    (Typeable)
+import GHC.Generics     (Generic)
+import Test.QuickCheck  (Arbitrary (..), arbitraryBoundedEnum)
+import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
 
 import qualified Data.Aeson.Encoding  as Aeson.Encoding
 import qualified Data.Attoparsec.Text as AT
@@ -74,6 +77,11 @@ instance Enum MonthName where
     toEnum 12 = December
     toEnum _  = error "toEnum @Month: out-of-range"
 
+instance Arbitrary MonthName where
+    arbitrary = arbitraryBoundedEnum
+    shrink January = []
+    shrink m       = [January .. pred m]
+
 data Month = Month { monthYear :: !Integer, monthName :: !MonthName }
   deriving (Eq, Ord, Show, Read, Generic, Typeable)
 
@@ -101,6 +109,15 @@ instance FromJSON Month where
     parseJSON = withText "Month" $
         either fail pure . AT.parseOnly (mkMonth <$> Parsers.month)
 
+instance ToJSONKey Month where
+    toJSONKey = ToJSONKeyText
+        (fromString . monthToString)
+        (Aeson.Encoding.string . monthToString)
+
+instance FromJSONKey Month where
+    fromJSONKey = FromJSONKeyTextParser $
+        either fail pure . AT.parseOnly (mkMonth <$> Parsers.month)
+
 instance ToSchema Month where
     declareNamedSchema _ = pure $ Swagger.NamedSchema (Just "Month") $ mempty
         & Swagger.type_ .~ Swagger.SwaggerString
@@ -117,6 +134,15 @@ instance ToHttpApiData Month where
 
 instance FromHttpApiData Month where
     parseUrlPiece = first T.pack . AT.parseOnly (mkMonth <$> Parsers.month)
+
+instance Arbitrary Month where
+    arbitrary = mk <$> arbitrary <*> arbitrary
+      where
+        mk y m = Month (y + 2016) m
+
+    shrink (Month y m) =
+        [ Month (y' + 2016) m | y' <- shrink (y - 2016) ] ++
+        [ Month y m' | m' <- shrink m ]
 
 -------------------------------------------------------------------------------
 -- functions
