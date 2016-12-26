@@ -1,14 +1,18 @@
 module Futurice.Aeson (
     withValueDump,
     withObjectDump,
+    FromJSONField1 (..),
     module Data.Aeson.Compat,
     ) where
 
 import Prelude ()
 import Futurice.Prelude
 import Data.Aeson.Compat
-import Data.Aeson.Types  (modifyFailure)
-import Data.Foldable     (foldl')
+import Data.Aeson.Internal (JSONPathElement (..), (<?>))
+import Data.Aeson.Types    (modifyFailure)
+import Data.Foldable       (foldl')
+
+import qualified Data.HashMap.Strict as HM
 
 -- | Amend error with value shallow dump.
 --
@@ -60,3 +64,31 @@ toplevel = go
     go' (String t)   = showsPrec 0 t
     go' (Array _)    = showString "[...]"
     go' (Object _)   = showString "{...}"
+
+-------------------------------------------------------------------------------
+-- FromJSONField
+-------------------------------------------------------------------------------
+
+class FromJSONField1 f where
+    explicitFromJSONField1 :: Object -> Text -> (Value -> Parser a) -> Parser (f a)
+
+instance FromJSONField1 Proxy where
+    explicitFromJSONField1 _ _ _ = pure Proxy
+
+instance FromJSONField1 I where
+    explicitFromJSONField1 obj key p = case HM.lookup key obj of
+        Nothing -> fail $ "key " ++ show key ++ " not present"
+        Just v  -> I <$> p v <?> Key key
+
+instance FromJSONField1 Identity where
+    explicitFromJSONField1 obj key p = case HM.lookup key obj of
+        Nothing -> fail $ "key " ++ show key ++ " not present"
+        Just v  -> Identity <$> p v <?> Key key
+
+-- | Non-presence and @null@ are decoded successfully to 'Nothing'.
+instance FromJSONField1 Maybe where
+    -- Note: we could use fmap, but this is clearer,
+    -- as the layout follows the same pattern as above.
+    explicitFromJSONField1 obj key p = case HM.lookup key obj of
+        Nothing -> pure Nothing
+        Just v  -> Just <$> p v <?> Key key
