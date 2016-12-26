@@ -8,7 +8,10 @@ data Average a = Average { _samples :: !a, getAverage :: !a }
   deriving (Eq, Show)
 
 instance (Eq a, Fractional a) => Semigroup (Average a) where
-    Average n x <> Average n' x' = if m == 0 then Average 0 0 else Average m y
+    a@(Average n x) <> b@(Average n' x')
+        | n == 0    = b
+        | n' == 0   = b'
+        | otherwise = Average m y
       where
         m = n + n'
         y = (n * x + n' * x') / m
