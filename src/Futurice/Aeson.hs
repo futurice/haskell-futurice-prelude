@@ -10,10 +10,12 @@ import Data.Aeson.Compat
 import Data.Aeson.Types  (modifyFailure)
 import Data.Foldable     (foldl')
 
--- | TODO: improve when https://github.com/bos/aeson/pull/483 is merged
+-- | Amend error with value shallow dump.
 --
--- >>> parseEither (withValueDump parseJSON) (fromJust $ decode "[1,2,3,[4,5]]") :: Either String Int
--- Left "Error in $: invalid json: [1.0,2.0,3.0,[...]]"
+-- >>> parseEither (withValueDump "Int" parseJSON) (fromJust $ decode "[1,2,3,[4,5]]") :: Either String Int
+-- Left "Error in $: invalid json for Int: [1.0,2.0,3.0,[...]] -- expected Int, encountered Array"
+--
+-- /Note:/ prints only first 10 items of an array or an object.
 withValueDump :: String -> (Value -> Parser a) -> Value -> Parser a
 withValueDump n f v = modifyFailure modify (f v)
   where
@@ -33,14 +35,14 @@ withObjectDump name f = withValueDump name $ withObject name f
 toplevel :: Value -> String -> String
 toplevel = go
   where
-    go (Array v) = case toList v of
+    go (Array v) = case take 10 $ toList v of
         []       -> showString "[]"
         (x : xs) ->
             showString "["
             . foldl' (\a b -> a . showString "," . go' b) (go' x) xs
             . showString "]"
 
-    go (Object o) = case itoList o of
+    go (Object o) = case take 10 $ itoList o of
         []       -> showString "{}"
         (x : xs) ->
             showString "{"
