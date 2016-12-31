@@ -2,6 +2,7 @@ module Futurice.Aeson (
     withValueDump,
     withObjectDump,
     FromJSONField1 (..),
+    fromJSONField1,
     module Data.Aeson.Compat,
     ) where
 
@@ -92,3 +93,8 @@ instance FromJSONField1 Maybe where
     explicitFromJSONField1 obj key p = case HM.lookup key obj of
         Nothing -> pure Nothing
         Just v  -> Just <$> p v <?> Key key
+
+fromJSONField1
+    :: (FromJSONField1 f, FromJSON a)
+    => Object -> Text -> Parser (f a)
+fromJSONField1 obj key = explicitFromJSONField1 obj key parseJSON
