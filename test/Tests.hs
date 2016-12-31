@@ -4,22 +4,24 @@
 {-# LANGUAGE TypeFamilies      #-}
 module Main (main) where
 
-import Futurice.Generics
-import Futurice.Time
+import Prelude ()
 import Futurice.Prelude
-import Prelude           ()
+import Control.Applicative (liftA2)
+import Futurice.Generics
+import Futurice.Monoid     (Average (..))
+import Futurice.Time
 
 import Data.Fixed (Centi)
 
 import Test.QuickCheck
 import Test.Tasty
-import Test.Tasty.QuickCheck
 import Test.Tasty.HUnit
+import Test.Tasty.QuickCheck
 
-import qualified Data.Csv as Csv
-import qualified Data.Aeson as Aeson
-import qualified Data.Vector as V
+import qualified Data.Aeson          as Aeson
+import qualified Data.Csv            as Csv
 import qualified Data.HashMap.Strict as HM
+import qualified Data.Vector         as V
 
 import HasTests
 import ReflectionTests
@@ -55,6 +57,7 @@ main = defaultMain $ testGroup "Tests"
     , toMapOfTests
     , swapMapMapTests
     , timeTests
+    , monoidLaws (Proxy :: Proxy (Average ApproxDouble)) "Average"
     ]
 
 tests :: TestTree
@@ -134,3 +137,52 @@ timeTests = testGroup "Futurice.Time"
         let b = 60 :: NDT 'Minutes Centi
         ndtConvert' a @?= b
     ]
+
+monoidLaws
+    :: forall m. (Eq m, Show m, Arbitrary m, Semigroup m, Monoid m)
+    => Proxy m -> String -> TestTree
+monoidLaws _ n = testGroup (n <> " monoid laws")
+    [ testProperty "left identity" leftIdentity
+    , testProperty "right identity" rightIdentity
+    , testProperty "associativity" associativity
+    ]
+  where
+    leftIdentity :: m -> Property
+    leftIdentity m = mempty <> m === m
+
+    rightIdentity :: m -> Property
+    rightIdentity m = m <> mempty === m
+
+    associativity :: m -> m -> m -> Property
+    associativity a b c = (a <> b) <> c === a <> (b <> c)
+
+type ApproxDouble = Approx Double
+
+newtype Approx a = Approx a
+  deriving (Show, Functor, Foldable, Traversable)
+
+instance Applicative Approx where
+    pure = Approx
+    Approx f <*> Approx x = Approx (f x)
+    _ *> x = x
+
+instance (Fractional a, Ord a) => Eq (Approx a) where
+    Approx a == Approx b = abs (a - b) < 1e7 -- TODO: write better
+
+instance Arbitrary a => Arbitrary (Approx a) where
+    arbitrary = pure <$> arbitrary
+    shrink = traverse shrink
+
+instance Num a =>Num (Approx a) where
+    fromInteger = pure . fromInteger
+    (+) = liftA2 (+)
+    (*) = liftA2 (*)
+    abs = fmap abs
+    signum = fmap signum
+    negate = fmap negate
+    (-) = liftA2 (-)
+
+instance Fractional a => Fractional (Approx a) where
+    fromRational = pure . fromRational
+    recip = fmap recip
+    (/) = liftA2 (/)
