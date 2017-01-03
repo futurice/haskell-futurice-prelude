@@ -35,13 +35,16 @@ module Futurice.Prelude (
     Vector,
     module Data.Int,
     module Data.Word,
+    -- ** Aeson
+    Aeson.Value,
+    AesonPair,
     -- ** Monoids
     Sum (..),
     UnionWith (..),
     -- * Data Classes
     Align (..),
     AlignWithKey (..),
-    Binary,
+    Binary (..),
     Generic,
     Hashable(..),
     NFData(..),
@@ -59,17 +62,24 @@ module Futurice.Prelude (
     module Data.Functor.Classes,
     showsTernaryWith,
     -- * Monad classes
-    MonadIO(..),
+    --
+    -- | Note, 'MonadState' members aren't exported.
+    -- Use 'view', '%=', '.=', and '?='.
+    MonadBase(..),
+    MonadBaseControl(..),
     MonadCatch(..),
     MonadError(..),
+    MonadFix(..),
+    MonadIO(..),
     MonadLog,
+    MonadPlus(..),
     MonadReader(..),
+    MonadState,
     MonadThrow(..),
     MonadTime (..),
     MonadTrans(..),
     MonadTransControl(..),
-    MonadBase(..),
-    MonadBaseControl(..),
+    MonadWriter(..),
     -- * Monad transformers
     MaybeT(..),
     ReaderT(..),
@@ -139,10 +149,14 @@ module Futurice.Prelude (
     -- * Lens
     Lens', lens,
     -- ** Operators
-    (^.), (^..), view,
-    (^?),
+    (^?), preview,
+    (^.), view,
+    (^..),
+    (%~), over,
     (.~), (?~),
     from,
+    -- ** State
+    (%=), (?=),
     -- ** Named
     folded, ifolded,
     -- ** At
@@ -191,28 +205,32 @@ import Control.DeepSeq             (NFData (..), ($!!))
 import Control.Exception           (evaluate)
 import Control.Lens
        (Lens', folded, from, ifolded, ifor, ifor_, isn't, itoList, itraverse,
-       itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, strict,
-       view, (&), (.~), (?~), (^.), (^..), (^?), _1, _2, _3, _Empty, _Just,
-       _Left, _Nothing, _Right)
+       itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, over,
+       preview, strict, view, (%=), (%~), (&), (.~), (?=), (?~), (^.), (^..),
+       (^?), _1, _2, _3, _Empty, _Just, _Left, _Nothing, _Right)
 import Control.Lens
        (At (..), Ixed (..), ifoldMap, ifoldMapOf, (<.>))
 import Control.Monad.Base          (MonadBase (..))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
-import Control.Monad.Compat        (foldM, forever, guard, join, void, when)
+import Control.Monad.Compat
+       (MonadPlus (..), foldM, forever, guard, join, void, when)
 import Control.Monad.Except
        (ExceptT (..), MonadError (..), runExceptT, withExceptT)
+import Control.Monad.Fix           (MonadFix (..))
 import Control.Monad.IO.Class      (MonadIO (..))
 import Control.Monad.Reader        (MonadReader (..), ReaderT (..))
+import Control.Monad.State.Class   (MonadState (..))
 import Control.Monad.Time          (MonadTime (..))
 import Control.Monad.Trans.Class   (MonadTrans (..))
 import Control.Monad.Trans.Control
        (MonadBaseControl (..), MonadTransControl (..))
 import Control.Monad.Trans.Maybe   (MaybeT (..))
+import Control.Monad.Writer.Class  (MonadWriter (..))
 import Data.Align                  (Align (..))
 import Data.Align.Key              (AlignWithKey (..))
 import Data.Bifunctor              (bimap, first, second)
-import Data.Binary                 (Binary)
+import Data.Binary                 (Binary (..))
 import Data.Bool.Compat            (bool)
 import Data.ByteString             (ByteString)
 import Data.Foldable               (fold, for_, sequenceA_, toList, traverse_)
@@ -357,6 +375,12 @@ type List = []
 type LazyByteString = LBS.ByteString
 type LazyText       = LT.Text
 type StrictPair     = STuple.Pair
+
+-------------------------------------------------------------------------------
+-- Aeson
+-------------------------------------------------------------------------------
+
+type AesonPair = Aeson.Pair
 
 -------------------------------------------------------------------------------
 -- Show
