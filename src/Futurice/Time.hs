@@ -21,12 +21,10 @@ module Futurice.Time (
     AsScientific,
     ) where
 
-import Futurice.Prelude
 import Prelude ()
-
+import Futurice.Prelude
 import Control.Lens       (Prism', prism', ( # ))
 import Data.Aeson         (FromJSON (..), ToJSON (..))
-import Data.Binary        (Binary (..))
 import Data.Binary.Tagged (HasSemanticVersion, HasStructuralInfo)
 import Data.Fixed         (Fixed, HasResolution)
 import Data.Swagger       (NamedSchema (..), ToSchema (..))
@@ -37,6 +35,7 @@ import Test.QuickCheck    (Arbitrary (..), CoArbitrary (..))
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty (..))
 
+import qualified Data.Binary        as B
 import qualified Data.Aeson         as Aeson
 import qualified Data.Csv           as Csv
 import qualified Data.Scientific    as Scientific
@@ -87,9 +86,9 @@ instance Hashable a => Hashable (NDT tu a) where
 instance NFData a => NFData (NDT tu a) where
     rnf (NDT x) = rnf x
 
-instance Binary a => Binary (NDT tu a) where
-    put (NDT x) = put x
-    get = fmap NDT get
+instance B.Binary a => B.Binary (NDT tu a) where
+    put (NDT x) = B.put x
+    get = fmap NDT B.get
 
 -- | /TODO/ prepend unit
 instance AnsiPretty a => AnsiPretty (NDT tu a) where

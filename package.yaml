@@ -57,6 +57,7 @@ library:
     - DRBG                  >=0.5.5    && <0.6
     - exceptions            >=0.8.3    && <0.9
     - extra                 >=1.5.1    && <1.6
+    - fail
     - generics-sop          >=0.2.3.0  && <0.3
     - generics-sop-lens     >=0.1.1.0  && <0.2
     - ghc-prim
