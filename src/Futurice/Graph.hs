@@ -1,8 +1,8 @@
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE BangPatterns         #-}
+{-# LANGUAGE DeriveDataTypeable   #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE BangPatterns #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Futurice.Graph
@@ -68,6 +68,7 @@ module Futurice.Graph (
     revTopSort,
     -- * Conversions
     -- ** Maps
+    graphMapIso,
     fromIdMap,
     toMap,
     toIdMap,
@@ -85,21 +86,22 @@ module Futurice.Graph (
 ) where
 
 import Prelude ()
-import Futurice.Prelude hiding (lookup, null, empty, toList)
+import Futurice.Prelude hiding (empty, lookup, null, toList)
+import Control.Lens     (At (..), Index, Iso, IxValue, Ixed (..), iso)
 
 import qualified Futurice.Prelude as P
 
-import Futurice.IdMap (IdMap, HasKey (..))
+import           Futurice.IdMap (HasKey (..), IdMap)
 import qualified Futurice.IdMap as IdMap
 
-import Data.Graph (SCC(..))
-import qualified Data.Graph as G
-import qualified Data.Map as Map
-import qualified Data.Set as Set
-import qualified Data.Array as Array
-import Data.Array ((!))
-import qualified Data.Tree as Tree
-import Data.Either (partitionEithers)
+import           Data.Array  ((!))
+import qualified Data.Array  as Array
+import           Data.Either (partitionEithers)
+import           Data.Graph  (SCC (..))
+import qualified Data.Graph  as G
+import qualified Data.Map    as Map
+import qualified Data.Set    as Set
+import qualified Data.Tree   as Tree
 
 -- | A graph of nodes @a@.  The nodes are expected to have instance
 -- of class 'IsNode'.
@@ -170,6 +172,18 @@ instance IsNode a => Semigroup (Graph a) where
 instance IsNode a => Monoid (Graph a) where
     mempty  = empty
     mappend = (<>)
+
+type instance Index (Graph a)   = Key a
+type instance IxValue (Graph a) = a
+
+graphMapIso :: IsNode b => Iso (Graph a) (Graph b) (IdMap a) (IdMap b)
+graphMapIso = iso toIdMap fromIdMap
+
+instance IsNode a => Ixed (Graph a) where
+    ix i = graphMapIso . ix i
+
+instance IsNode a => At (Graph a) where
+    at i = graphMapIso . at i
 
 -- | The 'IsNode' class is used for datatypes which represent directed
 -- graph nodes.  A node of type @a@ is associated with some unique key of
