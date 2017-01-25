@@ -183,6 +183,7 @@ module Futurice.Prelude (
     -- * Extras
     type (:$),
     bool,
+    mcase,
     textShow,
     swapMapMap,
     -- ** Has classes
@@ -318,6 +319,17 @@ iterateM :: Monad m => (a -> m a) -> a -> m b
 iterateM f = go
   where
     go x = f x >>= go
+
+-- | @mcase m x f = maybe x f m@
+--
+-- Useful for defaulting single 'Maybe"
+--
+-- @
+-- 'mcase' mfoo defaultBar $ \foo ->
+--     fooToBar foo
+-- @
+mcase :: Maybe a -> b -> (a -> b) -> b
+mcase m x f = maybe x f m
 
 -- | @pack . show@.
 textShow :: Show a => a -> Text
