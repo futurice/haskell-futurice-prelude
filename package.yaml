@@ -43,7 +43,7 @@ library:
     - base-orphans          ==0.5.4
     - bifunctors
     - binary
-    - binary-orphans        ==0.1.5.1
+    - binary-orphans        ==0.1.5.*
     - binary-tagged         ==0.1.4.2
     - bytestring
     - case-insensitive      >=1.2.0.7  && <1.3
