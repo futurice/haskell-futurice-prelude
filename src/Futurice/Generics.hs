@@ -35,6 +35,7 @@ module Futurice.Generics (
 import Prelude ()
 import Futurice.Prelude  hiding (Generic, from)
 import Data.Char         (toLower)
+import Futurice.Aeson    (withObjectDump)
 import Futurice.IsMaybe
 import Generics.SOP      hiding (constructorInfo, datatypeName)
 import Generics.SOP.Lens
@@ -241,7 +242,7 @@ sopParseJSON
        (Generic a, HasDatatypeInfo a, All Aeson.FromJSON xs, All IsMaybe xs, Code a ~ '[xs])
     => Aeson.Value
     -> Aeson.Parser a
-sopParseJSON = Aeson.withObject tName $ \obj ->
+sopParseJSON = withObjectDump tName $ \obj ->
     to . SOP . Z <$> sopParseJSON' obj fieldInfos
   where
     dInfo = datatypeInfo (Proxy :: Proxy a)
