@@ -40,6 +40,8 @@ import Control.Monad                (when)
 import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
+import Control.Monad.IO.Class       (MonadIO (..))
+import Control.Monad.Time           (MonadTime (..))
 import Control.Monad.Trans.Class    (lift)
 import Control.Monad.Trans.Control  (MonadTransControl (..))
 import Control.Monad.Trans.Except   (ExceptT)
@@ -105,6 +107,7 @@ import qualified GitHub.Data.Name                     as GH
 import qualified Network.Wai                          as Wai
 import qualified Numeric.Interval.Kaucher             as Kaucher
 import qualified Numeric.Interval.NonEmpty            as NonEmpty
+import qualified Servant.Server                       as Servant
 
 #if !MIN_VERSION_transformers_compat(0,5,0)
 import Data.Functor.Identity (Identity (..))
@@ -612,6 +615,13 @@ instance HasStructuralInfo a => HasStructuralInfo (Kaucher.Interval a) where
 
 decodeUtf8Lenient :: ByteString -> Text
 decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
+
+-------------------------------------------------------------------------------
+-- monad-time
+-------------------------------------------------------------------------------
+
+instance MonadTime Servant.Handler where
+    currentTime = liftIO currentTime
 
 -------------------------------------------------------------------------------
 -- monad-control https://github.com/basvandijk/monad-control/pull/36
