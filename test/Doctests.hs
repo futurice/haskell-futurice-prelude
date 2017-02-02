@@ -9,4 +9,5 @@ main = do
     traverse_ putStrLn args
     doctest args
   where
-    args = flags ++ pkgs ++ module_sources
+    args = flags ++ pkgs ++ module_sources ++
+        map ("-X" ++ ) (words "DeriveDataTypeable DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable ScopedTypeVariables")
