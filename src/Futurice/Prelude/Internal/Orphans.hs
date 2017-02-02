@@ -36,12 +36,10 @@ import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.DeepSeq              (NFData (..))
 import Control.Lens                 (from, view, (&), (.~), (?~))
 import Control.Monad                (when)
-import Control.Monad.Catch          (MonadCatch (..), MonadThrow (..))
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
 import Control.Monad.IO.Class       (MonadIO (..))
 import Control.Monad.Time           (MonadTime (..))
-import Control.Monad.Trans.Class    (lift)
 import Control.Monad.Trans.Control  (MonadTransControl (..))
 import Control.Monad.Trans.Except   (ExceptT)
 import Control.Monad.Trans.State    (StateT)
@@ -130,16 +128,6 @@ instance (Hashable k, Hashable v) => Hashable (Map k v) where
     hashWithSalt salt = hashWithSalt salt . Map.toList
 
 -- | Defined in 'Futurice.Prelude'.
---
--- <https://github.com/TomMD/monadcryptorandom/pull/10>
-instance MonadThrow m => MonadThrow (CRandT g e m) where
-    throwM = lift . throwM
-
--- | Defined in 'Futurice.Prelude'.
-instance MonadCatch m => MonadCatch (CRandT g e m) where
-    catch m h = CRandT $ catch (unCRandT m) (unCRandT . h)
-
--- | Defined in 'Futurice.Prelude'.
 instance MonadTransControl (CRandT g e) where
     type StT (CRandT g e) a = StT (ExceptT e) (StT (StateT g) a)
     liftWith = defaultLiftWith2 CRandT unCRandT
@@ -171,10 +159,6 @@ instance NFData a => NFData (NonEmpty.Interval a) where
 -------------------------------------------------------------------------------
 -- Typeable
 -------------------------------------------------------------------------------
-
-#if !MIN_VERSION_transformers_compat(0,5,0)
-deriving instance Typeable Identity
-#endif
 
 deriving instance Typeable Image
 deriving instance Typeable PixelRGBA8

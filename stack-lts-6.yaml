@@ -18,6 +18,7 @@ extra-deps:
 - kan-extensions-5.0.1
 - lens-4.15.1
 - log-base-0.7
+- monadcryptorandom-0.7.1
 - natural-transformation-0.4
 - pointed-5
 - semigroupoids-5.1

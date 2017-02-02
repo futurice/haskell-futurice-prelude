@@ -75,7 +75,7 @@ library:
     - lucid                 >=2.9.7    && <2.10
     - monad-control         >=1.0.1.0  && <1.1
     - monad-time            >=0.2      && <0.3
-    - monadcryptorandom     >=0.7.0    && <0.7.2
+    - monadcryptorandom     >=0.7.1    && <0.7.2
     - mtl                   >=2.2.1    && <2.3
     - nats
     - parsec                >=3.1.11   && <3.2

@@ -6,6 +6,7 @@ extra-deps:
 - ansi-pretty-0.1.2.1
 - binary-orphans-0.1.6.0
 - generics-sop-0.2.4.0
+- monadcryptorandom-0.7.1
 - servant-0.10
 - servant-server-0.10
 - time-parsers-0.1.2.0
