@@ -29,7 +29,6 @@ import Futurice.UUID
 import Data.Binary.Orphans ()
 import Data.Hashable.Time ()
 import Data.Orphans ()
-import Data.UUID.Aeson ()
 import Data.Vector.Instances ()
 import Test.QuickCheck.Instances ()
 
@@ -129,10 +128,6 @@ instance Hashable a => Hashable (Vector a) where
 -- TODO: move into own package
 instance (Hashable k, Hashable v) => Hashable (Map k v) where
     hashWithSalt salt = hashWithSalt salt . Map.toList
-
--- | Defined in 'Futurice.Prelude'.
-instance Eq a => Eq (I a) where
-    I a == I b = a == b
 
 -- | Defined in 'Futurice.Prelude'.
 --
