@@ -1,0 +1,4 @@
+packages: .
+
+package futurice-prelude
+    ghc-options: -Wall -Werror
