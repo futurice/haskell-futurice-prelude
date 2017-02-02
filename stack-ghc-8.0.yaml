@@ -1,14 +1,13 @@
 resolver: nightly-2016-12-31
 packages:
 - '.'
-- location:
-    git: https://github.com/necrobious/uuid-aeson.git
-    commit: f5fd573c7cb098515d0093acb2879520e190cc08
-  extra-dep: true
 extra-deps:
+- aeson-1.1.0.0
 - ansi-pretty-0.1.2.1
 - binary-orphans-0.1.6.0
-- time-parsers-0.1.2.0
+- generics-sop-0.2.4.0
+- monadcryptorandom-0.7.1
 - servant-0.10
 - servant-server-0.10
+- time-parsers-0.1.2.0
 flags: {}
