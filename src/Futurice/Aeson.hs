@@ -15,6 +15,12 @@ import Data.Foldable       (foldl')
 
 import qualified Data.HashMap.Strict as HM
 
+-- $setup
+-- >>> :set -XOverloadedStrings
+-- >>> import Futurice.Prelude
+-- >>> import Data.Aeson.Types (parseEither)
+-- >>> import Data.Maybe       (fromJust)
+
 -- | Amend error with value shallow dump.
 --
 -- >>> parseEither (withValueDump "Int" parseJSON) (fromJust $ decode "[1,2,3,[4,5]]") :: Either String Int
@@ -33,6 +39,7 @@ withValueDump n f v = modifyFailure modify (f v)
         . showString s
         $ []
 
+-- | A composition of 'withValueDump' with 'withObject'.
 withObjectDump :: String -> (Object -> Parser a) -> Value -> Parser a
 withObjectDump name f = withValueDump name $ withObject name f
 
