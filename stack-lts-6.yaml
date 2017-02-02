@@ -1,4 +1,4 @@
-resolver: lts-6.27
+resolver: lts-6.29
 packages:
 - '.'
 - location:
@@ -21,8 +21,11 @@ extra-deps:
 - kan-extensions-5.0.1
 - lens-4.15.1
 - log-base-0.7
+- natural-transformation-0.4
 - pointed-5
 - semigroupoids-5.1
+- servant-0.10
+- servant-server-0.10
 - swagger2-2.1.3
 - these-0.7.2
 - time-parsers-0.1.2.0
