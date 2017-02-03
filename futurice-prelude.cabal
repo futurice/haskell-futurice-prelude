@@ -1,9 +1,5 @@
--- This file has been generated from package.yaml by hpack version 0.16.0.
---
--- see: https://github.com/sol/hpack
-
 name:           futurice-prelude
-version:        0.1.10.0
+version:        1
 synopsis:       Futurice Prelude
 description:    'Futurice.Prelude' is used in Futurice apps:
                 .
@@ -148,7 +144,6 @@ test-suite doctests
   build-depends:
       base,
       doctest >= 0.11.1 && <0.12
-
 
 test-suite tests
   type: exitcode-stdio-1.0
