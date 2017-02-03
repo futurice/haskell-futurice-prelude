@@ -13,3 +13,6 @@ extra-deps:
 - servant-server-0.10
 - time-parsers-0.1.2.0
 flags: {}
+# We need this until next stack is released
+explicit-setup-deps:
+  futurice-prelude: true
