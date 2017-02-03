@@ -87,7 +87,7 @@ module Futurice.Graph (
 
 import Prelude ()
 import Futurice.Prelude hiding (empty, lookup, null, toList)
-import Control.Lens     (At (..), Index, Iso, IxValue, Ixed (..), iso)
+import Control.Lens     (At (..), Index, IxValue, Ixed (..))
 
 import qualified Futurice.Prelude as P
 

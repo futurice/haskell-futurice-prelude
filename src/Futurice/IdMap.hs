@@ -22,12 +22,12 @@ module Futurice.IdMap (
     valid,
     ) where
 
-import Futurice.Prelude
 import Prelude ()
+import Futurice.Prelude
 
 import Control.Lens
-       (At (..), Getting, Index, IndexedFold, IxValue, Ixed (..), Traversal',
-       iall, ifolded, set, to, toListOf, views)
+       (At (..), Getting, Index, IndexedFold, IxValue, Ixed (..), iall,
+       ifolded, set, to, toListOf, views)
 import Data.Monoid     (Endo)
 import Test.QuickCheck (Arbitrary (..), listOf1)
 

@@ -5,9 +5,14 @@ extra-deps:
 - aeson-1.1.0.0
 - ansi-pretty-0.1.2.1
 - binary-orphans-0.1.6.0
+- cabal-doctest-1
+- doctest-0.11.1
 - generics-sop-0.2.4.0
 - monadcryptorandom-0.7.1
 - servant-0.10
 - servant-server-0.10
 - time-parsers-0.1.2.0
 flags: {}
+# We need this until next stack is released
+explicit-setup-deps:
+  futurice-prelude: true

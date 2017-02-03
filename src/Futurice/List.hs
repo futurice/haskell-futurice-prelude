@@ -22,6 +22,9 @@ import Futurice.Prelude
 import Data.Coerce      (coerce)
 import Generics.SOP     ((:.:) (..), SList (..), SListI (..))
 
+-- $setup
+-- >>> :set -XDataKinds
+
 -------------------------------------------------------------------------------
 -- Append
 -------------------------------------------------------------------------------
@@ -101,15 +104,15 @@ type family Head (xs :: [k]) where
 
 -- | More partial function then 'Head'.
 --
--- >>> λ *Futurice.List > :kind! UnSingleton '[Int]
+-- >>> :kind! UnSingleton '[Int]
 -- UnSingleton '[Int] :: *
 -- = Int
 --
--- >>> λ *Futurice.List > :kind! UnSingleton '[]
+-- >>> :kind! UnSingleton '[]
 -- UnSingleton '[] :: k
 -- = UnSingleton '[]
 --
--- >>> λ *Futurice.List > :kind! UnSingleton '[Int, Bool]
+-- >>> :kind! UnSingleton '[Int, Bool]
 -- UnSingleton '[Int, Bool] :: *
 -- = UnSingleton '[Int, Bool]
 --

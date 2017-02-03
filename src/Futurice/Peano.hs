@@ -29,6 +29,9 @@ module Futurice.Peano (
 import Data.Type.Equality
 import Unsafe.Coerce      (unsafeCoerce)
 
+-- $setup
+-- >>> :set -XDataKinds
+
 -- | Peano natural numbers. Better then 'Nat' for type-level usage.
 data Peano = PZ | PS Peano
 
@@ -37,11 +40,31 @@ data SPeano (p :: Peano) where
     SPZ :: SPeano 'PZ
     SPS :: SPeano p -> SPeano ('PS p)
 
+instance Show (SPeano p) where
+    showsPrec _ SPZ     = showString "SPZ"
+    showsPrec d (SPS n) = showParen (d > 10)
+        $ showString "SPS "
+        . showsPrec 11 n
+
+-- TODO: peanoToNatural
+
+-- | Convert 'SPeano' to 'Integer'
+--
+-- >>> sPeanoToInteger SPZ
+-- 0
+--
+-- >>> sPeanoToInteger $ SPS $ SPS $ SPZ
+-- 2
+--
+-- /TODO:/ Natural!
 sPeanoToInteger :: SPeano p -> Integer
 sPeanoToInteger SPZ     = 0
 sPeanoToInteger (SPS n) = 1 + sPeanoToInteger n
 
 -- | Convenience class to get 'SPeano'.
+--
+-- >>> singPeano :: SPeano PTwo
+-- SPS (SPS SPZ)
 class SPeanoI p where
     singPeano :: SPeano p
 instance SPeanoI 'PZ where singPeano = SPZ
@@ -58,6 +81,10 @@ type family Image xs ys :: [Peano] where
     Image '[]       ys = '[]
     Image (x ': xs) ys = Index x ys ': Image xs ys
 
+-- | Plus
+--
+-- >>> singPeano :: SPeano (PAdd POne PTwo)
+-- SPS (SPS (SPS SPZ))
 type family PAdd (n :: Peano) (m :: Peano) :: Peano where
     PAdd 'PZ     m = m
     PAdd ('PS n) m = 'PS (PAdd n m)

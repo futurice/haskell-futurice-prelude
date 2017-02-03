@@ -1,5 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
+-- | 'Month' data type.
 module Futurice.Time.Month (
+    -- * Types
     MonthName (..),
     Month (..),
     -- * Functions
@@ -9,19 +11,13 @@ module Futurice.Time.Month (
     ) where
 
 import Prelude ()
-import Prelude.Compat
-import Control.DeepSeq  (NFData (..))
-import Control.Lens     ((&), (.~), (?~))
+import Futurice.Prelude.Internal
+
 import Data.Aeson
        (FromJSON (..), FromJSONKey (..), ToJSON (..), ToJSONKey (..), withText)
 import Data.Aeson.Types (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
-import Data.Bifunctor   (first)
-import Data.Hashable    (Hashable (..))
-import Data.String      (fromString)
 import Data.Swagger     (ToParamSchema (..), ToSchema (..))
-import Data.Time        (Day, fromGregorian, gregorianMonthLength, toGregorian)
-import Data.Typeable    (Typeable)
-import GHC.Generics     (Generic)
+import Data.Time        (fromGregorian, gregorianMonthLength, toGregorian)
 import Test.QuickCheck  (Arbitrary (..), arbitraryBoundedEnum)
 import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
 
@@ -31,6 +27,11 @@ import qualified Data.Swagger         as Swagger
 import qualified Data.Text            as T
 import qualified Data.Time.Parsers    as Parsers
 
+-------------------------------------------------------------------------------
+-- MonthName
+-------------------------------------------------------------------------------
+
+-- | We explicitly enumerate month names. Using an 'Int' is unsafe.
 data MonthName
     = January
     | February
@@ -82,8 +83,23 @@ instance Arbitrary MonthName where
     shrink January = []
     shrink m       = [January .. pred m]
 
+-------------------------------------------------------------------------------
+-- Month
+-------------------------------------------------------------------------------
+
+-- | A month in Julian/Gregorian calendar.
 data Month = Month { monthYear :: !Integer, monthName :: !MonthName }
-  deriving (Eq, Ord, Show, Read, Generic, Typeable)
+  deriving (Eq, Ord, Generic, Typeable)
+
+-- | Doesn't print field names.
+instance Show Month where
+    showsPrec d (Month y n) = showParen (d > 10)
+        $ showString "Month "
+        . showsPrec 11 y
+        . showChar ' '
+        . showsPrec 11 n
+
+-- TODO write Read instance to match above Show instance
 
 instance Hashable Month
 instance NFData Month where rnf (Month _ _) = ()
@@ -148,18 +164,40 @@ instance Arbitrary Month where
 -- functions
 -------------------------------------------------------------------------------
 
+-- | Extract 'Month' from 'Day'
+--
+-- >>> dayToMonth $(mkDay "2017-02-03")
+-- Month 2017 February
+--
 dayToMonth :: Day -> Month
 dayToMonth d =
     let (y, m, _) = toGregorian d
     in mkMonth (y, m)
 
+-- | First day of the month.
+--
+-- >>> firstDayOfMonth $ Month 2017 February
+-- 2017-02-01
+--
 firstDayOfMonth :: Month -> Day
 firstDayOfMonth (Month y m) = fromGregorian y (fromEnum m) 1
 
+-- | Last day of the month
+--
+-- >>> lastDayOfMonth $ Month 2017 February
+-- 2017-02-28
+--
+-- >>> lastDayOfMonth $ Month 2016 February
+-- 2016-02-29
+--
 lastDayOfMonth :: Month -> Day
 lastDayOfMonth (Month y m) = fromGregorian y m' (gregorianMonthLength y m')
   where
     m' = fromEnum m
+
+-------------------------------------------------------------------------------
+-- Internals
+-------------------------------------------------------------------------------
 
 mkMonth :: (Integer, Int) -> Month
 mkMonth (y, m) = Month y (toEnum m)
@@ -169,3 +207,7 @@ monthToString (Month y October)  = show y ++ "-10"
 monthToString (Month y November) = show y ++ "-11"
 monthToString (Month y December) = show y ++ "-12"
 monthToString (Month y m)        = show y ++ "-0" ++ show (fromEnum m)
+
+-- $setup
+-- >>> :set -XTemplateHaskell
+-- >>> import Futurice.Prelude

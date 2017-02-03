@@ -5,6 +5,7 @@ import Prelude ()
 import Futurice.Prelude
 import Test.QuickCheck  (Gen, elements)
 
+-- | Common nouns: /time/, /year/, /people/, etc.
 arbitraryNoun :: Gen Text
 arbitraryNoun = elements
     [ "time"
@@ -109,6 +110,7 @@ arbitraryNoun = elements
     , "education"
     ]
 
+-- | Common verbs: /be/, /have/, /do/, etc.
 arbitraryVerb :: Gen Text
 arbitraryVerb = elements
     [ "be"
@@ -213,6 +215,7 @@ arbitraryVerb = elements
     , "remain"
     ]
 
+-- | Common adjectives: /other/, /new/, /good/, etc.
 arbitraryAdjective :: Gen Text
 arbitraryAdjective = elements
     [ "other"
