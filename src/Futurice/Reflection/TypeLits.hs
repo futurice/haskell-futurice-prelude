@@ -22,11 +22,6 @@ import GHC.Fingerprint
 import GHC.Prim
 import Unsafe.Coerce
 
--- | In older @base@ this isn't trivial.
---
--- >>> symbolTypeRep (Proxy "foo")
--- "foo"
---
 symbolTypeRep :: KnownSymbol s => Proxy s -> TypeRep
 symbolTypeRep p = mkTyConApp tc []
     where
@@ -47,15 +42,25 @@ symbolTypeRep p = mkTyConApp tc []
 
 newtype MagicTypeable (s :: Symbol) r = MagicTypeable (Typeable s => r)
 newtype ReifiedTypeable s = ReifiedTypeable (Proxy# s -> TypeRep)
+#endif
 
+-- | With @base >= 4.9@ the implementation is trivial.
+--
+-- >>> let p = Proxy :: Proxy "foo" in typeRep p
+-- "foo"
+--
 reifyTypeableSymbol :: forall s r. KnownSymbol s => Proxy s -> (Typeable s => r) -> r
+#if !MIN_VERSION_base(4,9,0)
 reifyTypeableSymbol p k = unsafeCoerce (MagicTypeable k :: MagicTypeable s r) rtr
   where
     tr  = symbolTypeRep p
     rtr = ReifiedTypeable (\_ -> tr)
 
 #else
--- | With @base >= 4.9@ the implementation is trivial.
-reifyTypeableSymbol :: forall s r. KnownSymbol s => Proxy s -> (Typeable s => r) -> r
 reifyTypeableSymbol _ f = f
 #endif
+
+-- $setup
+-- >>> :set -XDataKinds
+-- >>> import Data.Typeable (typeRep)
+-- >>> import Data.Proxy (Proxy (..))
