@@ -1,3 +1,4 @@
+-- | Additional monoids.
 module Futurice.Monoid where
 
 import Prelude ()
@@ -5,8 +6,15 @@ import Futurice.Prelude
 import Test.QuickCheck (Arbitrary (..))
 
 -- | Numerically stable average. Weighted average to be precise.
+--
+-- >>> getAverage $ foldMap mkAverage [1,2,4,7] :: Rational
+-- 7 % 2
 data Average a = Average { _samples :: !a, getAverage :: !a }
   deriving (Eq, Show)
+
+-- | Make 'Average' with 1 as a sample size.
+mkAverage :: Num a => a -> Average a
+mkAverage x = Average 1 x
 
 instance (Eq a, Fractional a) => Semigroup (Average a) where
     a@(Average n x) <> b@(Average n' x')
@@ -26,4 +34,6 @@ instance (Arbitrary a, Num a) => Arbitrary (Average a) where
       where
         mk s a = Average (abs s) a
 
-    -- TOOD: write shrink. Let's do when there is shrinkMap
+    shrink (Average n x) = mk <$> shrink (n, x)
+      where
+        mk (n', x') = Average (abs n') x'

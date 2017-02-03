@@ -5,6 +5,11 @@
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeOperators      #-}
 module Futurice.Prelude (
+    -- * Prelude.Compat
+    --
+    -- | We use it as a basis. Yet we hide or generalise some definitions.
+    -- E.g. 'zip'.
+    --
     module Prelude.Compat,
     -- * Types
     ByteString,
@@ -208,7 +213,7 @@ import Control.Lens
        (Lens', folded, from, ifolded, ifor, ifor_, isn't, itoList, itraverse,
        itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, over,
        preview, strict, view, (%=), (%~), (&), (.~), (?=), (?~), (^.), (^..),
-       (^?), _1, _2, _3, _Empty, _Just, _Left, _Nothing, _Right)
+       (^?), _1, _2, _3, _Empty, _Just, _Left, _Nothing, _Right, _Wrapped)
 import Control.Lens
        (At (..), Ixed (..), ifoldMap, ifoldMapOf, (<.>))
 import Control.Monad.Base          (MonadBase (..))
@@ -311,10 +316,22 @@ import Futurice.Prelude.Internal.Orphans ()
 -------------------------------------------------------------------------------
 
 -- | Type level '$'
+--
+-- >>> Refl :: (ReaderT Int :$ ExceptT () :$ IO) Char :~: ReaderT Int (ExceptT () IO) Char
+-- Refl
+--
 type (:$) (f :: k -> l) (x :: k) = f x
 infixr 0 :$
 
 -- | Iterative version of 'forever'.
+--
+-- >>> runExceptT $ iterateM (\n -> liftIO (print n) >> if (n < 3) then pure (n + 1) else throwError ()) 0
+-- 0
+-- 1
+-- 2
+-- 3
+-- Left ()
+--
 iterateM :: Monad m => (a -> m a) -> a -> m b
 iterateM f = go
   where
@@ -328,10 +345,30 @@ iterateM f = go
 -- 'mcase' mfoo defaultBar $ \foo ->
 --     fooToBar foo
 -- @
+--
+-- >>> mcase Nothing 'A' toUpper
+-- 'A'
+--
+-- >>> mcase (Just 'b') 'A' toUpper
+-- 'B'
+--
+-- >>> mcase (Just 'b') True $ \c -> isLetter c || isSpace c
+-- True
+--
 mcase :: Maybe a -> b -> (a -> b) -> b
 mcase m x f = maybe x f m
 
 -- | @pack . show@.
+--
+-- >>> textShow (1 :: Int)
+-- "1"
+--
+-- >>> :t textShow (1 :: Int)
+-- ... :: Text
+--
+-- /Note:/ we should move to use @text-show@ package.
+-- OTOH this isn't a performance issue.
+--
 textShow :: Show a => a -> Text
 textShow = view packed . show
 
@@ -360,6 +397,14 @@ class HasUUID a where
 instance HasUUID UUID where
     uuid = id
 
+-- | Unfortunately we cannot easily have polymorphic
+-- @uuid :: Lens (Tagged tag a) (Tagged tag' a) UUID UUID@.
+--
+-- But we don't really need that either yet.
+--
+instance HasUUID a => HasUUID (Tagged tag a) where
+    uuid = _Wrapped . uuid
+
 -------------------------------------------------------------------------------
 -- Time
 -------------------------------------------------------------------------------
@@ -372,9 +417,15 @@ currentDay = localDay . utcToHelsinkiTime <$> currentTime
 currentMonth :: MonadTime m => m Month
 currentMonth = dayToMonth <$> currentDay
 
+-- | Convert time to local time in helsinki
+--
+-- >>> utcToHelsinkiTime $(mkUTCTime "2017-02-03T12:00:00Z")
+-- 2017-02-03 14:00:00
+--
 utcToHelsinkiTime :: UTCTime -> LocalTime
 utcToHelsinkiTime = utcToLocalTimeTZ helsinkiTz
 
+-- | @Europe/Helsinki@ timezone.
 helsinkiTz :: TZ
 helsinkiTz = $(includeTZFromDB "Europe/Helsinki")
 
@@ -398,6 +449,13 @@ type AesonPair = Aeson.Pair
 -- Show
 -------------------------------------------------------------------------------
 
+-- | Next from 'showsUnaryWith' and 'showsBinaryWith'.
+--
+-- @
+-- liftShowsPrec sp sl d (Three x y z) =
+--      showsTernaryWith sp (liftShowsPrec sp sl) showsPrec
+--      "Three" d x y z
+-- @
 showsTernaryWith
     :: (Int -> a -> ShowS)
     -> (Int -> b -> ShowS)
@@ -447,6 +505,12 @@ mkStderrLogger = mkBulkLogger "ansi-stderr" (traverse_ log') (hFlush stderr)
         m
         ANSI.setSGR [ANSI.Reset]
 
+-- | We often need logger in small scripts:
+--
+-- @
+-- main = withStderrLogger logger $ \logger -> do
+--     ....
+-- @
 withStderrLogger :: (Logger -> IO r) -> IO r
 withStderrLogger act = do
     logger <- mkStderrLogger
@@ -459,3 +523,13 @@ logLocalData = localData
 -- | Renamed 'Log.localDomain'.
 logLocalDomain :: MonadLog m => Text -> m a -> m a
 logLocalDomain = localDomain
+
+-------------------------------------------------------------------------------
+-- Doctests
+-------------------------------------------------------------------------------
+
+-- $setup
+-- >>> :set -XTemplateHaskell
+-- >>> :set -XTypeOperators
+-- >>> import Data.Char (toUpper, isLetter, isSpace)
+-- >>> import Data.Type.Equality

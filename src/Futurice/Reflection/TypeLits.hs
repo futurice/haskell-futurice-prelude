@@ -5,6 +5,7 @@
 {-# LANGUAGE MagicHash           #-}
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- | Extensions to "GHC.TypeLits".
 module Futurice.Reflection.TypeLits (
     reifyTypeableSymbol,
     ) where
@@ -21,6 +22,11 @@ import GHC.Fingerprint
 import GHC.Prim
 import Unsafe.Coerce
 
+-- | In older @base@ this isn't trivial.
+--
+-- >>> symbolTypeRep (Proxy "foo")
+-- "foo"
+--
 symbolTypeRep :: KnownSymbol s => Proxy s -> TypeRep
 symbolTypeRep p = mkTyConApp tc []
     where

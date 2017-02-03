@@ -42,6 +42,11 @@ import qualified Data.Scientific    as Scientific
 import qualified Data.Text.Encoding as TE
 import qualified Lucid
 
+-- $setup
+-- >>> :set -XDataKinds
+-- >>> import Data.Fixed (Centi)
+
+
 data TimeUnit
     = Fortnights
     | Weeks
@@ -105,9 +110,7 @@ instance Arbitrary a => Arbitrary (NDT tu a) where
 instance CoArbitrary a => CoArbitrary (NDT tu a) where
     coarbitrary (NDT x) = coarbitrary x
 
--- | Instances are encoded / decoded as is. I.e. unit is irrelevant
---
--- /TODO/: encode as object?
+-- | Instances are encoded / decoded as is. I.e. unit is erased
 instance AsScientific a => FromJSON (NDT tu a) where
     parseJSON x = do
         s <- parseJSON x
@@ -189,6 +192,12 @@ ndtConvert (NDT x) = NDT $
     pu = Proxy :: Proxy (InSeconds u)
 
 -- | Like 'ndtConvert', but may change the carrier from integral type
+--
+-- >>> ndtConvert' (fromNominalDiffTime 3600) :: NDT 'Hours Centi
+-- NDT 1.00
+--
+-- >>> ndtConvert' (fromNominalDiffTime 4000) :: NDT 'Hours Centi
+-- NDT 1.11
 ndtConvert'
     :: (IsTimeUnit t, IsTimeUnit u, Fractional a, Integral b)
     => NDT t b -> NDT u a
