@@ -11,19 +11,13 @@ module Futurice.Time.Month (
     ) where
 
 import Prelude ()
-import Prelude.Compat
-import Control.DeepSeq  (NFData (..))
-import Control.Lens     ((&), (.~), (?~))
+import Futurice.Prelude.Internal
+
 import Data.Aeson
        (FromJSON (..), FromJSONKey (..), ToJSON (..), ToJSONKey (..), withText)
 import Data.Aeson.Types (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
-import Data.Bifunctor   (first)
-import Data.Hashable    (Hashable (..))
-import Data.String      (fromString)
 import Data.Swagger     (ToParamSchema (..), ToSchema (..))
-import Data.Time        (Day, fromGregorian, gregorianMonthLength, toGregorian)
-import Data.Typeable    (Typeable)
-import GHC.Generics     (Generic)
+import Data.Time        (fromGregorian, gregorianMonthLength, toGregorian)
 import Test.QuickCheck  (Arbitrary (..), arbitraryBoundedEnum)
 import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
 

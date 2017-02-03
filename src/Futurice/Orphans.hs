@@ -19,10 +19,10 @@
 -- packages "Futurice.Prelude" depends upon.
 --
 -- TODO: Split into submodules
-module Futurice.Prelude.Internal.Orphans () where
+module Futurice.Orphans () where
 
 import Prelude ()
-import Prelude.Compat
+import Futurice.Prelude.Internal
 
 import Futurice.UUID
 
@@ -33,52 +33,27 @@ import Data.Vector.Instances ()
 import Test.QuickCheck.Instances ()
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
-import Control.DeepSeq              (NFData (..))
-import Control.Lens                 (from, view, (&), (.~), (?~))
-import Control.Monad                (when)
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
-import Control.Monad.IO.Class       (MonadIO (..))
-import Control.Monad.Time           (MonadTime (..))
-import Control.Monad.Trans.Control  (MonadTransControl (..))
-import Control.Monad.Trans.Except   (ExceptT)
 import Control.Monad.Trans.State    (StateT)
 import Data.Aeson.Compat
-       (FromJSON (..), Parser, ToJSON (..), Value (..), object, withArray,
-       withObject, (.:), (.=))
+       (FromJSON (..), Parser, ToJSON (..), object, withArray, withObject,
+       (.:), (.=))
 import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
        ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
        parseJSON1, toEncoding1, toJSON1)
-import Data.Bifunctor               (bimap)
-import Data.Binary                  (Binary (..))
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
-import Data.ByteString              (ByteString)
 import Data.Fixed                   (Fixed, HasResolution)
-import Data.Foldable                (toList)
-import Data.Functor.Compose         (Compose (..))
-import Data.Hashable                (Hashable (..))
-import Data.Map                     (Map)
-import Data.Proxy                   (Proxy (..))
-import Data.Scientific              (Scientific)
-import Data.Semigroup               (Semigroup (..))
-import Data.String                  (fromString)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
-import Data.Text                    (Text)
-import Data.These                   (These (..))
-import Data.Time                    (Day, UTCTime)
 import Data.Time.Parsers            (day, utcTime)
-import Data.Typeable                (Typeable)
-import Data.Vector                  (Vector)
-import Generics.SOP                 (All, I (..), K (..), NP (..), unI)
+import Generics.SOP                 (All)
 import Numeric.Interval             (Interval, inf, sup)
 import Test.QuickCheck              (Arbitrary (..))
 import Text.Parsec                  (parse)
 import Text.Parsec.String ()
 import Text.PrettyPrint.ANSI.Leijen (Doc)
-
-import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty)
 
 import qualified Data.Aeson.Encoding                  as Aeson
 import qualified Data.Attoparsec.ByteString.Char8     as Atto

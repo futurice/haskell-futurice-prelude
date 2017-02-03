@@ -23,7 +23,7 @@ module Futurice.Time (
 
 import Prelude ()
 import Futurice.Prelude
-import Control.Lens       (Prism', prism', ( # ))
+import Control.Lens       (( # ))
 import Data.Aeson         (FromJSON (..), ToJSON (..))
 import Data.Binary.Tagged (HasSemanticVersion, HasStructuralInfo)
 import Data.Fixed         (Fixed, HasResolution)

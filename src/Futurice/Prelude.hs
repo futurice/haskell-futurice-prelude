@@ -5,311 +5,58 @@
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeOperators      #-}
 module Futurice.Prelude (
-    -- * Prelude.Compat
-    --
-    -- | We use it as a basis. Yet we hide or generalise some definitions.
-    -- E.g. 'zip'.
-    --
-    module Prelude.Compat,
+    -- * Re-exports
+    module Futurice.Prelude.Internal,
     -- * Types
-    ByteString,
-    Day (..),
     Month,
-    HashMap,
-    HashSet,
-    IntMap,
-    IntSet,
-    List,
-    Pair,
-    LazyText,
-    LazyByteString,
-    LocalTime (..),
-    Map,
-    Natural,
-    NominalDiffTime,
-    Proxy(..),
-    Scientific,
-    Set,
-    StrictPair,
-    TZ,
-    Tagged (..), untag,
-    Text,
-    These (..),
-    UTCTime (..),
-    UUID,
-    Vector,
-    module Data.Int,
-    module Data.Word,
-    -- ** Aeson
-    Aeson.Value,
-    AesonPair,
-    -- ** Monoids
-    Sum (..),
-    UnionWith (..),
-    -- * Data Classes
-    Align (..),
-    AlignWithKey (..),
-    Binary (..),
-    Generic,
-    Hashable(..),
-    NFData(..),
-    Semigroup(..),
-    Typeable,
-    IsString(..),
-    AnsiPretty.AnsiPretty,
-    Zip (..),
-    ZipWithKey (..),
-    Exception,
-    -- * Functor classes
-    Identity (..),
-    Const (..),
-    Compose (..),
-    module Data.Functor.Classes,
-    showsTernaryWith,
-    -- * Monad classes
-    --
-    -- | Note, 'MonadState' members aren't exported.
-    -- Use 'view', '%=', '.=', and '?='.
-    MonadBase(..),
-    MonadBaseControl(..),
-    MonadCatch(..),
-    MonadError(..),
-    MonadFix(..),
-    MonadIO(..),
-    MonadLog,
-    MonadPlus(..),
-    MonadReader(..),
-    MonadState,
-    MonadThrow(..),
-    MonadTime (..),
-    MonadTrans(..),
-    MonadTransControl(..),
-    MonadWriter(..),
-    -- * Monad transformers
-    MaybeT(..),
-    ReaderT(..),
-    ExceptT(..),
-    runExceptT,
-    withExceptT,
-    -- * log
-    Logger,
-    LogT,
-    logAttention,
-    logInfo,
-    logTrace,
-    logAttention_,
-    logInfo_,
-    logTrace_,
+    -- * @log@
+    withStderrLogger,
     logLocalData,
     logLocalDomain,
-    runLogT,
-    mkStderrLogger,
-    withStderrLogger,
-    -- * generics-sop
-    deriveGeneric,
-    -- * composition-extra
-    (<$$>),
-    -- * alternative
-    Alternative(..), optional,
-    -- * bifunctors
-    bimap, first, second,
-    -- * profunctors
-    dimap, lmap, rmap,
-    -- * contravariant
-    contramap, (>$<), (>$),
-    -- * deepseq
-    ($!!),
-    -- * exception
-    SomeException(..),
-    evaluate,
-    tryDeep,
-    -- * Maybe
-    fromMaybe,
-    mapMaybe,
-    catMaybes,
-    readMaybe,
-    -- * Foldable
-    fold,
-    toList,
-    traverse_, itraverse_,
-    for_, ifor_,
-    ifoldMap,
-    sequenceA_,
-    -- * Traversable
-    for,
-    -- ** Indexed
-    itoList,
-    ifor, itraverse,
     -- * Monad
-    void, join, forever, iterateM, foldM, guard, when,
-    -- * Function
-    on, (&),
-    -- * SOP
-    I (..), unI,
-    K (..), unK,
-    NP (..), NS (..),
-    -- * http-client
-    Manager, newManager,
-    tlsManagerSettings,
-    -- * Lens
-    Lens', lens,
-    -- ** Operators
-    (^?), preview,
-    (^.), view,
-    (^..),
-    (%~), over,
-    (.~), (?~),
-    from,
-    -- ** State
-    (%=), (?=),
-    -- ** Named
-    folded, ifolded,
-    -- ** At
-    ix, at,
-    -- ** Text related
-    packed, unpacked,
-    strict, lazy,
-    -- ** _Empty
-    isn't, _Empty,
-    -- ** Common optics
-    _Just, _Nothing, _Left, _Right,
-    _1, _2, _3,
-    -- ** Constructors
-    toMapOf,
-    -- ** TH
-    makeLenses, makePrisms, makeWrapped,
-    -- * List
-    sort, sortBy, sortOn, nub,
-    shuffleM,
-    chunksOf,
-    -- * Time
-    -- ** TH
-    mkUTCTime, mkDay,
-    -- * Extras
-    type (:$),
-    bool,
-    mcase,
-    textShow,
-    swapMapMap,
-    -- ** Has classes
+    iterateM,
+    -- * @exception@
+    tryDeep,
+    -- * Has classes
     HasUUID (..),
-    -- ** Time
+    -- * Time
     currentDay,
     currentMonth,
     firstDayOfMonth,
     lastDayOfMonth,
     utcToHelsinkiTime,
     helsinkiTz,
+    -- * Misc extras
+    type (:$),
+    mcase,
+    textShow,
+    swapMapMap,
+    showsTernaryWith,
     ) where
 
 import Prelude ()
-import Prelude.Compat hiding (zip, zipWith)
+import Futurice.Prelude.Internal
 
-import Control.Applicative         (Alternative (..), Const (..), optional)
-import Control.Concurrent.Async    (waitCatch, withAsync)
-import Control.DeepSeq             (NFData (..), ($!!))
-import Control.Exception           (evaluate)
-import Control.Lens
-       (Lens', folded, from, ifolded, ifor, ifor_, isn't, itoList, itraverse,
-       itraverse_, lazy, lens, makeLenses, makePrisms, makeWrapped, over,
-       preview, strict, view, (%=), (%~), (&), (.~), (?=), (?~), (^.), (^..),
-       (^?), _1, _2, _3, _Empty, _Just, _Left, _Nothing, _Right, _Wrapped)
-import Control.Lens
-       (At (..), Ixed (..), ifoldMap, ifoldMapOf, (<.>))
-import Control.Monad.Base          (MonadBase (..))
-import Control.Monad.Catch
-       (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
-import Control.Monad.Compat
-       (MonadPlus (..), foldM, forever, guard, join, void, when)
-import Control.Monad.Except
-       (ExceptT (..), MonadError (..), runExceptT, withExceptT)
-import Control.Monad.Fix           (MonadFix (..))
-import Control.Monad.IO.Class      (MonadIO (..))
-import Control.Monad.Reader        (MonadReader (..), ReaderT (..))
-import Control.Monad.State.Class   (MonadState (..))
-import Control.Monad.Time          (MonadTime (..))
-import Control.Monad.Trans.Class   (MonadTrans (..))
-import Control.Monad.Trans.Control
-       (MonadBaseControl (..), MonadTransControl (..))
-import Control.Monad.Trans.Maybe   (MaybeT (..))
-import Control.Monad.Writer.Class  (MonadWriter (..))
-import Data.Align                  (Align (..))
-import Data.Align.Key              (AlignWithKey (..))
-import Data.Bifunctor              (bimap, first, second)
-import Data.Binary                 (Binary (..))
-import Data.Bool.Compat            (bool)
-import Data.ByteString             (ByteString)
-import Data.Foldable               (fold, for_, sequenceA_, toList, traverse_)
-import Data.Function               (on)
-import Data.Functor.Classes
-import Data.Functor.Compose        (Compose (..))
-import Data.Functor.Contravariant  (contramap, (>$), (>$<))
-import Data.Functor.Identity       (Identity (..))
-import Data.Functor.Syntax         ((<$$>))
-import Data.Hashable               (Hashable (..))
-import Data.HashMap.Strict         (HashMap)
-import Data.HashSet                (HashSet)
-import Data.Int
-import Data.IntMap.Strict          (IntMap)
-import Data.IntSet                 (IntSet)
-import Data.Key                    (Zip (..), ZipWithKey (..))
-import Data.List.Compat            (nub, sort, sortBy, sortOn)
-import Data.List.Extra             (chunksOf)
-import Data.Map.Lens               (toMapOf)
-import Data.Map.Strict             (Map)
-import Data.Maybe                  (catMaybes, fromMaybe, mapMaybe)
-import Data.Profunctor             (dimap, lmap, rmap)
-import Data.Proxy                  (Proxy (..))
-import Data.Scientific             (Scientific)
-import Data.Semigroup              (Semigroup (..), Sum (..))
-import Data.Semigroup.Union        (UnionWith (..))
-import Data.Set                    (Set)
-import Data.String                 (IsString (..))
-import Data.Tagged                 (Tagged (..), untag)
-import Data.Text                   (Text)
-import Data.Text.Lens              (packed, unpacked)
-import Data.These                  (These (..))
-import Data.Time
-       (Day (..), LocalTime (..), NominalDiffTime, UTCTime (..),
-       defaultTimeLocale, formatTime)
-import Data.Time.TH                (mkDay, mkUTCTime)
-import Data.Time.Zones             (TZ, utcToLocalTimeTZ)
-import Data.Time.Zones.TH          (includeTZFromDB)
-import Data.Traversable            (for)
-import Data.Typeable               (Typeable)
-import Data.UUID                   (UUID)
-import Data.Vector                 (Vector)
-import Data.Word
-import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
-import Generics.SOP.TH             (deriveGeneric)
-import GHC.Generics                (Generic)
+import Control.Concurrent.Async (waitCatch, withAsync)
+import Control.Lens             (_Wrapped)
+import Control.Lens             (ifoldMapOf, (<.>))
+import Data.Time                (defaultTimeLocale, formatTime)
+import Data.Time.Zones          (utcToLocalTimeTZ)
+import Data.Time.Zones.TH       (includeTZFromDB)
+import Futurice.Time.Month
 import Log
-       (LogLevel (..), LogMessage (..), LogT, Logger, MonadLog, localData,
-       localDomain, logAttention, logAttention_, logInfo, logInfo_, logTrace,
-       logTrace_, mkBulkLogger, runLogT)
-import Log.Internal.Logger         (withLogger)
-import Network.HTTP.Client         (Manager, newManager)
-import Network.HTTP.Client.TLS     (tlsManagerSettings)
-import Numeric.Natural             (Natural)
-import System.Console.ANSI ()
-import System.IO                   (hFlush, stderr)
-import System.Random.Shuffle       (shuffleM)
-import Text.Read                   (readMaybe)
+       (LogLevel (..), LogMessage (..), localData, localDomain, mkBulkLogger)
+import Log.Internal.Logger      (withLogger)
+import System.IO                (hFlush, stderr)
 
-import qualified Data.Aeson.Types     as Aeson
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.Map             as Map
-import qualified Data.Text            as T
-import qualified Data.Text.IO         as T
-import qualified Data.Text.Lazy       as LT
-import qualified Data.Tuple.Strict    as STuple
-import qualified System.Console.ANSI  as ANSI
-
+import qualified Data.Aeson.Types                        as Aeson
+import qualified Data.Map                                as Map
+import qualified Data.Text                               as T
+import qualified Data.Text.IO                            as T
+import qualified System.Console.ANSI                     as ANSI
 import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
 
-import Futurice.Time.Month
-
-import Futurice.Prelude.Internal.Orphans ()
+import Futurice.Orphans ()
 
 -------------------------------------------------------------------------------
 -- Our additions
@@ -430,22 +177,6 @@ helsinkiTz :: TZ
 helsinkiTz = $(includeTZFromDB "Europe/Helsinki")
 
 -------------------------------------------------------------------------------
--- type aliases
--------------------------------------------------------------------------------
-
-type Pair = (,)
-type List = []
-type LazyByteString = LBS.ByteString
-type LazyText       = LT.Text
-type StrictPair     = STuple.Pair
-
--------------------------------------------------------------------------------
--- Aeson
--------------------------------------------------------------------------------
-
-type AesonPair = Aeson.Pair
-
--------------------------------------------------------------------------------
 -- Show
 -------------------------------------------------------------------------------
 
@@ -517,7 +248,7 @@ withStderrLogger act = do
     withLogger logger act
 
 -- | Renamed 'Log.localData'.
-logLocalData :: MonadLog m => [Aeson.Pair] -> m a -> m a
+logLocalData :: MonadLog m => [AesonPair] -> m a -> m a
 logLocalData = localData
 
 -- | Renamed 'Log.localDomain'.

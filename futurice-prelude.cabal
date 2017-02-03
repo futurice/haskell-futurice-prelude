@@ -125,7 +125,8 @@ library
       Futurice.Monoid
       Futurice.Peano
       Futurice.Prelude
-      Futurice.Prelude.Internal.Orphans
+      Futurice.Prelude.Internal
+      Futurice.Orphans
       Futurice.Reflection
       Futurice.Reflection.TypeLits
       Futurice.REPL

@@ -4,11 +4,9 @@ module Futurice.UUID (
     ) where
 
 import Prelude ()
-import Prelude.Compat ()
+import Futurice.Prelude.Internal
 
-import           Control.Lens (Iso', iso)
 import qualified Data.UUID    as UUID
-import           Data.Word    (Word32)
 
 -- $setup
 -- >>> import Futurice.Prelude
