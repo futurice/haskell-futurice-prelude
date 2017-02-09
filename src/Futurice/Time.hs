@@ -31,12 +31,13 @@ import Data.Swagger       (NamedSchema (..), ToSchema (..))
 import GHC.TypeLits
        (KnownNat, KnownSymbol, Nat, Symbol, natVal, symbolVal)
 import Lucid              (ToHtml (..))
+import System.Random      (Random (..))
 import Test.QuickCheck    (Arbitrary (..), CoArbitrary (..))
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty (..))
 
-import qualified Data.Binary        as B
 import qualified Data.Aeson         as Aeson
+import qualified Data.Binary        as B
 import qualified Data.Csv           as Csv
 import qualified Data.Scientific    as Scientific
 import qualified Data.Text.Encoding as TE
@@ -106,6 +107,10 @@ instance HasSemanticVersion (NDT tu a)
 instance Arbitrary a => Arbitrary (NDT tu a) where
     arbitrary      = NDT <$> arbitrary
     shrink (NDT x) = NDT <$> shrink x
+
+instance Random a => Random (NDT tu a) where
+    random = first NDT . random
+    randomR (NDT a, NDT b) = first NDT . randomR (a, b)
 
 instance CoArbitrary a => CoArbitrary (NDT tu a) where
     coarbitrary (NDT x) = coarbitrary x
