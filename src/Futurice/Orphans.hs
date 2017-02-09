@@ -45,11 +45,12 @@ import Data.Aeson.Types
        parseJSON1, toEncoding1, toJSON1)
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
-import Data.Fixed                   (Fixed, HasResolution)
+import Data.Fixed                   (Fixed (..), HasResolution)
 import Data.Swagger                 (NamedSchema (..), ToSchema (..))
 import Data.Time.Parsers            (day, utcTime)
 import Generics.SOP                 (All)
 import Numeric.Interval             (Interval, inf, sup)
+import System.Random                (Random (..))
 import Test.QuickCheck              (Arbitrary (..))
 import Text.Parsec                  (parse)
 import Text.Parsec.String ()
@@ -457,6 +458,14 @@ instance (CRandom a, CRandom b, CRandom c, CRandom d) => CRandom (a, b, c, d) wh
 
 instance CRandom UUID.UUID where
     crandom = runCRand $ view (from uuidWords) <$> getCRandom
+
+-------------------------------------------------------------------------------
+-- Random
+-------------------------------------------------------------------------------
+
+instance Random (Fixed a) where
+    random g = first MkFixed $ random g
+    randomR (MkFixed a, MkFixed b) g = first MkFixed $ randomR (a, b) g
 
 -------------------------------------------------------------------------------
 -- QuickCheck
