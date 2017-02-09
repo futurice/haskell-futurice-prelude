@@ -10,6 +10,7 @@ module Futurice.Time (
     NDT (..),
     TimeUnit (..),
     IsTimeUnit (..),
+    ndtDivide,
     -- * Conversions
     -- ** NominalDiffTime
     toNominalDiffTime,
@@ -86,6 +87,10 @@ instance IsTimeUnit 'Fortnights where
 newtype NDT (tu :: TimeUnit) a = NDT a
   deriving (Eq, Ord, Show, Read, Functor, Foldable, Traversable, Generic)
 
+instance Applicative (NDT tu) where
+    pure = NDT
+    NDT f <*> NDT x = NDT (f x)
+
 instance Hashable a => Hashable (NDT tu a) where
     hashWithSalt salt (NDT x) = hashWithSalt salt x
 
@@ -142,6 +147,14 @@ instance Num a => Num (NDT tu a) where
     abs (NDT x)  = NDT (abs x)
     signum (NDT x) = NDT (signum x)
     fromInteger = NDT . fromInteger
+
+instance Fractional a => Fractional (NDT tu a) where
+    fromRational  = NDT . fromRational
+    NDT x / NDT y = NDT (x / y)
+    recip (NDT x) = NDT (recip x)
+
+ndtDivide :: Fractional a => NDT tu a -> NDT tu a -> a
+ndtDivide (NDT x) (NDT y) = x / y
 
 instance Csv.ToField a => Csv.ToField (NDT tu a) where
     toField (NDT x) = Csv.toField x
