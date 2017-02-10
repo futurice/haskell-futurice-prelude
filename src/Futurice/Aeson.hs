@@ -1,4 +1,6 @@
 module Futurice.Aeson (
+    ParsedAsText (..),
+    ParsedAsIntegral (..),
     withValueDump,
     withObjectDump,
     FromJSONField1 (..),
@@ -10,16 +12,98 @@ import Prelude ()
 import Futurice.Prelude
 import Data.Aeson.Compat
 import Data.Aeson.Internal (JSONPathElement (..), (<?>))
-import Data.Aeson.Types    (modifyFailure)
+import Data.Aeson.Types    (modifyFailure, typeMismatch)
 import Data.Foldable       (foldl')
+import Data.Scientific     (floatingOrInteger)
 
-import qualified Data.HashMap.Strict as HM
+import qualified Data.Attoparsec.Text as A
+import qualified Data.HashMap.Strict  as HM
 
 -- $setup
 -- >>> :set -XOverloadedStrings
 -- >>> import Futurice.Prelude
 -- >>> import Data.Aeson.Types (parseEither)
 -- >>> import Data.Maybe       (fromJust)
+
+-------------------------------------------------------------------------------
+-- ParsedAs*
+-------------------------------------------------------------------------------
+
+-- | Parse integral values as text.
+--
+-- >>> eitherDecode "42" :: Either String Text
+-- Left ...
+--
+-- >>> eitherDecode "\"42\"" :: Either String Text
+-- Right "42"
+--
+-- >>> getParsedAsText <$> eitherDecode "42" :: Either String Text
+-- Right "42"
+--
+-- >>> getParsedAsText <$> eitherDecode "\"42\"" :: Either String Text
+-- Right "42"
+--
+newtype ParsedAsText a = ParsedAsText { getParsedAsText :: a }
+
+instance FromJSON a => FromJSON (ParsedAsText a) where
+    parseJSON (String s) = ParsedAsText <$> parseJSON (String s)
+    parseJSON (Number n) = ParsedAsText <$> parseJSON (String s)
+      where
+        s = case floatingOrInteger n of
+            Left  r -> textShow (r :: Double)
+            Right i -> textShow (i :: Int64) -- TODO: should we do toBounded check?
+    parseJSON v          = typeMismatch "String/Number as Text" v
+
+instance ToJSON a => ToJSON (ParsedAsText a) where
+    toJSON     = toJSON . getParsedAsText
+    toEncoding = toEncoding . getParsedAsText
+
+-- | Parse textual values as integral.
+--
+-- >>> eitherDecode "42" :: Either String Int
+-- Right 42
+--
+-- >>> eitherDecode "\"42\"" :: Either String Int
+-- Left ...
+--
+-- >>> getParsedAsIntegral <$> eitherDecode "42" :: Either String Int
+-- Right 42
+--
+-- >>> getParsedAsIntegral <$> eitherDecode "\"42\"" :: Either String Int
+-- Right 42
+--
+newtype ParsedAsIntegral a = ParsedAsIntegral { getParsedAsIntegral :: a }
+
+instance FromJSON a => FromJSON (ParsedAsIntegral a) where
+    parseJSON (Number n) = ParsedAsIntegral <$> parseJSON (Number n)
+    parseJSON (String s)
+        = either fail (fmap ParsedAsIntegral . parseJSON . Number)
+        $ A.parseOnly (integralScientific <* A.endOfInput) s
+    parseJSON v          = typeMismatch "Number/String as Integral" v
+
+instance ToJSON a => ToJSON (ParsedAsIntegral a) where
+    toJSON     = toJSON . getParsedAsIntegral
+    toEncoding = toEncoding . getParsedAsIntegral
+
+{-# INLINE integralScientific #-}
+integralScientific :: A.Parser Scientific
+integralScientific = fromInteger . snd  <$> A.runScanner 0 f
+  where
+    f n '0' = Just $ n * 10 + 0
+    f n '1' = Just $ n * 10 + 1
+    f n '2' = Just $ n * 10 + 2
+    f n '3' = Just $ n * 10 + 3
+    f n '4' = Just $ n * 10 + 4
+    f n '5' = Just $ n * 10 + 5
+    f n '6' = Just $ n * 10 + 6
+    f n '7' = Just $ n * 10 + 7
+    f n '8' = Just $ n * 10 + 8
+    f n '9' = Just $ n * 10 + 9
+    f _ _   = Nothing
+
+-------------------------------------------------------------------------------
+-- withValueDump
+-------------------------------------------------------------------------------
 
 -- | Amend error with value shallow dump.
 --
