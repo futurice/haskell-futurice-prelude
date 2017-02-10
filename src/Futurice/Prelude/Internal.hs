@@ -24,6 +24,7 @@ module Futurice.Prelude.Internal (
     Map,
     Natural,
     NominalDiffTime,
+    NonEmpty (..),
     Proxy(..),
     Scientific,
     Set,
@@ -176,6 +177,9 @@ module Futurice.Prelude.Internal (
     sort, sortBy, sortOn, nub,
     shuffleM,
     chunksOf,
+    -- * semigroupoids
+    Foldable1(..),
+    Traversable1(..),
     -- * Time
     -- ** TH
     mkUTCTime, mkDay,
@@ -235,6 +239,7 @@ import Data.IntSet                 (IntSet)
 import Data.Key                    (Zip (..), ZipWithKey (..))
 import Data.List.Compat            (nub, sort, sortBy, sortOn)
 import Data.List.Extra             (chunksOf)
+import Data.List.NonEmpty          (NonEmpty (..))
 import Data.Map.Lens               (toMapOf)
 import Data.Map.Strict             (Map)
 import Data.Maybe                  (catMaybes, fromMaybe, mapMaybe)
@@ -242,6 +247,8 @@ import Data.Profunctor             (dimap, lmap, rmap)
 import Data.Proxy                  (Proxy (..))
 import Data.Scientific             (Scientific)
 import Data.Semigroup              (Semigroup (..), Sum (..))
+import Data.Semigroup.Foldable     (Foldable1 (..))
+import Data.Semigroup.Traversable  (Traversable1 (..))
 import Data.Semigroup.Union        (UnionWith (..))
 import Data.Set                    (Set)
 import Data.String                 (IsString (..))

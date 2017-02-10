@@ -31,6 +31,8 @@ import Data.Hashable.Time ()
 import Data.Orphans ()
 import Data.Vector.Instances ()
 import Test.QuickCheck.Instances ()
+import Text.Parsec.String ()
+import Text.Trifecta ()
 
 import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.Monad.CryptoRandom
@@ -53,8 +55,7 @@ import Numeric.Interval             (Interval, inf, sup)
 import System.Random                (Random (..))
 import Test.QuickCheck              (Arbitrary (..))
 import Text.Parsec                  (parse)
-import Text.Parsec.String ()
-import Text.PrettyPrint.ANSI.Leijen (Doc)
+
 
 import qualified Data.Aeson.Encoding                  as Aeson
 import qualified Data.Attoparsec.ByteString.Char8     as Atto
@@ -85,10 +86,6 @@ import qualified Servant.Server                       as Servant
 #if !MIN_VERSION_transformers_compat(0,5,0)
 import Data.Functor.Identity (Identity (..))
 #endif
-
--- | Defined in 'Futurice.Prelude'.
-instance Semigroup Doc where
-    (<>) = mappend
 
 -- | Defined in 'Futurice.Prelude'.
 --
