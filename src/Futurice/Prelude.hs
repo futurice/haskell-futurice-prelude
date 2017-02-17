@@ -24,6 +24,7 @@ module Futurice.Prelude (
     currentMonth,
     firstDayOfMonth,
     lastDayOfMonth,
+    formatHumanHelsinkiTime,
     utcToHelsinkiTime,
     helsinkiTz,
     -- * Misc extras
@@ -40,8 +41,8 @@ import Futurice.Prelude.Internal
 import Control.Concurrent.Async (waitCatch, withAsync)
 import Control.Lens             (_Wrapped)
 import Control.Lens             (ifoldMapOf, (<.>))
-import Data.Time                (defaultTimeLocale, formatTime)
-import Data.Time.Zones          (utcToLocalTimeTZ)
+import Data.Time                (defaultTimeLocale, formatTime, timeZoneName)
+import Data.Time.Zones          (utcToLocalTimeTZ, timeZoneForUTCTime)
 import Data.Time.Zones.TH       (includeTZFromDB)
 import Futurice.Time.Month
 import Log
@@ -166,8 +167,8 @@ currentMonth = dayToMonth <$> currentDay
 
 -- | Convert time to local time in helsinki
 --
--- >>> utcToHelsinkiTime $(mkUTCTime "2017-02-03T12:00:00Z")
--- 2017-02-03 14:00:00
+-- >>> utcToHelsinkiTime $(mkUTCTime "2017-02-03T12:00:00.123456Z")
+-- 2017-02-03 14:00:00.123456
 --
 utcToHelsinkiTime :: UTCTime -> LocalTime
 utcToHelsinkiTime = utcToLocalTimeTZ helsinkiTz
@@ -175,6 +176,18 @@ utcToHelsinkiTime = utcToLocalTimeTZ helsinkiTz
 -- | @Europe/Helsinki@ timezone.
 helsinkiTz :: TZ
 helsinkiTz = $(includeTZFromDB "Europe/Helsinki")
+
+-- | Format time to display to humans.
+--
+-- >>> formatHumanHelsinkiTime $(mkUTCTime "2017-02-03T12:00:00Z")
+-- "2017-02-03 14:00 EET"
+--
+formatHumanHelsinkiTime :: UTCTime -> Text
+formatHumanHelsinkiTime t = view packed $
+    formatTime defaultTimeLocale "%Y-%m-%d %H:%M " (utcToLocalTimeTZ tz t)
+    ++ timeZoneName (timeZoneForUTCTime tz t)
+  where
+    tz = helsinkiTz
 
 -------------------------------------------------------------------------------
 -- Show
