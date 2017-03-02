@@ -87,13 +87,6 @@ import qualified Servant.Server                       as Servant
 import Data.Functor.Identity (Identity (..))
 #endif
 
--- | Defined in 'Futurice.Prelude'.
---
--- <https://github.com/tibbe/hashable/issues/108>
--- <https://github.com/ekmett/vector-instances/pull/4>
-instance Hashable a => Hashable (Vector a) where
-    hashWithSalt salt = hashWithSalt salt . toList
-
 -- | Defined in 'Futurice.Prelude'
 --
 -- TODO: move into own package
