@@ -34,10 +34,10 @@ import Test.QuickCheck.Instances ()
 import Text.Parsec.String ()
 import Text.Trifecta ()
 
-import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
+import Codec.Picture              (DynamicImage, Image, PixelRGBA8)
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
-import Control.Monad.Trans.State    (StateT)
+import Control.Monad.Trans.State  (StateT)
 import Data.Aeson.Compat
        (FromJSON (..), Parser, ToJSON (..), object, withArray, withObject,
        (.:), (.=))
@@ -47,14 +47,15 @@ import Data.Aeson.Types
        parseJSON1, toEncoding1, toJSON1)
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
-import Data.Fixed                   (Fixed (..), HasResolution)
-import Data.Swagger                 (NamedSchema (..), ToSchema (..))
-import Data.Time.Parsers            (day, utcTime)
-import Generics.SOP                 (All)
-import Numeric.Interval             (Interval, inf, sup)
-import System.Random                (Random (..))
-import Test.QuickCheck              (Arbitrary (..))
-import Text.Parsec                  (parse)
+import Data.Fixed                 (Fixed (..), HasResolution)
+import Data.Swagger               (NamedSchema (..), ToSchema (..))
+import Data.Time.Parsers          (day, utcTime)
+import Data.Type.Equality
+import Generics.SOP               (All)
+import Numeric.Interval           (Interval, inf, sup)
+import System.Random              (Random (..))
+import Test.QuickCheck            (Arbitrary (..))
+import Text.Parsec                (parse)
 
 
 import qualified Data.Aeson.Encoding                  as Aeson
@@ -314,6 +315,13 @@ instance (ToSchema a, ToSchema b) => ToSchema (These a b) where
             & Swagger.maxProperties ?~ 2
             & Swagger.minProperties ?~ 1
 
+-------------------------------------------------------------------------------
+-- NFData
+-------------------------------------------------------------------------------
+
+-- | https://github.com/haskell/deepseq/issues/31
+instance NFData (a :~: b) where
+    rnf Refl = ()
 
 -------------------------------------------------------------------------------
 -- aeson
