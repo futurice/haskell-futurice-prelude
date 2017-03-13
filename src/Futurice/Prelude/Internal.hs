@@ -26,6 +26,7 @@ module Futurice.Prelude.Internal (
     NominalDiffTime,
     NonEmpty (..),
     Proxy(..),
+    TimeSpec(..),
     Scientific,
     Set,
     StrictPair,
@@ -183,6 +184,8 @@ module Futurice.Prelude.Internal (
     -- * Time
     -- ** TH
     mkUTCTime, mkDay,
+    -- * Clock
+    module Futurice.Clock,
     -- * Misc
     bool,
     ) where
@@ -274,7 +277,7 @@ import Log
 import Network.HTTP.Client         (Manager, newManager)
 import Network.HTTP.Client.TLS     (tlsManagerSettings)
 import Numeric.Natural             (Natural)
-import System.Console.ANSI ()
+import Futurice.Clock
 import System.Random.Shuffle       (shuffleM)
 import Text.Read                   (readMaybe)
 

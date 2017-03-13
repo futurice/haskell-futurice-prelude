@@ -42,7 +42,7 @@ import Control.Concurrent.Async (waitCatch, withAsync)
 import Control.Lens             (_Wrapped)
 import Control.Lens             (ifoldMapOf, (<.>))
 import Data.Time                (defaultTimeLocale, formatTime, timeZoneName)
-import Data.Time.Zones          (utcToLocalTimeTZ, timeZoneForUTCTime)
+import Data.Time.Zones          (timeZoneForUTCTime, utcToLocalTimeTZ)
 import Data.Time.Zones.TH       (includeTZFromDB)
 import Futurice.Time.Month
 import Log
