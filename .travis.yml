@@ -70,10 +70,10 @@ script:
  - "echo 'packages: .' > cabal.project"
  # this builds all libraries and executables (without tests/benchmarks)
  - rm -f cabal.project.freeze
- - cabal new-build -w ${HC} --disable-tests --disable-benchmarks
+ - cabal new-build -w ${HC} --disable-tests --disable-benchmarks -v2
  # this builds all libraries and executables (including tests/benchmarks)
  # - rm -rf ./dist-newstyle
- - cabal new-build -w ${HC} ${TEST} ${BENCH}
+ - cabal new-build -w ${HC} ${TEST} ${BENCH} -v2
 
  # there's no 'cabal new-test' yet, so let's emulate for now
  - TESTS=( $(awk 'tolower($0) ~ /^test-suite / { print $2 }' *.cabal) )
