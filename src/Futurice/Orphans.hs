@@ -53,6 +53,7 @@ import Data.Swagger               (NamedSchema (..), ToSchema (..))
 import Data.Time.Parsers          (day, utcTime)
 import Data.Type.Equality
 import Generics.SOP               (All)
+import Log.Monad                  (LogT (..))
 import Numeric.Interval           (Interval, inf, sup)
 import System.Random              (Random (..))
 import Test.QuickCheck            (Arbitrary (..))
@@ -142,6 +143,14 @@ deriving instance Typeable DynamicImage
 
 instance AnsiPretty (GH.Name entity)
 instance AnsiPretty GH.Language
+
+-------------------------------------------------------------------------------
+-- LogT
+-------------------------------------------------------------------------------
+
+instance MonadError e m => MonadError e (LogT m) where
+    throwError = lift . throwError
+    catchError m handler = LogT $ catchError (unLogT m) (unLogT . handler)
 
 -------------------------------------------------------------------------------
 -- Postgres
