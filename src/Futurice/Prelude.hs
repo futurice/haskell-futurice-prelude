@@ -19,6 +19,9 @@ module Futurice.Prelude (
     tryDeep,
     -- * Has classes
     HasUUID (..),
+    -- * Text
+    TE.encodeUtf8,
+    decodeUtf8Lenient,
     -- * Time
     currentDay,
     currentMonth,
@@ -53,6 +56,8 @@ import System.IO                (hFlush, stderr)
 import qualified Data.Aeson.Types                        as Aeson
 import qualified Data.Map                                as Map
 import qualified Data.Text                               as T
+import qualified Data.Text.Encoding                      as TE
+import qualified Data.Text.Encoding.Error                as TE
 import qualified Data.Text.IO                            as T
 import qualified System.Console.ANSI                     as ANSI
 import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
@@ -267,6 +272,13 @@ logLocalData = localData
 -- | Renamed 'Log.localDomain'.
 logLocalDomain :: MonadLog m => Text -> m a -> m a
 logLocalDomain = localDomain
+
+-------------------------------------------------------------------------------
+-- Text
+-------------------------------------------------------------------------------
+
+decodeUtf8Lenient :: ByteString -> Text
+decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 
 -------------------------------------------------------------------------------
 -- Doctests
