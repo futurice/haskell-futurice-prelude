@@ -30,6 +30,9 @@ module Futurice.Prelude (
     formatHumanHelsinkiTime,
     utcToHelsinkiTime,
     helsinkiTz,
+    -- * Vector
+    introsort,
+    introsortBy,
     -- * Misc extras
     type (:$),
     mcase,
@@ -59,6 +62,8 @@ import qualified Data.Text                               as T
 import qualified Data.Text.Encoding                      as TE
 import qualified Data.Text.Encoding.Error                as TE
 import qualified Data.Text.IO                            as T
+import qualified Data.Vector                             as V
+import qualified Data.Vector.Algorithms.Intro            as Intro
 import qualified System.Console.ANSI                     as ANSI
 import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
 
@@ -281,6 +286,20 @@ decodeUtf8Lenient :: ByteString -> Text
 decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 
 -------------------------------------------------------------------------------
+-- Vector
+-------------------------------------------------------------------------------
+
+introsortBy :: (a -> a -> Ordering) -> Vector a -> Vector a
+introsortBy cmp = V.modify (Intro.sortBy cmp)
+
+-- | Sort vector using intro-sort
+--
+-- >>> introsort (V.fromList ("foobar" :: String))
+-- "abfoor"
+introsort :: Ord a => Vector a -> Vector a
+introsort = introsortBy compare
+
+-------------------------------------------------------------------------------
 -- Doctests
 -------------------------------------------------------------------------------
 
@@ -289,3 +308,4 @@ decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 -- >>> :set -XTypeOperators
 -- >>> import Data.Char (toUpper, isLetter, isSpace)
 -- >>> import Data.Type.Equality
+-- >>> import qualified Data.Vector as V
