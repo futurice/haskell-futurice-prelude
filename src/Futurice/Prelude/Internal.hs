@@ -181,6 +181,8 @@ module Futurice.Prelude.Internal (
     -- * semigroupoids
     Foldable1(..),
     Traversable1(..),
+    -- * mmorph
+    hoist,
     -- * Time
     -- ** TH
     mkUTCTime, mkDay,
@@ -212,6 +214,7 @@ import Control.Monad.Except
        (ExceptT (..), MonadError (..), runExceptT, withExceptT)
 import Control.Monad.Fix           (MonadFix (..))
 import Control.Monad.IO.Class      (MonadIO (..))
+import Control.Monad.Morph         (hoist)
 import Control.Monad.Reader        (MonadReader (..), ReaderT (..))
 import Control.Monad.State.Class   (MonadState (..))
 import Control.Monad.Time          (MonadTime (..))
@@ -268,6 +271,7 @@ import Data.Typeable               (Typeable)
 import Data.UUID                   (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
+import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
 import GHC.Generics                (Generic)
@@ -277,7 +281,6 @@ import Log
 import Network.HTTP.Client         (Manager, newManager)
 import Network.HTTP.Client.TLS     (tlsManagerSettings)
 import Numeric.Natural             (Natural)
-import Futurice.Clock
 import System.Random.Shuffle       (shuffleM)
 import Text.Read                   (readMaybe)
 
