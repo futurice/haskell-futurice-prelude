@@ -104,6 +104,7 @@ library
     , these                 >=0.7.2    && <0.8
     , time                  >=1.5.0.1  && <1.7
     , time-parsers          >=0.1.2.0  && <0.2
+    , resource-pool         >=0.2.3.2  && <0.3
     , transformers          >=0.4.2.0  && <0.6
     , transformers-base     >=0.4.4    && <0.5
     , transformers-compat   >=0.5.1.4  && <0.6
@@ -130,13 +131,14 @@ library
       Futurice.IsMaybe
       Futurice.List
       Futurice.Monoid
+      Futurice.Orphans
       Futurice.Peano
+      Futurice.PostgresPool
       Futurice.Prelude
       Futurice.Prelude.Internal
-      Futurice.Orphans
+      Futurice.REPL
       Futurice.Reflection
       Futurice.Reflection.TypeLits
-      Futurice.REPL
       Futurice.Stricter
       Futurice.Time
       Futurice.Time.Month
