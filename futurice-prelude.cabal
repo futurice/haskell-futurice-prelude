@@ -44,7 +44,7 @@ library
     , array                 >=0.5.1.0  && <0.6
     , async                 >=2.1.0    && <2.2
     , attoparsec            >=0.13.1.0 && <0.14
-    , base-compat           ==0.9.1
+    , base-compat           >=0.9.1    && <0.9.3
     , base-orphans          ==0.5.4
     , bifunctors
     , binary
