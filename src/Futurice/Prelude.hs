@@ -33,6 +33,16 @@ module Futurice.Prelude (
     -- * Vector
     introsort,
     introsortBy,
+    -- * monad-control
+    ComposeSt,
+    defaultLiftBaseWith,
+    defaultRestoreM,
+    RunDefault,
+    defaultLiftWith,
+    defaultRestoreT,
+    RunDefault2,
+    defaultLiftWith2,
+    defaultRestoreT2,
     -- * Misc extras
     type (:$),
     mcase,
@@ -44,17 +54,21 @@ module Futurice.Prelude (
 import Prelude ()
 import Futurice.Prelude.Internal
 
-import Control.Concurrent.Async (waitCatch, withAsync)
-import Control.Lens             (_Wrapped)
-import Control.Lens             (ifoldMapOf, (<.>))
-import Data.Time                (defaultTimeLocale, formatTime, timeZoneName)
-import Data.Time.Zones          (timeZoneForUTCTime, utcToLocalTimeTZ)
-import Data.Time.Zones.TH       (includeTZFromDB)
+import Control.Concurrent.Async    (waitCatch, withAsync)
+import Control.Lens                (_Wrapped)
+import Control.Lens                (ifoldMapOf, (<.>))
+import Control.Monad.Trans.Control
+       (ComposeSt, RunDefault, defaultLiftBaseWith, defaultLiftWith,
+       defaultRestoreM, defaultRestoreT)
+import Data.Time                   (defaultTimeLocale, formatTime, timeZoneName)
+import Data.Time.Zones             (timeZoneForUTCTime, utcToLocalTimeTZ)
+import Data.Time.Zones.TH          (includeTZFromDB)
+import Futurice.Control
 import Futurice.Time.Month
 import Log
        (LogLevel (..), LogMessage (..), localData, localDomain, mkBulkLogger)
-import Log.Internal.Logger      (withLogger)
-import System.IO                (hFlush, stderr)
+import Log.Internal.Logger         (withLogger)
+import System.IO                   (hFlush, stderr)
 
 import qualified Data.Aeson.Types                        as Aeson
 import qualified Data.Map                                as Map

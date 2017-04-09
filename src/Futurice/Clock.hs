@@ -9,6 +9,7 @@ module Futurice.Clock (
     ) where
 
 import Control.Monad.Trans
+import Servant.Server (Handler)
 import System.Clock
        (Clock (Monotonic), TimeSpec (..), diffTimeSpec, getTime, toNanoSecs)
 
@@ -28,6 +29,9 @@ instance {-# OVERLAPPING #-}
     ) => MonadClock (t m)
   where
     monotonicClock = lift monotonicClock
+
+instance MonadClock Handler where
+    monotonicClock = liftIO monotonicClock
 
 clocked :: MonadClock m => m a -> m (TimeSpec, a)
 clocked action = do
