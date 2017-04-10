@@ -14,14 +14,15 @@
 module Futurice.CryptoRandom (
     -- * Generation
     MonadCRandom(..),
-    MonadCRandom',
     CRandom (..),
     -- * Evaluation
-    CryptoGenError,
     CryptoGen,
     mkCryptoGen,
     evalCRandTThrow,
     evalCRandTThrow',
+    -- ** error
+    CryptoGenError,
+    ContainsCryptoGenError,
     -- * Transformer
     CRandT,
     evalCRandT,
@@ -47,7 +48,7 @@ import Control.Monad.Http.Class (MonadHttp (..))
 
 type CryptoGen = HashDRBG
 type CryptoGenError = GenError
-type MonadCRandom' m = MonadCRandom CryptoGenError m
+type ContainsCryptoGenError = ContainsGenError
 
 -- | Make 'CryptoGen'.
 --
