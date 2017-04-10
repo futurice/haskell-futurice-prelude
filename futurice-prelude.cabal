@@ -29,12 +29,6 @@ source-repository head
   type: git
   location: https://github.com/futurice/haskell-futurice-prelude
 
--- TODO: remove, depend on monad-http unconditionally
-flag monad-http
-  description: Depend on monad-http
-  manual: True
-  default: False
-
 library
   hs-source-dirs:
       src
@@ -124,10 +118,6 @@ library
     , vector-instances      >=3.4      && <3.5
     , wai
     , insert-ordered-containers
-
-  if flag(monad-http)
-    build-depends:
-      monad-http >=0.2 && <0.3
 
   exposed-modules:
       Futurice.Aeson
