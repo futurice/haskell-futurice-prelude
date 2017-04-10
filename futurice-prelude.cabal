@@ -77,6 +77,7 @@ library
     , JuicyPixels           >=3.2.8    && <3.3
     , keys                  >=3.11     && <3.12
     , lens                  >=4.15     && <4.16
+    , lifted-base           >=0.2.3.0  && <0.3
     , log-base              >=0.7.1    && <0.8
     , lucid                 >=2.9.7    && <2.10
     , mmorph                >=1.0.6    && <1.1
@@ -117,12 +118,14 @@ library
     , vector-instances      >=3.4      && <3.5
     , wai
     , insert-ordered-containers
+
   exposed-modules:
       Futurice.Aeson
       Futurice.Arbitrary
       Futurice.Clock
       Futurice.Constraint.ForallSymbol
       Futurice.Constraint.Unit1
+      Futurice.Control
       Futurice.CryptoRandom
       Futurice.Generics
       Futurice.Graph

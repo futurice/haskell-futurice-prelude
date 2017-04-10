@@ -1,23 +1,28 @@
-{-# LANGUAGE ConstraintKinds      #-}
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverloadedStrings    #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE CPP                        #-}
+{-# LANGUAGE ConstraintKinds            #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE UndecidableInstances       #-}
 -- |
--- Copyright : (c) 2016 Futurice Oy
+-- Copyright : (c) 2016-2017 Futurice Oy
 -- License   : BSD3
 -- Maintainer: Oleg Grenrus <oleg.grenrus@iki.fi>
 module Futurice.CryptoRandom (
     -- * Generation
     MonadCRandom(..),
-    MonadCRandom',
     CRandom (..),
     -- * Evaluation
-    CryptoGenError,
     CryptoGen,
     mkCryptoGen,
     evalCRandTThrow,
     evalCRandTThrow',
+    -- ** error
+    CryptoGenError,
+    ContainsCryptoGenError,
     -- * Transformer
     CRandT,
     evalCRandT,
@@ -27,13 +32,13 @@ module Futurice.CryptoRandom (
 import Prelude ()
 import Futurice.Prelude
 import Control.Monad.CryptoRandom
-       (CRandT, CRandom (..), GenError, MonadCRandom (..), evalCRandT,
-       newGenIO, runCRandT)
-import Crypto.Random.DRBG         (HashDRBG)
+       (CRandT, CRandom (..), ContainsGenError, GenError,
+       MonadCRandom (..), evalCRandT, newGenIO, runCRandT)
+import Crypto.Random.DRBG             (HashDRBG)
 
 type CryptoGen = HashDRBG
 type CryptoGenError = GenError
-type MonadCRandom' m = MonadCRandom CryptoGenError m
+type ContainsCryptoGenError = ContainsGenError
 
 -- | Make 'CryptoGen'.
 --
