@@ -22,6 +22,7 @@ module Futurice.Prelude (
     -- * Text
     TE.encodeUtf8,
     decodeUtf8Lenient,
+    canonicalize,
     -- * Time
     currentDay,
     currentMonth,
@@ -76,6 +77,7 @@ import qualified Data.Text                               as T
 import qualified Data.Text.Encoding                      as TE
 import qualified Data.Text.Encoding.Error                as TE
 import qualified Data.Text.IO                            as T
+import qualified Data.Text.Normalize                     as TN
 import qualified Data.Vector                             as V
 import qualified Data.Vector.Algorithms.Intro            as Intro
 import qualified System.Console.ANSI                     as ANSI
@@ -298,6 +300,19 @@ logLocalDomain = localDomain
 
 decodeUtf8Lenient :: ByteString -> Text
 decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
+
+-- | @toLower . stripSpecials . normalize NFK@
+--
+-- >>> canonicalize "\196ITI" -- ÄITI
+-- "aiti"
+--
+-- >>> canonicalize "олег" -- oleg
+-- ""
+--
+canonicalize :: Text -> Text
+canonicalize = T.toLower . T.filter p . TN.normalize TN.NFKD
+  where
+    p c = fromEnum c < 128
 
 -------------------------------------------------------------------------------
 -- Vector

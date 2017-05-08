@@ -116,6 +116,7 @@ library
     , vector                >=0.11.0.0 && <0.13
     , vector-algorithms     >=0.7.0.1  && <0.8
     , vector-instances      >=3.4      && <3.5
+    , unicode-transforms    >=0.3.0    && <0.4
     , wai
     , insert-ordered-containers
 
