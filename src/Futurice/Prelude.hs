@@ -50,6 +50,7 @@ module Futurice.Prelude (
     textShow,
     swapMapMap,
     showsTernaryWith,
+    WrappedResponse (..),
     ) where
 
 import Prelude ()
@@ -72,6 +73,8 @@ import Log.Internal.Logger         (withLogger)
 import System.IO                   (hFlush, stderr)
 
 import qualified Data.Aeson.Types                        as Aeson
+import qualified Data.ByteString.Lazy                    as LBS
+import qualified Data.CaseInsensitive                    as CI
 import qualified Data.Map                                as Map
 import qualified Data.Text                               as T
 import qualified Data.Text.Encoding                      as TE
@@ -80,6 +83,8 @@ import qualified Data.Text.IO                            as T
 import qualified Data.Text.Normalize                     as TN
 import qualified Data.Vector                             as V
 import qualified Data.Vector.Algorithms.Intro            as Intro
+import qualified Network.HTTP.Client                     as H
+import qualified Network.HTTP.Types                      as H
 import qualified System.Console.ANSI                     as ANSI
 import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
 
@@ -327,6 +332,26 @@ introsortBy cmp = V.modify (Intro.sortBy cmp)
 -- "abfoor"
 introsort :: Ord a => Vector a -> Vector a
 introsort = introsortBy compare
+
+-------------------------------------------------------------------------------
+-- Logging response
+-------------------------------------------------------------------------------
+
+-- | A newtype to allow logging 'H.Response' (it has 'ToJSON' instance).
+newtype WrappedResponse = WrapResponse
+    { unwrapResponse :: H.Response LazyByteString
+    }
+  deriving Show
+
+instance Aeson.ToJSON WrappedResponse where
+    toJSON (WrapResponse r) = Aeson.object
+        [ "status"  Aeson..= H.statusCode (H.responseStatus r)
+        , "message" Aeson..= TE.decodeLatin1 (H.statusMessage (H.responseStatus r))
+        , "headers" Aeson..= (headerToJSON <$> H.responseHeaders r)
+        , "body"    Aeson..= decodeUtf8Lenient (LBS.take 500 (H.responseBody r) ^. strict)
+        ]
+      where
+        headerToJSON (k, v) = (CI.map TE.decodeLatin1 k, TE.decodeLatin1 v)
 
 -------------------------------------------------------------------------------
 -- Doctests

@@ -21,8 +21,8 @@
 -- TODO: Split into submodules
 module Futurice.Orphans () where
 
-import Prelude ()
 import Futurice.Prelude.Internal
+import Prelude ()
 
 import Futurice.UUID
 
@@ -42,7 +42,6 @@ import Control.Monad.Trans.State  (StateT)
 import Data.Aeson.Compat
        (FromJSON (..), Parser, ToJSON (..), object, withArray, withObject,
        (.:), (.=))
-import Futurice.Control
 import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
        ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
@@ -53,6 +52,7 @@ import Data.Fixed                 (Fixed (..), HasResolution)
 import Data.Swagger               (NamedSchema (..), ToSchema (..))
 import Data.Time.Parsers          (day, utcTime)
 import Data.Type.Equality
+import Futurice.Control
 import Generics.SOP               (All)
 import Numeric.Interval           (Interval, inf, sup)
 import System.Random              (Random (..))
@@ -85,6 +85,7 @@ import qualified Network.Wai                          as Wai
 import qualified Numeric.Interval.Kaucher             as Kaucher
 import qualified Numeric.Interval.NonEmpty            as NonEmpty
 import qualified Servant.Server                       as Servant
+import qualified System.Clock                         as Clock
 
 #if !MIN_VERSION_transformers_compat(0,5,0)
 import Data.Functor.Identity (Identity (..))
@@ -360,6 +361,9 @@ instance ToJSON Wai.Request where
 instance ToJSON a => ToJSON (CI.CI a) where
     toJSON     = toJSON . CI.foldedCase
     toEncoding = toEncoding . CI.foldedCase
+
+instance ToJSON Clock.TimeSpec
+instance FromJSON Clock.TimeSpec
 
 -------------------------------------------------------------------------------
 -- aeson + generics-sop
