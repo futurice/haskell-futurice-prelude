@@ -51,7 +51,6 @@ import Generics.SOP      hiding (constructorInfo, datatypeName)
 import Generics.SOP.Lens
 import Prelude ()
 
-import qualified Control.Lens         as Lens
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as Aeson
 import qualified Data.Csv             as Csv
