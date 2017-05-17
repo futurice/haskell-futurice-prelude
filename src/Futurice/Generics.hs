@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP                   #-}
+{-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -12,34 +13,45 @@ module Futurice.Generics (
     QC.Arbitrary(..),
     sopArbitrary,
     sopShrink,
-    -- * Cassava
+    -- * cassava
     Csv.ToNamedRecord(..),
     sopToNamedRecord,
     Csv.DefaultOrdered(..),
     sopHeaderOrder,
     Csv.FromRecord(..),
     sopParseRecord,
-    -- * Aeson
+    -- * aeson
     Aeson.ToJSON(..),
     Aeson.FromJSON(..),
     sopToJSON,
     sopToEncoding,
     sopParseJSON,
-    -- * Swagger
+    -- * swagger2
     Swagger.ToSchema(..),
     sopDeclareNamedSchema,
+    Swagger.ToParamSchema (..),
+    newtypeToParamSchema,
+    -- * http-api-data
+    ToHttpApiData (..),
+    newtypeToUrlPiece,
+    FromHttpApiData (..),
+    newtypeParseUrlPiece,
     -- * Internal
     sopRecordFieldNames,
+    NewtypeRep,
+    repNewtype,
     ) where
 
-import Prelude ()
-import Futurice.Prelude  hiding (Generic, from)
+import Control.Lens      (review)
 import Data.Char         (toLower)
 import Futurice.Aeson    (withObjectDump)
 import Futurice.IsMaybe
+import Futurice.Prelude  hiding (Generic, from)
 import Generics.SOP      hiding (constructorInfo, datatypeName)
 import Generics.SOP.Lens
+import Prelude ()
 
+import qualified Control.Lens         as Lens
 import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as Aeson
 import qualified Data.Csv             as Csv
@@ -49,6 +61,7 @@ import qualified Data.Swagger.Declare as Swagger
 import qualified Data.Vector          as V
 import qualified GHC.Exts             as Exts
 import qualified Test.QuickCheck      as QC
+import           Web.HttpApiData      (FromHttpApiData (..), ToHttpApiData (..))
 
 -------------------------------------------------------------------------------
 -- QuickCheck
@@ -316,9 +329,36 @@ sopDeclareNamedSchema _ = do
     proxy :: Proxy a
     proxy = Proxy
 
+newtypeToParamSchema
+    :: forall a r proxy t. (NewtypeRep a r, Swagger.ToParamSchema r)
+    => proxy a -> Swagger.ParamSchema t
+newtypeToParamSchema _ = Swagger.toParamSchema (Proxy :: Proxy r)
+
+-------------------------------------------------------------------------------
+-- http-api-data
+-------------------------------------------------------------------------------
+
+newtypeToUrlPiece
+    :: forall a r. (NewtypeRep a r, ToHttpApiData r)
+    => a -> Text
+newtypeToUrlPiece = toUrlPiece . view repNewtype
+
+newtypeParseUrlPiece
+    ::forall a r. (NewtypeRep a r, FromHttpApiData r)
+    => Text -> Either Text a
+newtypeParseUrlPiece = fmap (review repNewtype) . parseUrlPiece
+
 -------------------------------------------------------------------------------
 -- Utilities
 -------------------------------------------------------------------------------
+
+type NewtypeRep a r = (Generic a, Code a ~ '[ '[ r ] ])
+
+-- | Generic '_Wrapped'
+repNewtype :: NewtypeRep a r => Iso' a r
+repNewtype = rep . unsop . unSingletonS . unSingletonP . uni
+{-# INLINE repNewtype #-}
+
 
 longestCommonPrefix :: Eq a => [a] -> [a] -> [a]
 longestCommonPrefix [] _ = []
