@@ -133,6 +133,7 @@ library
       Futurice.Graph
       Futurice.Has
       Futurice.IdMap
+      Futurice.Indexed
       Futurice.IsMaybe
       Futurice.List
       Futurice.Monoid
