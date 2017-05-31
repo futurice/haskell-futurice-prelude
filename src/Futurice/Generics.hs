@@ -31,6 +31,7 @@ module Futurice.Generics (
     sopDeclareNamedSchema,
     Swagger.ToParamSchema (..),
     newtypeToParamSchema,
+    newtypeDeclareNamedSchema,
     -- * http-api-data
     ToHttpApiData (..),
     newtypeToUrlPiece,
@@ -332,6 +333,14 @@ newtypeToParamSchema
     :: forall a r proxy t. (NewtypeRep a r, Swagger.ToParamSchema r)
     => proxy a -> Swagger.ParamSchema t
 newtypeToParamSchema _ = Swagger.toParamSchema (Proxy :: Proxy r)
+
+newtypeDeclareNamedSchema
+    :: forall a r proxy. (NewtypeRep a r, Swagger.ToSchema r, HasDatatypeInfo a)
+    => proxy a -> Swagger.Declare (Swagger.Definitions Swagger.Schema) Swagger.NamedSchema
+newtypeDeclareNamedSchema _ = rename <$> Swagger.declareNamedSchema (Proxy :: Proxy r)
+  where
+    rename (Swagger.NamedSchema _ schema) = Swagger.NamedSchema (Just name) schema
+    name = datatypeInfo (Proxy :: Proxy a) ^. datatypeName . packed
 
 -------------------------------------------------------------------------------
 -- http-api-data
