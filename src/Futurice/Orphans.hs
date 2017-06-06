@@ -56,7 +56,6 @@ import Futurice.Control
 import Generics.SOP               (All)
 import Numeric.Interval           (Interval, inf, sup)
 import System.Random              (Random (..))
-import Test.QuickCheck            (Arbitrary (..))
 import Text.Parsec                (parse)
 
 
@@ -474,14 +473,6 @@ instance CRandom UUID.UUID where
 instance Random (Fixed a) where
     random g = first MkFixed $ random g
     randomR (MkFixed a, MkFixed b) g = first MkFixed $ randomR (a, b) g
-
--------------------------------------------------------------------------------
--- QuickCheck
--------------------------------------------------------------------------------
-
-instance Arbitrary UUID.UUID where
-    arbitrary = view (from uuidWords) <$> arbitrary
-    shrink = fmap (view $ from uuidWords) . shrink . view uuidWords
 
 -------------------------------------------------------------------------------
 -- Binary
