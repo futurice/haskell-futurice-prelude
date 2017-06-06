@@ -5,3 +5,4 @@ src/highlight.js
 src/style.css
 dist
 dist-newstyle
+.ghc.environment.*
