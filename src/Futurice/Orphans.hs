@@ -58,7 +58,7 @@ import Numeric.Interval           (Interval, inf, sup)
 import System.Random              (Random (..))
 import Text.Parsec                (parse)
 
-
+import qualified Crypto.Random.DRBG.Hash              as DRBG
 import qualified Data.Aeson.Encoding                  as Aeson
 import qualified Data.Attoparsec.ByteString.Char8     as Atto
 import qualified Data.CaseInsensitive                 as CI
@@ -437,6 +437,13 @@ instance (FromJSON1 f, All FromJSON xs) => FromJSON (NP f xs) where
       where
         f :: FromJSON a => K Value a -> (Parser SOP.:.: f) a
         f (K v) = SOP.Comp $ parseJSON1 v
+
+-------------------------------------------------------------------------------
+-- NFData for CryptoGen
+-------------------------------------------------------------------------------
+
+instance NFData (DRBG.State a) where
+    rnf s = s `seq` ()
 
 -------------------------------------------------------------------------------
 -- CRandom
