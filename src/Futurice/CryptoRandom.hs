@@ -20,6 +20,7 @@ module Futurice.CryptoRandom (
     mkCryptoGen,
     evalCRandTThrow,
     evalCRandTThrow',
+    runCRandTThrow',
     -- ** error
     CryptoGenError,
     ContainsCryptoGenError,
@@ -62,3 +63,9 @@ evalCRandTThrow'
     => g -> CRandT g GenError m a -> m a
 evalCRandTThrow' = flip evalCRandTThrow
 {-# INLINE evalCRandTThrow' #-}
+
+-- | Flipper helper around 'runCRandT'.
+runCRandTThrow'
+    :: MonadThrow m
+     => g -> CRandT g GenError m a -> m (a, g)
+runCRandTThrow' g m = runCRandT m g >>= either throwM pure
