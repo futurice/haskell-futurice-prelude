@@ -1,5 +1,4 @@
 packages: .
-allow-newer: tz:time, tz:template-haskell
 
 package futurice-prelude
     ghc-options: -Wall -Werror
