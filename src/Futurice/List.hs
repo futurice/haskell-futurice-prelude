@@ -19,7 +19,6 @@ module Futurice.List (
 
 import Prelude ()
 import Futurice.Prelude
-import Data.Coerce      (coerce)
 import Generics.SOP     ((:.:) (..), SList (..), SListI (..))
 
 -- $setup

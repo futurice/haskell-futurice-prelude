@@ -121,6 +121,8 @@ module Futurice.Prelude.Internal (
     mapMaybe,
     catMaybes,
     readMaybe,
+    listToMaybe,
+    maybeToList,
     -- * Foldable
     fold,
     toList,
@@ -183,6 +185,8 @@ module Futurice.Prelude.Internal (
     Traversable1(..),
     -- * mmorph
     hoist,
+    -- * Coercible
+    Coercible, coerce,
     -- * Time
     -- ** TH
     mkUTCTime, mkDay,
@@ -229,6 +233,7 @@ import Data.Bifunctor              (bimap, first, second)
 import Data.Binary                 (Binary (..))
 import Data.Bool.Compat            (bool)
 import Data.ByteString             (ByteString)
+import Data.Coerce                 (Coercible, coerce)
 import Data.Foldable               (fold, for_, sequenceA_, toList, traverse_)
 import Data.Function               (on)
 import Data.Functor.Classes
@@ -248,7 +253,7 @@ import Data.List.Extra             (chunksOf)
 import Data.List.NonEmpty          (NonEmpty (..))
 import Data.Map.Lens               (toMapOf)
 import Data.Map.Strict             (Map)
-import Data.Maybe                  (catMaybes, fromMaybe, mapMaybe)
+import Data.Maybe                  (catMaybes, fromMaybe, mapMaybe, listToMaybe, maybeToList)
 import Data.Profunctor             (dimap, lmap, rmap)
 import Data.Proxy                  (Proxy (..))
 import Data.Scientific             (Scientific)

@@ -39,7 +39,7 @@ module Futurice.Generics (
     newtypeParseUrlPiece,
     -- * Internal
     sopRecordFieldNames,
-    NewtypeRep,
+    IsNewtype,
     repNewtype,
     ) where
 
@@ -62,6 +62,14 @@ import qualified Data.Vector          as V
 import qualified GHC.Exts             as Exts
 import qualified Test.QuickCheck      as QC
 import           Web.HttpApiData      (FromHttpApiData (..), ToHttpApiData (..))
+
+-------------------------------------------------------------------------------
+-- Classes
+-------------------------------------------------------------------------------
+
+-- | Like 'IsProductType', but also requires that there are at least two fields.
+type IsProductType' a xs y0 y1 ys =
+    (IsProductType a xs, Code a ~ '[y0 ': y1 ': ys])
 
 -------------------------------------------------------------------------------
 -- QuickCheck
@@ -169,12 +177,27 @@ sopParseRecord' r = go (sList :: SList xs) 0
 -- Aeson
 -------------------------------------------------------------------------------
 
-
-
--- | /TODO/ use hczipWith to simplify implemenetations
+-- | Derive generic 'toJSON'
+--
+-- >>> data R =  R { rFoo :: Int, rBarBar :: String }; $(deriveGeneric ''R)
+-- >>> Aeson.encode $ sopToJSON R { rFoo = 42, rBarBar = "Answer" }
+-- "{\"foo\":42,\"barBar\":\"Answer\"}"
+--
+-- /Note:/ single field data isn't supported. Use @'toJSON' . 'coerce'@
+--
+-- >>> newtype N = N { unN :: Int}; $(deriveGeneric ''N)
+-- >>> Aeson.encode $ sopToJSON $ N 42
+-- ...
+-- ...Couldn't match type...
+-- ...
+--
+-- >>> Aeson.encode $ Aeson.toJSON (coerce (N 42) :: Int)
+-- "42"
+--
+-- /TODO:/ use 'hczipWith' to simplify implementations
 sopToJSON
-    :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, All IsMaybe xs, Code a ~ '[xs])
+    :: forall a xs y0 y1 ys.
+       (IsProductType' a xs y0 y1 ys, HasDatatypeInfo a, All Aeson.ToJSON xs, All IsMaybe xs)
     => a
     -> Aeson.Value
 sopToJSON
@@ -212,8 +235,8 @@ sopToJSON' fs' xs' = go fs' xs'
         key = fromString $ processFieldName prefix f
 
 sopToEncoding
-    :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Aeson.ToJSON xs, All IsMaybe xs, Code a ~ '[xs])
+    :: forall a xs y0 y1 ys.
+       (IsProductType' a xs y0 y1 ys, HasDatatypeInfo a, All Aeson.ToJSON xs, All IsMaybe xs)
     => a
     -> Aeson.Encoding
 sopToEncoding
@@ -251,8 +274,8 @@ sopToEncoding' fs' xs' = go fs' xs'
         key = fromString $ processFieldName prefix f
 
 sopParseJSON
-    :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Aeson.FromJSON xs, All IsMaybe xs, Code a ~ '[xs])
+    :: forall a xs y0 y1 ys.
+       (IsProductType' a xs y0 y1 ys, HasDatatypeInfo a, All Aeson.FromJSON xs, All IsMaybe xs)
     => Aeson.Value
     -> Aeson.Parser a
 sopParseJSON = withObjectDump tName $ \obj ->
@@ -330,12 +353,12 @@ sopDeclareNamedSchema _ = do
     proxy = Proxy
 
 newtypeToParamSchema
-    :: forall a r proxy t. (NewtypeRep a r, Swagger.ToParamSchema r)
+    :: forall a r proxy t. (IsNewtype a r, Swagger.ToParamSchema r)
     => proxy a -> Swagger.ParamSchema t
 newtypeToParamSchema _ = Swagger.toParamSchema (Proxy :: Proxy r)
 
 newtypeDeclareNamedSchema
-    :: forall a r proxy. (NewtypeRep a r, Swagger.ToSchema r, HasDatatypeInfo a)
+    :: forall a r proxy. (IsNewtype a r, Swagger.ToSchema r, HasDatatypeInfo a)
     => proxy a -> Swagger.Declare (Swagger.Definitions Swagger.Schema) Swagger.NamedSchema
 newtypeDeclareNamedSchema _ = rename <$> Swagger.declareNamedSchema (Proxy :: Proxy r)
   where
@@ -347,12 +370,12 @@ newtypeDeclareNamedSchema _ = rename <$> Swagger.declareNamedSchema (Proxy :: Pr
 -------------------------------------------------------------------------------
 
 newtypeToUrlPiece
-    :: forall a r. (NewtypeRep a r, ToHttpApiData r)
+    :: forall a r. (IsNewtype a r, ToHttpApiData r)
     => a -> Text
 newtypeToUrlPiece = toUrlPiece . view repNewtype
 
 newtypeParseUrlPiece
-    ::forall a r. (NewtypeRep a r, FromHttpApiData r)
+    ::forall a r. (IsNewtype a r, FromHttpApiData r)
     => Text -> Either Text a
 newtypeParseUrlPiece = fmap (review repNewtype) . parseUrlPiece
 
@@ -360,10 +383,7 @@ newtypeParseUrlPiece = fmap (review repNewtype) . parseUrlPiece
 -- Utilities
 -------------------------------------------------------------------------------
 
-type NewtypeRep a r = (Generic a, Code a ~ '[ '[ r ] ])
-
--- | Generic '_Wrapped'
-repNewtype :: NewtypeRep a r => Iso' a r
+repNewtype :: IsNewtype a r => Iso' a r
 repNewtype = rep . unsop . unSingletonS . unSingletonP . uni
 {-# INLINE repNewtype #-}
 
@@ -392,7 +412,7 @@ processFieldName pfx = lowerFirst . drop (length pfx)
 
 -- | /TODO/ use this in "Futurice.Generics"
 sopRecordFieldNames
-    :: forall a xs. (HasDatatypeInfo a, Code a ~ '[xs], SListI xs)
+    :: forall a xs. (HasDatatypeInfo a, IsProductType a xs, SListI xs)
     => Proxy a
     -> NP (K Text) xs
 sopRecordFieldNames proxy = hmap mk fieldInfos
@@ -420,3 +440,12 @@ fieldInfo = lens g s
     s :: ConstructorInfo xs -> NP FieldInfo xs -> ConstructorInfo xs
     s (Record n _) fs = Record n fs
     s _ _             = error "fieldInfo set: only record supported"
+
+-------------------------------------------------------------------------------
+-- Doctest
+-------------------------------------------------------------------------------
+
+-- $setup
+-- >>> :set -XTemplateHaskell
+-- >>> :set -XDataKinds
+-- >>> :set -XTypeFamilies
