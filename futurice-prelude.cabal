@@ -130,6 +130,7 @@ library
       Futurice.Control
       Futurice.CryptoRandom
       Futurice.Generics
+      Futurice.Generics.Enum
       Futurice.Graph
       Futurice.Has
       Futurice.IdMap
