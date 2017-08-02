@@ -101,6 +101,8 @@ module Futurice.Prelude.Internal (
     runLogT,
     -- * generics-sop
     deriveGeneric,
+    -- * th-lift
+    deriveLift,
     -- * composition-extra
     (<$$>),
     -- * alternative
@@ -185,6 +187,10 @@ module Futurice.Prelude.Internal (
     Traversable1(..),
     -- * mmorph
     hoist,
+    -- * file-embed
+    embedFile,
+    embedStringFile,
+    makeRelativeToProject,
     -- * Coercible
     Coercible, coerce,
     -- * Time
@@ -234,6 +240,8 @@ import Data.Binary                 (Binary (..))
 import Data.Bool.Compat            (bool)
 import Data.ByteString             (ByteString)
 import Data.Coerce                 (Coercible, coerce)
+import Data.FileEmbed
+       (embedFile, embedStringFile, makeRelativeToProject)
 import Data.Foldable               (fold, for_, sequenceA_, toList, traverse_)
 import Data.Function               (on)
 import Data.Functor.Classes
@@ -253,7 +261,8 @@ import Data.List.Extra             (chunksOf)
 import Data.List.NonEmpty          (NonEmpty (..))
 import Data.Map.Lens               (toMapOf)
 import Data.Map.Strict             (Map)
-import Data.Maybe                  (catMaybes, fromMaybe, mapMaybe, listToMaybe, maybeToList)
+import Data.Maybe
+       (catMaybes, fromMaybe, listToMaybe, mapMaybe, maybeToList)
 import Data.Profunctor             (dimap, lmap, rmap)
 import Data.Proxy                  (Proxy (..))
 import Data.Scientific             (Scientific)
@@ -280,6 +289,7 @@ import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
 import GHC.Generics                (Generic)
+import Language.Haskell.TH.Lift    (deriveLift)
 import Log
        (LogT, Logger, MonadLog, logAttention, logAttention_, logInfo, logInfo_,
        logTrace, logTrace_, runLogT)

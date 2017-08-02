@@ -51,10 +51,11 @@ module Futurice.Prelude (
     swapMapMap,
     showsTernaryWith,
     WrappedResponse (..),
+    embedFromJSON,
     ) where
 
-import Prelude ()
 import Futurice.Prelude.Internal
+import Prelude ()
 
 import Control.Concurrent.Async    (waitCatch, withAsync)
 import Control.Lens                (_Wrapped)
@@ -72,6 +73,7 @@ import Log
 import Log.Internal.Logger         (withLogger)
 import System.IO                   (hFlush, stderr)
 
+import qualified Data.Aeson.Compat                       as Aeson
 import qualified Data.Aeson.Types                        as Aeson
 import qualified Data.ByteString.Lazy                    as LBS
 import qualified Data.CaseInsensitive                    as CI
@@ -83,6 +85,7 @@ import qualified Data.Text.IO                            as T
 import qualified Data.Text.Normalize                     as TN
 import qualified Data.Vector                             as V
 import qualified Data.Vector.Algorithms.Intro            as Intro
+import qualified Language.Haskell.TH.Syntax              as TH
 import qualified Network.HTTP.Client                     as H
 import qualified Network.HTTP.Types                      as H
 import qualified System.Console.ANSI                     as ANSI
@@ -352,6 +355,22 @@ instance Aeson.ToJSON WrappedResponse where
         ]
       where
         headerToJSON (k, v) = (CI.map TE.decodeLatin1 k, TE.decodeLatin1 v)
+
+-------------------------------------------------------------------------------
+--
+-------------------------------------------------------------------------------
+
+-- |
+--
+-- @
+-- myX :: X
+-- myX = $(makeRelativeToProject "x.json" >>= embedFromJSON (Proxy :: Proxy X))
+-- @
+embedFromJSON :: forall a. (Aeson.FromJSON a, TH.Lift a) => Proxy a -> FilePath -> TH.Q TH.Exp
+embedFromJSON _ fp = do
+    bs <- TH.runIO (LBS.readFile fp)
+    x <- Aeson.decode bs :: TH.Q a
+    TH.lift x
 
 -------------------------------------------------------------------------------
 -- Doctests
