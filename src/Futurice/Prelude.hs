@@ -368,6 +368,7 @@ instance Aeson.ToJSON WrappedResponse where
 -- @
 embedFromJSON :: forall a. (Aeson.FromJSON a, TH.Lift a) => Proxy a -> FilePath -> TH.Q TH.Exp
 embedFromJSON _ fp = do
+    TH.qAddDependentFile fp
     bs <- TH.runIO (LBS.readFile fp)
     x <- Aeson.decode bs :: TH.Q a
     TH.lift x
