@@ -1,4 +1,4 @@
 packages: .
 
 package futurice-prelude
-    ghc-options: -Wall -Werror
+    ghc-options: -Wall -Werror -Wno-missing-home-modules

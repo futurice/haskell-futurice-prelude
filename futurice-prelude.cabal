@@ -164,7 +164,7 @@ test-suite doctests
       test
   build-depends:
       base,
-      doctest >= 0.11.3 && <0.13
+      doctest >= 0.11.3 && <0.14
 
 test-suite tests
   type: exitcode-stdio-1.0

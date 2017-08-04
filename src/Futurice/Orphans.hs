@@ -52,7 +52,6 @@ import Data.Binary.Tagged
 import Data.Fixed                 (Fixed (..), HasResolution)
 import Data.Swagger               (NamedSchema (..), ToSchema (..))
 import Data.Time.Parsers          (day, utcTime)
-import Data.Type.Equality
 import Futurice.Control
 import Generics.SOP               (All)
 import Numeric.Interval           (Interval, inf, sup)
@@ -89,6 +88,10 @@ import qualified System.Clock                         as Clock
 
 #if !MIN_VERSION_transformers_compat(0,5,0)
 import Data.Functor.Identity (Identity (..))
+#endif
+
+#if !MIN_VERSION_deepseq(1,4,3)
+import Data.Type.Equality
 #endif
 
 -- | Defined in 'Futurice.Prelude'
@@ -326,9 +329,11 @@ instance (ToSchema a, ToSchema b) => ToSchema (These a b) where
 -- NFData
 -------------------------------------------------------------------------------
 
+#if !MIN_VERSION_deepseq(1,4,3)
 -- | https://github.com/haskell/deepseq/issues/31
 instance NFData (a :~: b) where
     rnf Refl = ()
+#endif
 
 -------------------------------------------------------------------------------
 -- aeson

@@ -2,14 +2,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE TypeOperators     #-}
 module Main (main) where
 
-import Prelude ()
-import Futurice.Prelude
 import Control.Applicative (liftA2)
+import Data.Type.Equality
 import Futurice.Generics
 import Futurice.Monoid     (Average (..))
+import Futurice.Prelude
 import Futurice.Time
+import Prelude ()
 
 import Data.Fixed (Centi)
 
@@ -186,3 +188,11 @@ instance Fractional a => Fractional (Approx a) where
     fromRational = pure . fromRational
     recip = fmap recip
     (/) = liftA2 (/)
+
+-------------------------------------------------------------------------------
+-- :~: instance
+-------------------------------------------------------------------------------
+
+-- | NFData (a :~: b)
+_proof :: ()
+_proof = rnf (Refl :: () :~: ())
