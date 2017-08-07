@@ -56,6 +56,7 @@ import Futurice.Control
 import Generics.SOP               (All)
 import Numeric.Interval           (Interval, inf, sup)
 import System.Random              (Random (..))
+import Test.QuickCheck            (Arbitrary (..))
 import Text.Parsec                (parse)
 
 import qualified Crypto.Random.DRBG.Hash              as DRBG
@@ -147,6 +148,13 @@ deriving instance Typeable DynamicImage
 
 instance AnsiPretty (GH.Name entity)
 instance AnsiPretty GH.Language
+
+-------------------------------------------------------------------------------
+-- QuickCheck
+-------------------------------------------------------------------------------
+
+instance Arbitrary (GH.Name entity) where
+    arbitrary = GH.mkName Proxy <$> arbitrary -- TODO: maybe use some alphabet?
 
 -------------------------------------------------------------------------------
 -- Postgres
