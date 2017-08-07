@@ -57,6 +57,7 @@ install:
  - INSTALLED=${INSTALLED-true}
  - travis_retry cabal update -v
  - sed -i 's/^jobs:/-- jobs:/' ${HOME}/.cabal/config
+ - 'if [ ${HC} != "ghc-8.2.1" ]; then echo "packages: . " > cabal.project; fi'
  - rm -fv cabal.project.local
  - rm -f cabal.project.freeze
  - cabal install cabal-doctest

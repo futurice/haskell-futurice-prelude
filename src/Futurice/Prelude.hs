@@ -44,6 +44,9 @@ module Futurice.Prelude (
     RunDefault2,
     defaultLiftWith2,
     defaultRestoreT2,
+    -- * Debug.Trace
+    traceShow,
+    traceShowId,
     -- * Misc extras
     type (:$),
     mcase,
@@ -85,6 +88,7 @@ import qualified Data.Text.IO                            as T
 import qualified Data.Text.Normalize                     as TN
 import qualified Data.Vector                             as V
 import qualified Data.Vector.Algorithms.Intro            as Intro
+import qualified Debug.Trace                             as DT
 import qualified Language.Haskell.TH.Syntax              as TH
 import qualified Network.HTTP.Client                     as H
 import qualified Network.HTTP.Types                      as H
@@ -372,6 +376,28 @@ embedFromJSON _ fp = do
     bs <- TH.runIO (LBS.readFile fp)
     x <- Aeson.decode bs :: TH.Q a
     TH.lift x
+
+-------------------------------------------------------------------------------
+-- Debug.Trace
+-------------------------------------------------------------------------------
+
+-- | The function is not referentially transparent: its type indicates that it
+-- is a pure function but it has the side effect of outputting the trace
+-- message.
+--
+-- See 'Debug.Trace.traceShow'.
+traceShow :: Show a => a -> b -> b
+traceShow = DT.traceShow
+{-# DEPRECATED traceShow "Don't leave me in the code" #-}
+
+-- | The function is not referentially transparent: its type indicates that it
+-- is a pure function but it has the side effect of outputting the trace
+-- message.
+--
+-- See 'Debug.Trace.traceShowId'.
+traceShowId :: Show a => a -> a
+traceShowId = DT.traceShowId
+{-# DEPRECATED traceShowId "Don't leave me in the code" #-}
 
 -------------------------------------------------------------------------------
 -- Doctests
