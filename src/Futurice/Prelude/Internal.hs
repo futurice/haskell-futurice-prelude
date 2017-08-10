@@ -16,18 +16,18 @@ module Futurice.Prelude.Internal (
     HashSet,
     IntMap,
     IntSet,
-    List,
-    Pair,
-    LazyText,
     LazyByteString,
+    LazyText,
+    List,
     LocalTime (..),
     Map,
     Natural,
     NominalDiffTime,
     NonEmpty (..),
+    Pair,
     Proxy(..),
-    TimeSpec(..),
     Scientific,
+    TimeSpec(..),
     Set,
     StrictPair,
     TZ,
@@ -44,6 +44,7 @@ module Futurice.Prelude.Internal (
     AesonPair,
     -- ** Monoids
     Sum (..),
+    Endo (..),
     UnionWith (..),
     -- * Data Classes
     Align (..),
@@ -110,9 +111,9 @@ module Futurice.Prelude.Internal (
     -- * bifunctors
     bimap, first, second,
     -- * profunctors
-    dimap, lmap, rmap,
+    Profunctor (..),
     -- * contravariant
-    contramap, (>$<), (>$),
+    Contravariant (..), (>$<), phantom,
     -- * deepseq
     ($!!),
     -- * exception
@@ -246,7 +247,7 @@ import Data.Foldable               (fold, for_, sequenceA_, toList, traverse_)
 import Data.Function               (on)
 import Data.Functor.Classes
 import Data.Functor.Compose        (Compose (..))
-import Data.Functor.Contravariant  (contramap, (>$), (>$<))
+import Data.Functor.Contravariant  (Contravariant (..), (>$<), phantom)
 import Data.Functor.Identity       (Identity (..))
 import Data.Functor.Syntax         ((<$$>))
 import Data.Hashable               (Hashable (..))
@@ -263,10 +264,10 @@ import Data.Map.Lens               (toMapOf)
 import Data.Map.Strict             (Map)
 import Data.Maybe
        (catMaybes, fromMaybe, listToMaybe, mapMaybe, maybeToList)
-import Data.Profunctor             (dimap, lmap, rmap)
+import Data.Profunctor             (Profunctor (..))
 import Data.Proxy                  (Proxy (..))
 import Data.Scientific             (Scientific)
-import Data.Semigroup              (Semigroup (..), Sum (..))
+import Data.Semigroup              (Endo (..), Semigroup (..), Sum (..))
 import Data.Semigroup.Foldable     (Foldable1 (..))
 import Data.Semigroup.Traversable  (Traversable1 (..))
 import Data.Semigroup.Union        (UnionWith (..))
