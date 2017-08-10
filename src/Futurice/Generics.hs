@@ -41,6 +41,9 @@ module Futurice.Generics (
     sopRecordFieldNames,
     IsNewtype,
     repNewtype,
+    processFieldName,
+    longestFieldPrefix,
+    fieldInfos,
     ) where
 
 import Control.Lens      (review)
@@ -113,21 +116,18 @@ sopToNamedRecord
     -> Csv.NamedRecord
 sopToNamedRecord
     = Csv.namedRecord
-    . sopToNamedRecord' fieldInfos
+    . sopToNamedRecord' (longestFieldPrefix p) (fieldInfos p)
     . (^. unsop . unSingletonS)
     . from
   where
-    fieldInfos = datatypeInfo (Proxy :: Proxy a) ^.
-        constructorInfo . unSingletonP . fieldInfo
+    p = Proxy :: Proxy a
 
 sopToNamedRecord'
-    :: All Csv.ToField xs => NP FieldInfo xs -> NP I xs
+    :: All Csv.ToField xs
+    => String -> NP FieldInfo xs -> NP I xs
     -> [(ByteString, ByteString)]
-sopToNamedRecord' fs' xs' = go fs' xs'
+sopToNamedRecord' prefix = go
   where
-    prefix :: String
-    prefix = longestFieldInfoPrefix fs'
-
     go :: All Csv.ToField xs => NP FieldInfo xs -> NP I xs -> [(ByteString, ByteString)]
     go Nil Nil = []
     go (FieldInfo f :* fs) (I x :* xs) =
@@ -141,10 +141,7 @@ sopHeaderOrder
        (Generic a, HasDatatypeInfo a, Code a ~ '[xs])
     => a  -- ^ Unused, only for compatibility with @cassava@'s 'headerOrder'
     -> Csv.Header
-sopHeaderOrder _ = V.fromList (sopHeaderOrder' fieldInfos)
-  where
-    fieldInfos = datatypeInfo (Proxy :: Proxy a) ^.
-        constructorInfo . unSingletonP . fieldInfo
+sopHeaderOrder _ = V.fromList . sopHeaderOrder' . fieldInfos $ (Proxy :: Proxy a)
 
 sopHeaderOrder' :: SListI xs => NP FieldInfo xs -> [ByteString]
 sopHeaderOrder' fs = hcollapse (hmap f fs)
@@ -202,21 +199,18 @@ sopToJSON
     -> Aeson.Value
 sopToJSON
     = Aeson.object
-    . sopToJSON' fieldInfos
+    . sopToJSON' (longestFieldPrefix p) (fieldInfos p)
     . (^. unsop . unSingletonS)
     . from
   where
-    fieldInfos = datatypeInfo (Proxy :: Proxy a) ^.
-        constructorInfo . unSingletonP . fieldInfo
+    p = Proxy :: Proxy a
 
 sopToJSON'
-    :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs
+    :: (All Aeson.ToJSON xs, All IsMaybe xs)
+    => String -> NP FieldInfo xs -> NP I xs
     -> [Aeson.Pair]
-sopToJSON' fs' xs' = go fs' xs'
+sopToJSON' prefix = go
   where
-    prefix :: String
-    prefix = longestFieldInfoPrefix fs'
-
     go :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs -> [Aeson.Pair]
     go Nil Nil = []
     go (FieldInfo f :* fs) (I x :* xs) = maybe id (:) (single f x) $ go fs xs
@@ -241,21 +235,18 @@ sopToEncoding
     -> Aeson.Encoding
 sopToEncoding
     = Aeson.pairs
-    . sopToEncoding' fieldInfos
+    . sopToEncoding' (longestFieldPrefix p) (fieldInfos p)
     . (^. unsop . unSingletonS)
     . from
   where
-    fieldInfos = datatypeInfo (Proxy :: Proxy a) ^.
-        constructorInfo . unSingletonP . fieldInfo
+    p = Proxy :: Proxy a
 
 sopToEncoding'
-    :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs
+    :: (All Aeson.ToJSON xs, All IsMaybe xs)
+    => String -> NP FieldInfo xs -> NP I xs
     -> Aeson.Series
-sopToEncoding' fs' xs' = go fs' xs'
+sopToEncoding' prefix = go
   where
-    prefix :: String
-    prefix = longestFieldInfoPrefix fs'
-
     go :: (All Aeson.ToJSON xs, All IsMaybe xs) => NP FieldInfo xs -> NP I xs -> Aeson.Series
     go Nil Nil = mempty
     go (FieldInfo f :* fs) (I x :* xs) = single f x <> go fs xs
@@ -279,20 +270,18 @@ sopParseJSON
     => Aeson.Value
     -> Aeson.Parser a
 sopParseJSON = withObjectDump tName $ \obj ->
-    to . SOP . Z <$> sopParseJSON' obj fieldInfos
+    to . SOP . Z <$> sopParseJSON' obj (longestFieldPrefix p) (fieldInfos p)
   where
-    dInfo = datatypeInfo (Proxy :: Proxy a)
+    p = Proxy :: Proxy a
+    dInfo = datatypeInfo p
     tName = dInfo ^. datatypeName
-    fieldInfos = dInfo ^. constructorInfo . unSingletonP . fieldInfo
 
 sopParseJSON'
     :: (All Aeson.FromJSON xs, All IsMaybe xs)
-    => Aeson.Object -> NP FieldInfo xs -> Aeson.Parser (NP I xs)
-sopParseJSON' obj fs' = go fs'
+    => Aeson.Object -> String -> NP FieldInfo xs
+    -> Aeson.Parser (NP I xs)
+sopParseJSON' obj prefix = go
   where
-    prefix :: String
-    prefix = longestFieldInfoPrefix fs'
-
     go :: (All Aeson.FromJSON ys, All IsMaybe ys) => NP FieldInfo ys -> Aeson.Parser (NP I ys)
     go Nil  = pure Nil
     go (FieldInfo f :* fs) = (:*) <$> single f <*> go fs
@@ -324,7 +313,7 @@ sopDeclareNamedSchema
     => proxy a
     -> SwaggerM Swagger.NamedSchema
 sopDeclareNamedSchema _ = do
-    props <- hsequenceK (hcmap (Proxy :: Proxy Swagger.ToSchema) prop fieldInfos) :: SwaggerM (NP (K SwaggerPP) xs)
+    props <- hsequenceK (hcmap (Proxy :: Proxy Swagger.ToSchema) prop fis) :: SwaggerM (NP (K SwaggerPP) xs)
     pure $ Swagger.NamedSchema (Just $ name ^. packed) $ schema (Exts.fromList . hcollapse $ props)
   where
     name = datatypeInfo proxy ^. datatypeName
@@ -332,10 +321,10 @@ sopDeclareNamedSchema _ = do
     schema props = mempty
       & Swagger.type_ .~ Swagger.SwaggerObject
       & Swagger.properties .~ props
-      & Swagger.required .~ hcollapse (hmap req fieldInfos)
+      & Swagger.required .~ hcollapse (hmap req fis)
 
     prefix :: String
-    prefix = longestFieldInfoPrefix fieldInfos
+    prefix = longestFieldInfoPrefix fis
 
     req :: forall y. FieldInfo y -> K Text y
     req (FieldInfo n) = K $ processFieldName prefix n ^. packed
@@ -346,8 +335,8 @@ sopDeclareNamedSchema _ = do
         n' = processFieldName prefix n ^. packed
         s = Swagger.declareSchemaRef (Proxy :: Proxy y)
 
-    fieldInfos :: NP FieldInfo xs
-    fieldInfos = datatypeInfo proxy ^. constructorInfo . unSingletonP . fieldInfo
+    fis :: NP FieldInfo xs
+    fis = datatypeInfo proxy ^. constructorInfo . unSingletonP . fieldInfo
 
     proxy :: Proxy a
     proxy = Proxy
@@ -383,10 +372,21 @@ newtypeParseUrlPiece = fmap (review repNewtype) . parseUrlPiece
 -- Utilities
 -------------------------------------------------------------------------------
 
-repNewtype :: IsNewtype a r => Iso' a r
-repNewtype = rep . unsop . unSingletonS . unSingletonP . uni
-{-# INLINE repNewtype #-}
+longestFieldPrefix
+    :: forall a proxy xs. (IsProductType a xs, HasDatatypeInfo a)
+    => proxy a -> String
+longestFieldPrefix = longestFieldInfoPrefix . fieldInfos
 
+fieldInfos
+    :: forall a proxy xs. (IsProductType a xs, HasDatatypeInfo a)
+    => proxy a -> NP FieldInfo xs
+fieldInfos _ = datatypeInfo (Proxy :: Proxy a) ^.
+    constructorInfo . unSingletonP . fieldInfo
+
+repNewtype :: IsNewtype a r => Iso' a r
+repNewtype = iso coerce coerce
+-- rep . unsop . unSingletonS . unSingletonP . uni
+{-# INLINE repNewtype #-}
 
 longestCommonPrefix :: Eq a => [a] -> [a] -> [a]
 longestCommonPrefix [] _ = []
@@ -415,16 +415,16 @@ sopRecordFieldNames
     :: forall a xs. (HasDatatypeInfo a, IsProductType a xs, SListI xs)
     => Proxy a
     -> NP (K Text) xs
-sopRecordFieldNames proxy = hmap mk fieldInfos
+sopRecordFieldNames proxy = hmap mk fis
   where
     mk :: forall x. FieldInfo x -> K Text x
     mk (FieldInfo n) = K $ processFieldName prefix n ^. packed
 
     prefix :: String
-    prefix = longestFieldInfoPrefix fieldInfos
+    prefix = longestFieldInfoPrefix fis
 
-    fieldInfos :: NP FieldInfo xs
-    fieldInfos = datatypeInfo proxy ^. constructorInfo . unSingletonP . fieldInfo
+    fis :: NP FieldInfo xs
+    fis = datatypeInfo proxy ^. constructorInfo . unSingletonP . fieldInfo
 
 -------------------------------------------------------------------------------
 -- generics-sop-lens

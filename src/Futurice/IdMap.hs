@@ -28,7 +28,6 @@ import Futurice.Prelude
 import Control.Lens
        (At (..), Getting, Index, IndexedFold, IxValue, Ixed (..), iall,
        ifolded, set, to, toListOf, views)
-import Data.Monoid     (Endo)
 import Test.QuickCheck (Arbitrary (..), listOf1)
 
 import qualified Data.Map as Map
