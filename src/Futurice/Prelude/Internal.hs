@@ -199,6 +199,8 @@ module Futurice.Prelude.Internal (
     mkUTCTime, mkDay,
     -- * Clock
     module Futurice.Clock,
+    -- * extra
+    whenM,
     -- * Misc
     bool,
     ) where
@@ -258,7 +260,6 @@ import Data.IntMap.Strict          (IntMap)
 import Data.IntSet                 (IntSet)
 import Data.Key                    (Zip (..), ZipWithKey (..))
 import Data.List.Compat            (nub, sort, sortBy, sortOn)
-import Data.List.Extra             (chunksOf)
 import Data.List.NonEmpty          (NonEmpty (..))
 import Data.Map.Lens               (toMapOf)
 import Data.Map.Strict             (Map)
@@ -286,6 +287,7 @@ import Data.Typeable               (Typeable)
 import Data.UUID                   (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
+import Extra                       (chunksOf, whenM)
 import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
