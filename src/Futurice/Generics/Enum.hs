@@ -2,26 +2,28 @@
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE GADTs               #-}
-{-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
--- | /TODO/ merge into 'Futurice.Generics'
 module Futurice.Generics.Enum (
     SOP.IsEnumType,
     EnumInstances (..),
     sopEnumInstances,
     ) where
 
+import Control.Monad    ((>=>))
 import Futurice.Prelude
 import Prelude ()
 
-import qualified Data.Aeson.Compat    as Aeson
-import qualified Data.Map             as Map
-import qualified Data.Swagger         as Swagger
-import qualified Data.Swagger.Declare as Swagger
-import qualified Data.Text            as T
-import qualified Generics.SOP         as SOP
+import qualified Data.Aeson.Compat                    as Aeson
+import qualified Data.Csv                             as Csv
+import qualified Data.Map                             as Map
+import qualified Data.Swagger                         as Swagger
+import qualified Data.Swagger.Declare                 as Swagger
+import qualified Data.Text                            as T
+import qualified Database.PostgreSQL.Simple.FromField as Postgres
+import qualified Database.PostgreSQL.Simple.ToField   as Postgres
+import qualified Generics.SOP                         as SOP
 
 -- | A record bundling many instance implementations:
 --
@@ -41,6 +43,12 @@ data EnumInstances a = EnumInstances
     -- http-api-data
     , enumToUrlPiece         :: a -> Text
     , enumParseUrlPiece      :: Text -> Either Text a
+    -- cassava
+    , enumCsvToField         :: a -> Csv.Field
+    , enumCsvParseField      :: Csv.Field ->  Csv.Parser a
+    -- postgresql-simple
+    , enumPostgresToField    :: a -> Postgres.Action
+    , enumPostgresFromField  :: Postgres.FieldParser a
     }
 
 -- | Create 'EnumInstances" for a generic type.
@@ -48,7 +56,7 @@ data EnumInstances a = EnumInstances
 -- /TODO:/ remove Enum a. Bounded a constraints
 --
 sopEnumInstances
-    :: forall a. (SOP.IsEnumType a, Enum a, Bounded a, SOP.HasDatatypeInfo a)
+    :: forall a. (SOP.IsEnumType a, Enum a, Bounded a, SOP.HasDatatypeInfo a, Typeable a)
     => NP (K Text) (SOP.Code a)     -- ^ json & url param etc. constructor names.
     -> EnumInstances a
 sopEnumInstances names = EnumInstances
@@ -63,6 +71,10 @@ sopEnumInstances names = EnumInstances
     , enumDeclareNamedSchema = enumDeclareNamedSchema_
     , enumToUrlPiece         = enumToText_
     , enumParseUrlPiece      = enumFromTextE_
+    , enumCsvToField         = enumCsvToField_
+    , enumCsvParseField      = enumCsvParseField_
+    , enumPostgresToField    = enumPostgresToField_
+    , enumPostgresFromField  = enumPostgresFromField_
     }
   where
     name :: String
@@ -100,8 +112,8 @@ sopEnumInstances names = EnumInstances
     enumToEncoding_ = Aeson.toEncoding . enumToText_
 
     enumParseJSON_ :: Value -> Aeson.Parser a
-    enumParseJSON_ = Aeson.withText name $ \t ->
-        either (fail . view unpacked) pure (enumFromTextE_ t)
+    enumParseJSON_ = Aeson.withText name $
+        either (fail . view unpacked) pure . enumFromTextE_
 
     enumToParamSchema_ :: forall proxy t. proxy a -> Swagger.ParamSchema t
     enumToParamSchema_ _ = mempty
@@ -113,3 +125,15 @@ sopEnumInstances names = EnumInstances
         -> Swagger.Declare (Swagger.Definitions Swagger.Schema) Swagger.NamedSchema
     enumDeclareNamedSchema_ _ = pure $ Swagger.NamedSchema (Just nameT) $ mempty
         & Swagger.paramSchema .~ enumToParamSchema_ Proxy
+
+    enumCsvToField_ = Csv.toField . enumToText_
+
+    enumCsvParseField_ = Csv.parseField >=>
+        either (fail . view unpacked) pure . enumFromTextE_
+
+    enumPostgresToField_ = Postgres.toField . enumToText_
+
+    enumPostgresFromField_ f mbs = Postgres.fromField f mbs >>=
+        either (err . view unpacked) pure . enumFromTextE_
+      where
+        err = Postgres.returnError Postgres.ConversionFailed f
