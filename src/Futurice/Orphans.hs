@@ -61,7 +61,6 @@ import Text.Parsec                (parse)
 
 import qualified Crypto.Random.DRBG.Hash              as DRBG
 import qualified Data.Aeson.Encoding                  as Aeson
-import qualified Data.Attoparsec.ByteString.Char8     as Atto
 import qualified Data.CaseInsensitive                 as CI
 import qualified Data.Csv                             as Csv
 import qualified Data.Fixed                           as Fixed
@@ -215,12 +214,6 @@ scientificToSmallRational s
     | otherwise            = 0
   where
     c = Scientific.coefficient s
-
-
-instance Csv.FromField Scientific where
-    parseField
-        = either fail pure
-        . Atto.parseOnly (Atto.scientific <* Atto.endOfInput)
 
 instance All Csv.ToField xs => Csv.ToRecord (NP I xs) where
     toRecord
