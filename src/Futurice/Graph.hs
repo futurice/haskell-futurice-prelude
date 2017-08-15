@@ -212,10 +212,10 @@ instance Functor (Node k) where
 
 instance Ord k => HasKey (Node k a) where
     type Key (Node k a) = k
-    key = lens getter setter
+    key = lens g s
       where
-        getter (N _ k _)    = k
-        setter (N a _ ks) k = N a k ks
+        g (N _ k _)    = k
+        s (N a _ ks) k = N a k ks
 
 instance Ord k => IsNode (Node k a) where
     nodeNeighbors (N _ _ ks) = ks
