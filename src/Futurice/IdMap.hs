@@ -42,13 +42,13 @@ class Ord (Key a) => HasKey a where
 
 instance (HasKey a, HasKey b, Key a ~ Key b) => HasKey (Either a b) where
     type Key (Either a b) = Key a
-    key = lens getter setter
+    key = lens g s
       where
-        getter (Right x) = view key x
-        getter (Left x)  = view key x
+        g (Right x) = view key x
+        g (Left x)  = view key x
 
-        setter (Right x) k = Right $ set key k x
-        setter (Left x)  k = Left  $ set key k x
+        s (Right x) k = Right $ set key k x
+        s (Left x)  k = Left  $ set key k x
 
 -------------------------------------------------------------------------------
 -- IdMap

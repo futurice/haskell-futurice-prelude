@@ -9,7 +9,9 @@ module Futurice.Prelude (
     module Futurice.Prelude.Internal,
     -- * Types
     Month,
-    -- * @log@
+    -- * lens
+    getter,
+    -- * log
     withStderrLogger,
     logLocalData,
     logLocalDomain,
@@ -61,8 +63,7 @@ import Futurice.Prelude.Internal
 import Prelude ()
 
 import Control.Concurrent.Async    (waitCatch, withAsync)
-import Control.Lens                (_Wrapped)
-import Control.Lens                (ifoldMapOf, (<.>))
+import Control.Lens                (Optic', ifoldMapOf, to, (<.>), _Wrapped)
 import Control.Monad.Trans.Control
        (ComposeSt, RunDefault, defaultLiftBaseWith, defaultLiftWith,
        defaultRestoreM, defaultRestoreT)
@@ -171,6 +172,18 @@ swapMapMap :: (Ord k, Ord k') => Map k (Map k' v) -> Map k' (Map k v)
 swapMapMap = getUnionWith . ifoldMapOf (ifolded <.> ifolded) f
   where
     f (k, k') v = UnionWith $ Map.singleton k' $ Map.singleton k v
+
+-------------------------------------------------------------------------------
+-- lens
+-------------------------------------------------------------------------------
+
+-- | Less ambigious alias for 'Control.Lens.to'
+--
+-- @
+-- 'getter' :: (s -> a) -> 'Getter' s a
+-- @
+getter :: (Profunctor p, Contravariant f) => (s -> a) -> Optic' p f s a
+getter = to
 
 -------------------------------------------------------------------------------
 -- UUID

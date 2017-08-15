@@ -154,6 +154,8 @@ module Futurice.Prelude.Internal (
     Prism', Prism, prism, prism',
     Traversal', Traversal,
     Iso', Iso, iso,
+    Getter,
+    LensLike', LensLike,
     -- ** Operators
     (^?), preview,
     (^.), view,
@@ -212,12 +214,12 @@ import Control.Applicative         (Alternative (..), Const (..), optional)
 import Control.DeepSeq             (NFData (..), ($!!))
 import Control.Exception           (evaluate)
 import Control.Lens
-       (At (..), Iso, Iso', Ixed (..), Lens, Lens', Prism, Prism', Traversal,
-       Traversal', folded, from, ifoldMap, ifolded, ifor, ifor_, isn't, iso,
-       itoList, itraverse, itraverse_, lazy, lens, makeLenses, makePrisms,
-       makeWrapped, over, preview, prism, prism', strict, view, (%=), (%~),
-       (&), (.~), (?=), (?~), (^.), (^..), (^?), _1, _2, _3, _Empty, _Just,
-       _Left, _Nothing, _Right)
+       (At (..), Getter, Iso, Iso', Ixed (..), Lens, Lens', LensLike,
+       LensLike', Prism, Prism', Traversal, Traversal', folded, from, ifoldMap,
+       ifolded, ifor, ifor_, isn't, iso, itoList, itraverse, itraverse_, lazy,
+       lens, makeLenses, makePrisms, makeWrapped, over, preview, prism, prism',
+       strict, view, (%=), (%~), (&), (.~), (?=), (?~), (^.), (^..), (^?), _1,
+       _2, _3, _Empty, _Just, _Left, _Nothing, _Right)
 import Control.Monad.Base          (MonadBase (..))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
@@ -249,7 +251,7 @@ import Data.Foldable               (fold, for_, sequenceA_, toList, traverse_)
 import Data.Function               (on)
 import Data.Functor.Classes
 import Data.Functor.Compose        (Compose (..))
-import Data.Functor.Contravariant  (Contravariant (..), (>$<), phantom)
+import Data.Functor.Contravariant  (Contravariant (..), phantom, (>$<))
 import Data.Functor.Identity       (Identity (..))
 import Data.Functor.Syntax         ((<$$>))
 import Data.Hashable               (Hashable (..))
