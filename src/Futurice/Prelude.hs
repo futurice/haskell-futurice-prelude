@@ -63,7 +63,7 @@ import Futurice.Prelude.Internal
 import Prelude ()
 
 import Control.Concurrent.Async    (waitCatch, withAsync)
-import Control.Lens                (Optic', ifoldMapOf, to, (<.>), _Wrapped)
+import Control.Lens                (Optic', ifoldMapOf, (<.>), _Wrapped)
 import Control.Monad.Trans.Control
        (ComposeSt, RunDefault, defaultLiftBaseWith, defaultLiftWith,
        defaultRestoreM, defaultRestoreT)
@@ -183,7 +183,7 @@ swapMapMap = getUnionWith . ifoldMapOf (ifolded <.> ifolded) f
 -- 'getter' :: (s -> a) -> 'Getter' s a
 -- @
 getter :: (Profunctor p, Contravariant f) => (s -> a) -> Optic' p f s a
-getter = to
+getter k = dimap k (contramap k)
 
 -------------------------------------------------------------------------------
 -- UUID
