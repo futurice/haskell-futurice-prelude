@@ -54,6 +54,7 @@ import Data.Swagger               (NamedSchema (..), ToSchema (..))
 import Data.Time.Parsers          (day, utcTime)
 import Futurice.Control
 import Generics.SOP               (All)
+import Lucid                      (HtmlT, ToHtml (..), a_, href_)
 import Numeric.Interval           (Interval, inf, sup)
 import System.Random              (Random (..))
 import Test.QuickCheck            (Arbitrary (..))
@@ -370,6 +371,22 @@ instance ToJSON a => ToJSON (CI.CI a) where
 
 instance ToJSON Clock.TimeSpec
 instance FromJSON Clock.TimeSpec
+
+-------------------------------------------------------------------------------
+-- Lucid
+-------------------------------------------------------------------------------
+
+class GHNameToHtml e where
+    ghNameToHtml :: Monad m => GH.Name e -> HtmlT m ()
+
+instance GHNameToHtml GH.User where
+    ghNameToHtml n = a_ [ href_ $ "https://github.com/" <> n' ] $ toHtml n'
+      where
+        n' = GH.untagName n
+
+instance GHNameToHtml e => ToHtml (GH.Name e) where
+    toHtml    = ghNameToHtml
+    toHtmlRaw = ghNameToHtml
 
 -------------------------------------------------------------------------------
 -- aeson + generics-sop
