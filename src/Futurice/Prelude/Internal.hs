@@ -106,6 +106,8 @@ module Futurice.Prelude.Internal (
     deriveLift,
     -- * composition-extra
     (<$$>),
+    -- * applicative
+    liftA2,
     -- * alternative
     Alternative(..), optional,
     -- * bifunctors
@@ -139,7 +141,7 @@ module Futurice.Prelude.Internal (
     itoList,
     ifor, itraverse,
     -- * Monad
-    void, join, forever, foldM, guard, when,
+    void, join, forever, foldM, guard, when, unless,
     -- * Function
     on, (&),
     -- * SOP
@@ -210,7 +212,7 @@ module Futurice.Prelude.Internal (
 import Prelude ()
 import Prelude.Compat hiding (zip, zipWith)
 
-import Control.Applicative         (Alternative (..), Const (..), optional)
+import Control.Applicative         (Alternative (..), Const (..), optional, liftA2)
 import Control.DeepSeq             (NFData (..), ($!!))
 import Control.Exception           (evaluate)
 import Control.Lens
@@ -224,7 +226,7 @@ import Control.Monad.Base          (MonadBase (..))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat
-       (MonadPlus (..), foldM, forever, guard, join, void, when)
+       (MonadPlus (..), foldM, forever, guard, join, void, when, unless)
 import Control.Monad.Except
        (ExceptT (..), MonadError (..), runExceptT, withExceptT)
 import Control.Monad.Fix           (MonadFix (..))
