@@ -205,6 +205,7 @@ module Futurice.Prelude.Internal (
     module Futurice.Clock,
     -- * extra
     whenM,
+    unlessM,
     -- * Misc
     bool,
     ) where
@@ -291,7 +292,7 @@ import Data.Typeable               (Typeable)
 import Data.UUID                   (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
-import Extra                       (chunksOf, whenM)
+import Extra                       (chunksOf, whenM, unlessM)
 import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
