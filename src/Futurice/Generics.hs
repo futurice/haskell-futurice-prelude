@@ -44,6 +44,9 @@ module Futurice.Generics (
     processFieldName,
     longestFieldPrefix,
     fieldInfos,
+    strippedFieldNames,
+    strippedFieldNamesS,
+    strippedFieldNamesT,
     ) where
 
 import Control.Lens      (review)
@@ -382,6 +385,35 @@ fieldInfos
     => proxy a -> NP FieldInfo xs
 fieldInfos _ = datatypeInfo (Proxy :: Proxy a) ^.
     constructorInfo . unSingletonP . fieldInfo
+
+-- | Get the field names of the record, with stripped prefixes.
+--
+-- >>> data Foo = Foo { fooCount :: Int, fooName :: Text }; deriveGeneric ''Foo
+-- >>> strippedFieldNamesS (Proxy :: Proxy Foo)
+-- K "count" :* (K "name" :* Nil)
+--
+strippedFieldNames
+    :: forall a proxy xs s. (IsProductType a xs, HasDatatypeInfo a, IsString s)
+    => proxy a -> NP (K s) xs
+strippedFieldNames p = hmap f infos
+  where
+    f :: forall x. FieldInfo x -> K s x
+    f (FieldInfo n) = K (fromString (processFieldName pfx n))
+
+    infos = fieldInfos p
+    pfx   = longestFieldInfoPrefix infos
+
+-- | 'String' variant of 'strippedFieldNames'.
+strippedFieldNamesS
+    :: (IsProductType a xs, HasDatatypeInfo a)
+    => proxy a -> NP (K String) xs
+strippedFieldNamesS = strippedFieldNames
+
+-- | 'Text' variant of 'strippedFieldNames'.
+strippedFieldNamesT
+    :: (IsProductType a xs, HasDatatypeInfo a)
+    => proxy a -> NP (K String) xs
+strippedFieldNamesT = strippedFieldNames
 
 repNewtype :: IsNewtype a r => Iso' a r
 repNewtype = iso coerce coerce
