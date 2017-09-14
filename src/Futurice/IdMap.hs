@@ -12,6 +12,8 @@ module Futurice.IdMap (
     unsafeFromMap,
     -- * Keys
     keysSet,
+    -- * Operations
+    Futurice.IdMap.filter,
     -- * Lens
     toIdMapOf,
     unsafeTraversal,
@@ -81,6 +83,13 @@ valid :: HasKey a => IdMap a -> Bool
 valid (IdMap m) =
     iall (\k v -> k == v ^. key) m &&
     Map.valid m
+
+-------------------------------------------------------------------------------
+-- Operations
+-------------------------------------------------------------------------------
+
+filter :: (a -> Bool) -> IdMap a -> IdMap a
+filter p (IdMap m) = IdMap (Map.filter p m)
 
 -------------------------------------------------------------------------------
 -- Lens
