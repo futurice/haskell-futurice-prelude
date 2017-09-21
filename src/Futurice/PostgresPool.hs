@@ -14,6 +14,8 @@ module Futurice.PostgresPool (
     poolExecute,
     poolExecute_,
     poolExecuteMany,
+    -- * Transaction
+    poolWithTransaction,
     ) where
 
 import Prelude ()
@@ -69,3 +71,14 @@ poolQuery_
     => ctx -> Postgres.Query -> m [r]
 poolQuery_ ctx query = withResource (postgresPool ctx) $ \conn ->
     liftBase $ Postgres.query_ conn query
+
+-------------------------------------------------------------------------------
+-- Transaction
+-------------------------------------------------------------------------------
+
+poolWithTransaction
+    :: (HasPostgresPool ctx, MonadBaseControl IO m, StM m a ~ a)
+    => ctx -> m a -> m a
+poolWithTransaction ctx inner = withResource (postgresPool ctx) $ \conn ->
+    liftBaseWith $ \runInBase ->
+        Postgres.withTransaction conn (runInBase inner)
