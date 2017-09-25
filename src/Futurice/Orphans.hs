@@ -255,13 +255,6 @@ instance ToSchema DynamicImage where
 instance ToSchema (Image a) where
     declareNamedSchema _ = pure $ NamedSchema (Just "Image") mempty
 
-instance HasResolution a => ToSchema (Fixed a) where
-    declareNamedSchema _ = do
-        NamedSchema _ schema <- declareNamedSchema (Proxy :: Proxy Scientific)
-        pure $ NamedSchema (Just . fromString $ n) schema
-      where
-        n = "Fixed " <> show (Fixed.resolution (Proxy :: Proxy a))
-
 instance ToSchema1 NonEmpty.Interval where
     liftDeclareNamedSchema _ ns = do
         ref <- namedSchemaToRef ns
