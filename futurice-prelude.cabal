@@ -88,6 +88,7 @@ library
     , monadcryptorandom     >=0.7.1    && <0.7.2
     , mtl                   >=2.2.1    && <2.3
     , nats
+    , nf                    >=1.0.1.0  && <1.1
     , parsec                >=3.1.11   && <3.2
     , postgresql-simple     >=0.5.2.1  && <0.6
     , profunctors           >=5.2      && <5.3

@@ -192,6 +192,10 @@ module Futurice.Prelude.Internal (
     Traversable1(..),
     -- * mmorph
     hoist,
+    -- * nf
+    NF,
+    makeNF,
+    getNF,
     -- * file-embed
     embedFile,
     embedStringFile,
@@ -213,7 +217,8 @@ module Futurice.Prelude.Internal (
 import Prelude ()
 import Prelude.Compat hiding (zip, zipWith)
 
-import Control.Applicative         (Alternative (..), Const (..), optional, liftA2)
+import Control.Applicative
+       (Alternative (..), Const (..), liftA2, optional)
 import Control.DeepSeq             (NFData (..), ($!!))
 import Control.Exception           (evaluate)
 import Control.Lens
@@ -227,7 +232,7 @@ import Control.Monad.Base          (MonadBase (..))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
 import Control.Monad.Compat
-       (MonadPlus (..), foldM, forever, guard, join, void, when, unless)
+       (MonadPlus (..), foldM, forever, guard, join, unless, void, when)
 import Control.Monad.Except
        (ExceptT (..), MonadError (..), runExceptT, withExceptT)
 import Control.Monad.Fix           (MonadFix (..))
@@ -270,6 +275,7 @@ import Data.Map.Lens               (toMapOf)
 import Data.Map.Strict             (Map)
 import Data.Maybe
        (catMaybes, fromMaybe, listToMaybe, mapMaybe, maybeToList)
+import Data.NF                     (NF, getNF, makeNF)
 import Data.Profunctor             (Profunctor (..))
 import Data.Proxy                  (Proxy (..))
 import Data.Scientific             (Scientific)
@@ -292,7 +298,7 @@ import Data.Typeable               (Typeable)
 import Data.UUID                   (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
-import Extra                       (chunksOf, whenM, unlessM)
+import Extra                       (chunksOf, unlessM, whenM)
 import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
