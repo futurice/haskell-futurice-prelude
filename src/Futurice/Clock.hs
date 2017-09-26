@@ -8,8 +8,9 @@ module Futurice.Clock (
     timeSpecToSecondsD,
     ) where
 
+import Control.DeepSeq     (NFData, force)
 import Control.Monad.Trans
-import Servant.Server (Handler)
+import Servant.Server      (Handler)
 import System.Clock
        (Clock (Monotonic), TimeSpec (..), diffTimeSpec, getTime, toNanoSecs)
 
@@ -33,12 +34,13 @@ instance {-# OVERLAPPING #-}
 instance MonadClock Handler where
     monotonicClock = liftIO monotonicClock
 
-clocked :: MonadClock m => m a -> m (TimeSpec, a)
+clocked :: (MonadClock m, NFData a) => m a -> m (TimeSpec, a)
 clocked action = do
     start <- monotonicClock
     x <- action
+    x' <- return $! force x
     end <- monotonicClock
-    return (diffTimeSpec end start, x)
+    return (diffTimeSpec end start, x')
 
 -- | Convert 'TimeSpec' to seconds represented by 'Double'
 timeSpecToSecondsD :: TimeSpec -> Double
