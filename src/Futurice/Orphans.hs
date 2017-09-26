@@ -81,6 +81,8 @@ import qualified Generics.SOP                         as SOP
 import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
+import qualified Network.HTTP.Client                  as HTTP
+import qualified Network.HTTP.Types.Status            as HTTP
 import qualified Network.Wai                          as Wai
 import qualified Numeric.Interval.Kaucher             as Kaucher
 import qualified Numeric.Interval.NonEmpty            as NonEmpty
@@ -329,6 +331,18 @@ instance (ToSchema a, ToSchema b) => ToSchema (These a b) where
 instance NFData (a :~: b) where
     rnf Refl = ()
 #endif
+
+instance NFData HTTP.Status where
+    rnf (HTTP.Status c m) = rnf c `seq` rnf m
+
+instance NFData a => NFData (HTTP.Response a) where
+    rnf res =
+        rnf (HTTP.responseStatus res) `seq`
+        HTTP.responseVersion res `seq`
+        rnf (HTTP.responseHeaders res) `seq`
+        rnf (HTTP.responseBody res) `seq`
+        HTTP.responseCookieJar res `seq`  -- no NFData
+        ()
 
 -------------------------------------------------------------------------------
 -- aeson

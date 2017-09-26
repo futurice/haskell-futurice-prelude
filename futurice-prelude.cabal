@@ -68,7 +68,7 @@ library
     , generics-sop          >=0.3.1.0  && <0.4
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
-    , github                >=0.15     && <0.17
+    , github                >=0.17     && <0.18
     , hashable              >=1.2.4
     , hashable-time         >=0.2      && <0.3
     , http-api-data         >=0.3.1    && <0.4
@@ -144,7 +144,6 @@ library
       Futurice.Monoid
       Futurice.Orphans
       Futurice.Peano
-      Futurice.PostgresPool
       Futurice.Prelude
       Futurice.Prelude.Internal
       Futurice.REPL
