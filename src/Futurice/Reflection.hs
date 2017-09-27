@@ -1,3 +1,4 @@
+{-# LANGUAGE PolyKinds           #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
 -- | See <https://github.com/ghc-proposals/ghc-proposals/pull/16>
@@ -6,24 +7,26 @@ module Futurice.Reflection (
     typeRep,
     eqTypeRep,
     cast,
+    Typeable,
     -- * Internal
     trivialProof,
     ) where
 
-import Prelude ()
 import Futurice.Prelude
+import Prelude ()
 
-import Data.GADT.Compare  (GEq (..))
+import Data.GADT.Compare  (GCompare (..), GEq (..), GOrdering (..))
 import Data.Type.Equality
 import Unsafe.Coerce      (unsafeCoerce)
 
 import qualified Data.Typeable as GHC
 
 -- | Tagged type representation.
-newtype TypeRep a = TypeRep GHC.TypeRep
+newtype TypeRep (a :: ki) = TypeRep GHC.TypeRep
   deriving (Show)
 
 instance GEq TypeRep where geq = eqTypeRep
+instance GCompare TypeRep where gcompare = cmpTypeRep
 
 -- | Returns a concrete representation of the type.
 --
@@ -45,6 +48,12 @@ eqTypeRep :: TypeRep a -> TypeRep b -> Maybe (a :~: b)
 eqTypeRep (TypeRep a) (TypeRep b)
     | a == b    = Just (unsafeCoerce trivialProof)
     | otherwise = Nothing
+
+cmpTypeRep :: TypeRep a -> TypeRep b -> GOrdering a b
+cmpTypeRep (TypeRep a) (TypeRep b) = case compare a b of
+    EQ -> unsafeCoerce (GEQ :: GOrdering () ())
+    LT -> GLT
+    GT -> GGT
 
 -- | The type-safe cast operation
 --
