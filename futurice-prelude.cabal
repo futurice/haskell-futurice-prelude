@@ -173,6 +173,7 @@ test-suite tests
   hs-source-dirs:
       test
   default-extensions: DeriveDataTypeable DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable ScopedTypeVariables
+  x-doctest-options: --fast
   ghc-options: -Wall
   build-depends:
       base

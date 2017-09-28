@@ -27,13 +27,14 @@ module Futurice.Prelude.Internal (
     Pair,
     Proxy(..),
     Scientific,
-    TimeSpec(..),
     Set,
     StrictPair,
-    TZ,
     Tagged (..), untag,
     Text,
     These (..),
+    TimeOfDay (..),
+    TimeSpec(..),
+    TZ,
     UTCTime (..),
     UUID,
     Vector,
@@ -290,7 +291,8 @@ import Data.Text                   (Text)
 import Data.Text.Lens              (packed, unpacked)
 import Data.These                  (These (..))
 import Data.Time
-       (Day (..), LocalTime (..), NominalDiffTime, UTCTime (..))
+       (Day (..), LocalTime (..), NominalDiffTime, TimeOfDay (..),
+       UTCTime (..))
 import Data.Time.TH                (mkDay, mkUTCTime)
 import Data.Time.Zones             (TZ)
 import Data.Traversable            (for)
