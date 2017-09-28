@@ -32,6 +32,7 @@ module Futurice.Prelude (
     lastDayOfMonth,
     formatHumanHelsinkiTime,
     utcToHelsinkiTime,
+    helsinkiTimeToUtc,
     helsinkiTz,
     -- * Vector
     introsort,
@@ -68,7 +69,8 @@ import Control.Monad.Trans.Control
        (ComposeSt, RunDefault, defaultLiftBaseWith, defaultLiftWith,
        defaultRestoreM, defaultRestoreT)
 import Data.Time                   (defaultTimeLocale, formatTime, timeZoneName)
-import Data.Time.Zones             (timeZoneForUTCTime, utcToLocalTimeTZ)
+import Data.Time.Zones
+       (localTimeToUTCTZ, timeZoneForUTCTime, utcToLocalTimeTZ)
 import Data.Time.Zones.TH          (includeTZFromDB)
 import Futurice.Control
 import Futurice.Time.Month
@@ -223,6 +225,17 @@ currentMonth = dayToMonth <$> currentDay
 --
 utcToHelsinkiTime :: UTCTime -> LocalTime
 utcToHelsinkiTime = utcToLocalTimeTZ helsinkiTz
+
+-- | Convert local time in helsinki to UTC
+--
+-- >>> helsinkiTimeToUtc $ utcToHelsinkiTime $(mkUTCTime "2017-02-03T12:00:00.123456Z")
+-- 2017-02-03 12:00:00.123456 UTC
+--
+-- >>> helsinkiTimeToUtc (LocalTime $(mkDay "2017-02-03") (TimeOfDay 2 30 0))
+-- 2017-02-03 00:30:00 UTC
+--
+helsinkiTimeToUtc :: LocalTime -> UTCTime
+helsinkiTimeToUtc = localTimeToUTCTZ helsinkiTz
 
 -- | @Europe/Helsinki@ timezone.
 helsinkiTz :: TZ
