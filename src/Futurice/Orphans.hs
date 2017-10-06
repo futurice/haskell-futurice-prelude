@@ -45,8 +45,8 @@ import Data.Aeson.Compat
        (.:), (.=))
 import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
-       ToJSONKey (..), coerceFromJSONKeyFunction, contramapToJSONKeyFunction,
-       parseJSON1, toEncoding1, toJSON1)
+       ToJSONKey (..), ToJSONKeyFunction, coerceFromJSONKeyFunction,
+       contramapToJSONKeyFunction, parseJSON1, toEncoding1, toJSON1)
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
 import Data.Fixed                 (Fixed (..), HasResolution)
@@ -347,6 +347,9 @@ instance NFData a => NFData (HTTP.Response a) where
 -------------------------------------------------------------------------------
 -- aeson
 -------------------------------------------------------------------------------
+
+instance Contravariant ToJSONKeyFunction where
+    contramap = contramapToJSONKeyFunction
 
 -- TODO: ToJSON1 ?
 instance ToJSON a => ToJSON (NonEmpty.Interval a) where
