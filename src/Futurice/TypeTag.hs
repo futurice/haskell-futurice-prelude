@@ -2,6 +2,8 @@
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE GADTs                #-}
+{-# LANGUAGE KindSignatures       #-}
+{-# LANGUAGE PolyKinds            #-}
 {-# LANGUAGE RankNTypes           #-}
 {-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE StandaloneDeriving   #-}
@@ -57,7 +59,7 @@ showsPrecIs d Refl = showParen (d > 10)
 -------------------------------------------------------------------------------
 
 -- | Type tag. A closed alternative to 'Typeable'.
-newtype TT xs a = TT { unTT :: NS (Is a) xs }
+newtype TT (xs :: [k]) (a :: k) = TT { unTT :: NS (Is a) xs }
 
 instance All Typeable xs => Show (TT xs a) where
     showsPrec d (TT t) = showParen (d > 10)
@@ -150,7 +152,7 @@ instance Hashable (SomeTT xs) where
     hashWithSalt salt stt = hashWithSalt salt (someTTToInt stt)
 
 instance SListI xs => Binary (SomeTT xs) where
-    put = put . someTTToInt    
+    put = put . someTTToInt
     get = do
         i <- get
         case someTTFromInt i of
@@ -204,7 +206,7 @@ someTTToText (SomeTT (TT xs)) =
 someTTToInt :: SomeTT xs -> Int
 someTTToInt (SomeTT (TT ns)) = hindex ns
 
--- | 
+-- |
 --
 -- >>> someTTFromInt 2 :: Maybe (SomeTT '[Char, Int, Bool])
 -- Just (SomeTT (TT (S (S (Z (Refl @Bool))))))
