@@ -81,7 +81,7 @@ library
     , lens                  >=4.15     && <4.16
     , lifted-base           >=0.2.3.0  && <0.3
     , log-base              >=0.7.2.0  && <0.8
-    , lucid                 >=2.9.7    && <2.10
+    , lucid                 >=2.9.9    && <2.10
     , mmorph                >=1.0.6    && <1.2
     , monad-control         >=1.0.1.0  && <1.1
     , monad-time            >=0.2      && <0.3
