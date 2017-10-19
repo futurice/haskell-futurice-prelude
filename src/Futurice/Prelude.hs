@@ -68,6 +68,7 @@ import Control.Lens                (Optic', ifoldMapOf, (<.>), _Wrapped)
 import Control.Monad.Trans.Control
        (ComposeSt, RunDefault, defaultLiftBaseWith, defaultLiftWith,
        defaultRestoreM, defaultRestoreT)
+import Control.Monad.Writer.CPS    (Writer, execWriter)
 import Data.Time                   (defaultTimeLocale, formatTime, timeZoneName)
 import Data.Time.Zones
        (localTimeToUTCTZ, timeZoneForUTCTime, utcToLocalTimeTZ)
@@ -79,24 +80,26 @@ import Log
 import Log.Internal.Logger         (withLogger)
 import System.IO                   (hFlush, stderr)
 
-import qualified Data.Aeson.Compat                       as Aeson
-import qualified Data.Aeson.Types                        as Aeson
-import qualified Data.ByteString.Lazy                    as LBS
-import qualified Data.CaseInsensitive                    as CI
-import qualified Data.Map                                as Map
-import qualified Data.Text                               as T
-import qualified Data.Text.Encoding                      as TE
-import qualified Data.Text.Encoding.Error                as TE
-import qualified Data.Text.IO                            as T
-import qualified Data.Text.Normalize                     as TN
-import qualified Data.Vector                             as V
-import qualified Data.Vector.Algorithms.Intro            as Intro
-import qualified Debug.Trace                             as DT
-import qualified Language.Haskell.TH.Syntax              as TH
-import qualified Network.HTTP.Client                     as H
-import qualified Network.HTTP.Types                      as H
-import qualified System.Console.ANSI                     as ANSI
-import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
+import qualified Data.Aeson.Compat            as Aeson
+import qualified Data.Aeson.Types             as Aeson
+import qualified Data.ByteString.Lazy         as LBS
+import qualified Data.CaseInsensitive         as CI
+import qualified Data.HashMap.Strict          as HM
+import qualified Data.Map                     as Map
+import qualified Data.Text                    as T
+import qualified Data.Text.Encoding           as TE
+import qualified Data.Text.Encoding.Error     as TE
+import qualified Data.Text.IO                 as T
+import qualified Data.Text.Lazy.Builder       as TB
+import qualified Data.Text.Normalize          as TN
+import qualified Data.Vector                  as V
+import qualified Data.Vector.Algorithms.Intro as Intro
+import qualified Debug.Trace                  as DT
+import qualified Language.Haskell.TH.Syntax   as TH
+import qualified Network.HTTP.Client          as H
+import qualified Network.HTTP.Types           as H
+import qualified System.Console.ANSI          as ANSI
+import qualified Text.PrettyPrint.Compact     as PC
 
 import Futurice.Orphans ()
 
@@ -284,34 +287,97 @@ mkStderrLogger = mkBulkLogger "ansi-stderr" (traverse_ log') (hFlush stderr)
   where
     log' lm@LogMessage { lmMessage = msg, lmData = data_ } = do
         -- Split multiline log messages, e.g. exception dumps
-        for_ (T.lines msg) $ \l -> prefix lm >> T.putStrLn l
+        let pfx = prefix lm
+        for_ (T.lines msg) $ \l -> do
+            T.hPutStr stderr pfx
+            T.hPutStrLn stderr l
 
+        -- JSON value
         when (data_ /= Aeson.emptyObject && data_ /= Aeson.Null) $ do
-            let doc = AnsiPretty.nest 4 $ AnsiPretty.ansiPretty data_
-            AnsiPretty.putDoc doc
-            T.putStrLn ""
+            let doc = prettiestJSON data_
+            T.hPutStrLn stderr $ view strict $ TB.toLazyText $
+                PC.renderWith pcOpts doc
 
-    prefix LogMessage {..} = do
+        -- flush at the end
+        hFlush stderr
+
+    prefix :: LogMessage -> Text
+    prefix LogMessage {..} = view strict $ TB.toLazyText $ execWriter $ do
         time lmTime
-        T.putStr " "
+        tell $ TB.singleton ' '
         level lmLevel
-        T.putStr " "
-        withColour ANSI.Magenta $ T.putStr $ T.justifyLeft 25 ' ' $
-            T.intercalate "/" $ lmComponent : lmDomain
-        T.putStr " "
+        tell $ TB.singleton ' '
+        component
+        tell $ TB.singleton ' '
+      where
+        component = withColour ANSI.Magenta $ tell $
+            TB.fromText $ T.justifyLeft 25 ' ' $
+                T.intercalate "/" $ lmComponent : lmDomain
 
-    level LogAttention = withColour ANSI.Red   (T.putStr "ERR")
-    level LogInfo      = withColour ANSI.Green (T.putStr "INF")
-    level LogTrace     = withColour ANSI.Cyan  (T.putStr "TRC")
+    level :: LogLevel -> WB ()
+    level LogAttention = withColour ANSI.Red   $ tell "ERR"
+    level LogInfo      = withColour ANSI.Green $ tell "INF"
+    level LogTrace     = withColour ANSI.Cyan  $ tell "TRC"
 
+    time :: UTCTime -> WB ()
     time t = withColour ANSI.Blue $
-        putStr $ formatTime defaultTimeLocale "%F %T" t
+        tell $  TB.fromString $ formatTime defaultTimeLocale "%F %T" t
 
-    withColour :: ANSI.Color -> IO () -> IO ()
+    withColour :: ANSI.Color -> WB () -> WB ()
     withColour c m = do
-        ANSI.setSGR [ANSI.SetColor ANSI.Foreground ANSI.Vivid c]
+        tell $ TB.fromString $ ANSI.setSGRCode [ANSI.SetColor ANSI.Foreground ANSI.Vivid c]
         m
-        ANSI.setSGR [ANSI.Reset]
+        tell $ TB.fromString $ ANSI.setSGRCode []
+
+    pcOpts :: PC.Options [ANSI.SGR] TB.Builder
+    pcOpts = PC.defaultOptions
+        { PC.optsAnnotate = \sgr s -> TB.fromString $
+            ANSI.setSGRCode sgr ++ s ++ ANSI.setSGRCode []
+        , PC.optsPageWidth = 120
+        }
+
+type WB = Writer TB.Builder
+
+-- |
+--
+-- >>> putStrLn $ PC.render $ prettiestJSON $ Aeson.Bool True
+-- true
+--
+-- >>> let render = PC.renderWith PC.defaultOptions { PC.optsPageWidth = 20 }
+-- >>> putStrLn $ render $ prettiestJSON $ Aeson.Array $ V.replicate 4 "foobar"
+-- ["foobar"
+-- ,"foobar"
+-- ,"foobar"
+-- ,"foobar"]
+--
+prettiestJSON :: Value -> PC.Doc [ANSI.SGR]
+prettiestJSON = go where
+    go (Aeson.Bool True)  = dullyellow $ PC.text "true"
+    go (Aeson.Bool False) = dullyellow $ PC.text "false"
+    go (Aeson.Object o)   =
+          PC.encloseSep (dullgreen PC.lbrace) (dullgreen PC.rbrace) (dullgreen PC.comma) $
+              map prettyKV $ HM.toList o
+    go (Aeson.String s)   = PC.string (show s)
+    go (Aeson.Array a)    =
+        PC.encloseSep (dullgreen PC.lbracket) (dullgreen PC.rbracket) (dullgreen PC.comma) $
+            map go $ toList a
+    go Aeson.Null         = cyan (PC.text "null")
+    go (Aeson.Number n)   = PC.text (show n)
+
+    prettyKV (k,v)        = dullwhite (PC.text (show k)) PC.<> blue PC.colon PC.<+> go v
+
+    blue       = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Vivid ANSI.Blue]
+    cyan       = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Vivid ANSI.Cyan]
+    dullgreen  = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Dull ANSI.Green]
+    dullwhite  = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Dull ANSI.White]
+    dullyellow = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Dull ANSI.Yellow]
+
+{-
+    vectorOfText :: Vector Value -> Maybe (Vector Text)
+    vectorOfText = traverse $ \x -> case x of
+        Aeson.String s | T.length s < 10 -> Just s
+        _                                -> Nothing
+-}
 
 -- | We often need logger in small scripts:
 --
