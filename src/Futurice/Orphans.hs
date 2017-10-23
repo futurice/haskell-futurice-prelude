@@ -398,6 +398,9 @@ instance GHNameToHtml e => ToHtml (GH.Name e) where
     toHtml    = ghNameToHtml
     toHtmlRaw = ghNameToHtml
 
+instance ToSchema (HtmlT m a) where
+    declareNamedSchema _ = pure $ NamedSchema (Just $ "some html") mempty
+
 -------------------------------------------------------------------------------
 -- aeson + generics-sop
 -------------------------------------------------------------------------------
