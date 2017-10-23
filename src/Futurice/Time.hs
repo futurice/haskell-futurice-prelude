@@ -8,6 +8,7 @@
 -- | Influenced by <http://hackage.haskell.org/package/time-units-1.0.0/docs/Data-Time-Units.html>.
 module Futurice.Time (
     NDT (..),
+    unNDT,
     TimeUnit (..),
     IsTimeUnit (..),
     ndtDivide,
@@ -86,6 +87,9 @@ instance IsTimeUnit 'Fortnights where
 -- | Nominal diff time with unit
 newtype NDT (tu :: TimeUnit) a = NDT a
   deriving (Eq, Ord, Show, Read, Functor, Foldable, Traversable, Generic)
+
+unNDT :: NDT tu a -> a
+unNDT (NDT x) = x
 
 instance Applicative (NDT tu) where
     pure = NDT
