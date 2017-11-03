@@ -370,14 +370,21 @@ instance ToJSON Wai.Request where
         ]
       where
         headers
-            = map (bimap (CI.map decodeUtf8Lenient) decodeUtf8Lenient)
+            = Map.fromList
+            $ map (bimap (CI.map decodeUtf8Lenient) decodeUtf8Lenient)
             -- we filter headers
-            . filter (flip elem ["Accept", "Content-Type"] . fst)
+            . filter (goodHeader  . fst)
             $ Wai.requestHeaders r
+
+        goodHeader h = elem h ["Accept", "Content-Type", "remote-user"]
 
 instance ToJSON a => ToJSON (CI.CI a) where
     toJSON     = toJSON . CI.foldedCase
     toEncoding = toEncoding . CI.foldedCase
+
+instance ToJSONKey a => ToJSONKey (CI.CI a) where
+    toJSONKey = contramapToJSONKeyFunction CI.foldedCase toJSONKey
+    toJSONKeyList = contramapToJSONKeyFunction (map CI.foldedCase) toJSONKeyList
 
 instance ToJSON Clock.TimeSpec
 instance FromJSON Clock.TimeSpec

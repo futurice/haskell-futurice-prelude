@@ -74,13 +74,13 @@ library
     , http-api-data         >=0.3.1    && <0.4
     , http-client           >=0.5.4    && <0.6
     , http-client-tls       >=0.3.3    && <0.4
-    , http-types            >=0.9.1    && <0.10
+    , http-types            >=0.10     && <0.11
     , intervals             >=0.8      && <0.9
     , JuicyPixels           >=3.2.8    && <3.3
     , keys                  >=3.11     && <3.12
     , lens                  >=4.15     && <4.16
     , lifted-base           >=0.2.3.0  && <0.3
-    , log-base              >=0.7.2.0  && <0.8
+    , log-base              >=0.7.4.0  && <0.8
     , lucid                 >=2.9.9    && <2.10
     , mmorph                >=1.0.6    && <1.2
     , monad-control         >=1.0.1.0  && <1.1
@@ -104,7 +104,7 @@ library
     , semigroups
     , servant-server        >=0.11     && <0.12
     , strict-base-types     >=0.5.0    && <0.6
-    , swagger2              >=2.1.6    && <2.2
+    , swagger2              >=2.2      && <2.3
     , tagged                >=0.8.4    && <0.9
     , template-haskell
     , text
