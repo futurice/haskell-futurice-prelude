@@ -76,7 +76,7 @@ import Data.Time.Zones.TH          (includeTZFromDB)
 import Futurice.Control
 import Futurice.Time.Month
 import Log
-       (LogLevel (..), LogMessage (..), localData, localDomain, mkBulkLogger)
+       (LogLevel (..), LogMessage (..), localData, localDomain, mkBulkLogger')
 import Log.Internal.Logger         (withLogger)
 import System.IO                   (hFlush, stderr)
 
@@ -282,8 +282,14 @@ showsTernaryWith sp1 sp2 sp3 name d x y z = showParen (d > 10)
 -- Logger
 -------------------------------------------------------------------------------
 
+-- | Create a @stderr@ bulk logger, which queue has at most 1000 messages
+-- and pruned every 100ms. We should really log that much, ever.
+--
+-- Yet the limits are quite low to prevent non-drained @stderr@ to cause
+-- space leak in the "to-be-logged" queue of log-messages.
+--
 mkStderrLogger :: IO Logger
-mkStderrLogger = mkBulkLogger "ansi-stderr" (traverse_ log') (hFlush stderr)
+mkStderrLogger = mkBulkLogger' 1000 100000 "ansi-stderr" (traverse_ log') (hFlush stderr)
   where
     log' lm@LogMessage { lmMessage = msg, lmData = data_ } = do
         -- Split multiline log messages, e.g. exception dumps
