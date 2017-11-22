@@ -31,7 +31,7 @@ import Control.Lens      (Lens', Prism', lens, set, view)
 import Generics.SOP      (I (..), NP (..), NS (..))
 import Generics.SOP.Lens (headLens, tailLens, uni, _S, _Z)
 
-import Futurice.Peano
+import qualified Futurice.Peano as N
 
 -- | Poor man 'Has' type-class. Useful with reader and state monads.
 --
@@ -60,20 +60,20 @@ instance Has (I x) x where
 -------------------------------------------------------------------------------
 
 -- | The dictionary-less version of 'IsElem'.
-class i ~ Index a xs => IsElem' a xs i
-instance IsElem' x (x ': xs) 'PZ
-instance ('PS i ~ Index x (y ': ys), IsElem' x ys i) => IsElem' x (y ': ys) ('PS i)
+class i ~ N.Index a xs => IsElem' a xs i
+instance IsElem' x (x ': xs) 'N.Z
+instance ('N.S i ~ N.Index x (y ': ys), IsElem' x ys i) => IsElem' x (y ': ys) ('N.S i)
 
 -- | Class to look into products and sums thru lenses and prisms.
 class IsElem' a xs i => IsElem a xs i where
     proj :: forall f. Lens'  (NP f xs) (f a)
     inj  :: forall f. Prism' (NS f xs) (f a)
 
-instance IsElem x (x ': xs) 'PZ where
+instance IsElem x (x ': xs) 'N.Z where
     proj = headLens
     inj  = _Z
 
-instance ('PS i ~ Index x (y ': ys), IsElem x ys i) => IsElem x (y ': ys) ('PS i) where
+instance ('N.S i ~ N.Index x (y ': ys), IsElem x ys i) => IsElem x (y ': ys) ('N.S i) where
     proj = tailLens . proj
     inj  = _S . inj
 
@@ -82,7 +82,7 @@ instance ('PS i ~ Index x (y ': ys), IsElem x ys i) => IsElem x (y ': ys) ('PS i
 -------------------------------------------------------------------------------
 
 -- | The dictionary-less version of 'IsSubset'.
-class (is ~ Image xs ys) => IsSubset' xs ys is
+class (is ~ N.Image xs ys) => IsSubset' xs ys is
 instance IsSubset' '[] ys '[]
 instance (IsElem' x ys i, IsSubset' xs ys is) => IsSubset' (x ': xs) ys (i ': is)
 
@@ -106,10 +106,10 @@ instance (IsElem x ys i, IsSubset xs ys is) => IsSubset (x ': xs) ys (i ': is) w
 -- Aliases
 -------------------------------------------------------------------------------
 
-type In     x  ys = IsElem    x  ys (Index x  ys)
-type In'    x  ys = IsElem'   x  ys (Index x  ys)
-type AllIn  xs ys = IsSubset  xs ys (Image xs ys)
-type AllIn' xs ys = IsSubset' xs ys (Image xs ys)
+type In     x  ys = IsElem    x  ys (N.Index x  ys)
+type In'    x  ys = IsElem'   x  ys (N.Index x  ys)
+type AllIn  xs ys = IsSubset  xs ys (N.Image xs ys)
+type AllIn' xs ys = IsSubset' xs ys (N.Image xs ys)
 
 -------------------------------------------------------------------------------
 -- Flipped instances

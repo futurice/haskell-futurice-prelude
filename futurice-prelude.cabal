@@ -64,6 +64,7 @@ library
     , exceptions            >=0.8.3    && <0.9
     , extra                 >=1.6      && <1.7
     , fail
+    , fin                   >=0        && <0.1
     , file-embed            ==0.0.10.1
     , generics-sop          >=0.3.1.0  && <0.4
     , generics-sop-lens     >=0.1.1.0  && <0.2
