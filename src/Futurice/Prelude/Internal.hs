@@ -236,6 +236,7 @@ import Control.Monad.Compat
        (MonadPlus (..), foldM, forever, guard, join, unless, void, when)
 import Control.Monad.Except
        (ExceptT (..), MonadError (..), runExceptT, withExceptT)
+import Control.Monad.Extra         (unlessM, whenM)
 import Control.Monad.Fix           (MonadFix (..))
 import Control.Monad.IO.Class      (MonadIO (..))
 import Control.Monad.Morph         (hoist)
@@ -271,6 +272,7 @@ import Data.IntMap.Strict          (IntMap)
 import Data.IntSet                 (IntSet)
 import Data.Key                    (Zip (..), ZipWithKey (..))
 import Data.List.Compat            (nub, sort, sortBy, sortOn)
+import Data.List.Extra             (chunksOf)
 import Data.List.NonEmpty          (NonEmpty (..))
 import Data.Map.Lens               (toMapOf)
 import Data.Map.Strict             (Map)
@@ -300,7 +302,6 @@ import Data.Typeable               (Typeable)
 import Data.UUID                   (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
-import Extra                       (chunksOf, unlessM, whenM)
 import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)

@@ -2,9 +2,7 @@
 {-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE UndecidableInstances       #-}
 -- |
@@ -14,7 +12,9 @@
 module Futurice.CryptoRandom (
     -- * Generation
     MonadCRandom(..),
+    MonadCRandomR(..),
     CRandom (..),
+    CRandomR (..),
     -- * Evaluation
     CryptoGen,
     mkCryptoGen,
@@ -30,12 +30,12 @@ module Futurice.CryptoRandom (
     runCRandT,
     ) where
 
-import Prelude ()
-import Futurice.Prelude
 import Control.Monad.CryptoRandom
-       (CRandT, CRandom (..), ContainsGenError, GenError,
-       MonadCRandom (..), evalCRandT, newGenIO, runCRandT)
-import Crypto.Random.DRBG             (HashDRBG)
+       (CRandT, CRandom (..), CRandomR (..), ContainsGenError, GenError,
+       MonadCRandom (..), MonadCRandomR (..), evalCRandT, newGenIO, runCRandT)
+import Crypto.Random.DRBG         (HashDRBG)
+import Futurice.Prelude
+import Prelude ()
 
 type CryptoGen = HashDRBG
 type CryptoGenError = GenError

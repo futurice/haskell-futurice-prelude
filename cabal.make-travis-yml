@@ -1,0 +1,5 @@
+branches: master
+
+doctest: True
+doctest-options: --fast
+doctest-version: >=0.13
