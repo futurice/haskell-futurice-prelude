@@ -390,7 +390,7 @@ fieldInfos _ = datatypeInfo (Proxy :: Proxy a) ^.
 --
 -- >>> data Foo = Foo { fooCount :: Int, fooName :: Text }; deriveGeneric ''Foo
 -- >>> strippedFieldNamesS (Proxy :: Proxy Foo)
--- K "count" :* (K "name" :* Nil)
+-- K "count" :* K "name" :* Nil
 --
 strippedFieldNames
     :: forall a proxy xs s. (IsProductType a xs, HasDatatypeInfo a, IsString s)

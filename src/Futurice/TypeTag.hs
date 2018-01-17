@@ -98,7 +98,7 @@ showsPrecNS p f d (S xs) = showParen (d > 10)
 -- | List of 'TT's.
 --
 -- >>> typeTags :: NP (TT '[Int, String]) '[Int, String]
--- TT (Z (Refl @Int)) :* (TT (S (Z (Refl @[Char]))) :* Nil)
+-- TT (Z (Refl @Int)) :* TT (S (Z (Refl @[Char]))) :* Nil
 --
 typeTags :: forall xs. SListI xs => NP (TT xs) xs
 typeTags = case sList :: SList xs of
