@@ -51,7 +51,7 @@ library
     , cassava               >=0.5.1.0  && <0.5.2.0
     , clock                 >=0.7.2    && <0.8
     , composition-extra     >=2.0.0    && <2.1
-    , constraints           >=0.8      && <0.10
+    , constraints           ^>=0.10
     , containers
     , contravariant         >=1.4      && <1.5
     , deepseq               >=1.4.1.1  && <1.5
@@ -71,11 +71,11 @@ library
     , http-api-data         >=0.3.1    && <0.4
     , http-client           >=0.5.4    && <0.6
     , http-client-tls       >=0.3.3    && <0.4
-    , http-types            ^>=0.11
+    , http-types            ^>=0.12
     , intervals             >=0.8      && <0.9
     , JuicyPixels           >=3.2.8    && <3.3
-    , keys                  >=3.11     && <3.12
-    , lens                  >=4.15     && <4.16
+    , keys                  ^>=3.12
+    , lens                  ^>=4.16
     , lifted-base           >=0.2.3.0  && <0.3
     , log-base              >=0.7.4.0  && <0.8
     , lucid                 >=2.9.9    && <2.10
@@ -100,7 +100,7 @@ library
     , semigroupoids         >=5.0.1    && <5.3
     , semigroups
     , servant-server        >=0.12     && <0.13
-    , strict-base-types     >=0.5.0    && <0.6
+    , strict-base-types     ^>=0.6.0
     , swagger2              >=2.2      && <2.3
     , tagged                >=0.8.4    && <0.9
     , template-haskell
