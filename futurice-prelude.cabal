@@ -38,7 +38,7 @@ library
     , ansi-terminal         ^>=0.8
     , ansi-wl-pprint        >=0.6.7.3  && <0.7
     , array                 >=0.5.1.0  && <0.6
-    , async                 >=2.1.0    && <2.2
+    , async                 ^>=2.2.1
     , attoparsec            >=0.13.1.0 && <0.14
     , base-compat           >=0.9.1    && <0.9.4
     , base-orphans          ==0.6
@@ -99,7 +99,7 @@ library
     , scientific            >=0.3.4.9  && <0.4
     , semigroupoids         >=5.0.1    && <5.3
     , semigroups
-    , servant-server        >=0.12     && <0.13
+    , servant-server        ^>=0.13
     , strict-base-types     ^>=0.6.0
     , swagger2              >=2.2      && <2.3
     , tagged                >=0.8.4    && <0.9
