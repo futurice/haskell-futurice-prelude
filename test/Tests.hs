@@ -5,10 +5,11 @@
 {-# LANGUAGE TypeOperators     #-}
 module Main (main) where
 
-import Control.Applicative (liftA2)
+import Control.Applicative   (liftA2)
 import Data.Type.Equality
 import Futurice.Generics
-import Futurice.Monoid     (Average (..))
+import Futurice.Generics.SOP
+import Futurice.Monoid       (Average (..))
 import Futurice.Prelude
 import Futurice.Time
 import Prelude ()
