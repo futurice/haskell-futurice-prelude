@@ -135,6 +135,7 @@ library
       Futurice.Constraint.Unit1
       Futurice.Control
       Futurice.CryptoRandom
+      Futurice.Exit
       Futurice.Generics
       Futurice.Generics.Enum
       Futurice.Generics.Newtype
