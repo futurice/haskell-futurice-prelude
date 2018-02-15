@@ -1,7 +1,7 @@
 packages: .
 
 package futurice-prelude
-    ghc-options: -Wall -Werror -Wno-missing-home-modules
+    ghc-options: -Wall -Werror
 
 allow-newer:
   servant:http-types,
