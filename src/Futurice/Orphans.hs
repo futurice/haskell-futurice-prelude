@@ -542,6 +542,8 @@ instance Binary a => Binary (GH.Request k a) where
         put (1 :: Int) >> put sm >> put r
     put (GH.HeaderQuery hs r) =
         put (2 :: Int) >> put hs >> put r
+    put (GH.RedirectQuery r) =
+        put (3 :: Int) >> put r
 
 instance Binary (GH.SimpleRequest k a) where
     get = undefined
@@ -565,6 +567,8 @@ instance Binary (GH.CommandMethod a) where
 -------------------------------------------------------------------------------
 
 instance HasStructuralInfo GH.Event
+instance HasStructuralInfo GH.Invitation
+instance HasStructuralInfo GH.InvitationRole
 instance HasStructuralInfo GH.Issue
 instance HasStructuralInfo GH.IssueLabel
 instance HasStructuralInfo GH.IssueState
@@ -590,7 +594,10 @@ instance HasStructuralInfo (GH.Id a)
 instance HasStructuralInfo GH.URL
 
 instance HasSemanticVersion GH.Event
+instance HasSemanticVersion GH.Invitation
+instance HasSemanticVersion GH.InvitationRole
 instance HasSemanticVersion GH.Issue
+instance HasSemanticVersion GH.IssueLabel
 instance HasSemanticVersion GH.IssueState
 instance HasSemanticVersion GH.Language
 instance HasSemanticVersion GH.Milestone
@@ -606,9 +613,8 @@ instance HasSemanticVersion GH.SimpleOrganization
 instance HasSemanticVersion GH.SimpleOwner
 instance HasSemanticVersion GH.SimpleTeam
 instance HasSemanticVersion GH.SimpleUser
-instance HasSemanticVersion GH.User
-instance HasSemanticVersion GH.IssueLabel
 instance HasSemanticVersion GH.Team
+instance HasSemanticVersion GH.User
 
 instance HasSemanticVersion (GH.Name a)
 instance HasSemanticVersion (GH.Id a)

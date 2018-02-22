@@ -2,8 +2,3 @@ packages: .
 
 package futurice-prelude
     ghc-options: -Wall -Werror
-
-allow-newer:
-  servant:http-types,
-  servant-server:http-types,
-  keys:base-orphans
