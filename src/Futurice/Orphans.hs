@@ -376,7 +376,8 @@ instance ToJSON Wai.Request where
             . filter (goodHeader  . fst)
             $ Wai.requestHeaders r
 
-        goodHeader h = elem h ["Accept", "Content-Type", "remote-user"]
+        goodHeader h = notElem h ["authorization","cookie"]
+        -- elem h ["Accept", "Content-Type", "remote-user"]
 
 instance ToJSON a => ToJSON (CI.CI a) where
     toJSON     = toJSON . CI.foldedCase
