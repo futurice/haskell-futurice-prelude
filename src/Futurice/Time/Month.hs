@@ -6,20 +6,24 @@ module Futurice.Time.Month (
     Month (..),
     -- * Functions
     dayToMonth,
+    monthInterval,
     firstDayOfMonth,
     lastDayOfMonth,
     ) where
 
-import Prelude ()
 import Futurice.Prelude.Internal
+import Prelude ()
 
 import Data.Aeson
        (FromJSON (..), FromJSONKey (..), ToJSON (..), ToJSONKey (..), withText)
-import Data.Aeson.Types (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
-import Data.Swagger     (ToParamSchema (..), ToSchema (..))
-import Data.Time        (fromGregorian, gregorianMonthLength, toGregorian)
-import Test.QuickCheck  (Arbitrary (..), arbitraryBoundedEnum)
-import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
+import Data.Aeson.Types
+       (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
+import Data.Swagger              (ToParamSchema (..), ToSchema (..))
+import Data.Time
+       (fromGregorian, gregorianMonthLength, toGregorian)
+import Numeric.Interval.NonEmpty (Interval, (...))
+import Test.QuickCheck           (Arbitrary (..), arbitraryBoundedEnum)
+import Web.HttpApiData           (FromHttpApiData (..), ToHttpApiData (..))
 
 import qualified Data.Aeson.Encoding  as Aeson.Encoding
 import qualified Data.Attoparsec.Text as AT
@@ -194,6 +198,13 @@ lastDayOfMonth :: Month -> Day
 lastDayOfMonth (Month y m) = fromGregorian y m' (gregorianMonthLength y m')
   where
     m' = fromEnum m
+
+-- | Day interval of month
+--
+-- >>> monthInterval $ Month 2017 February
+-- 2017-02-01 ... 2017-02-28
+monthInterval :: Month -> Interval Day
+monthInterval m = firstDayOfMonth m ... lastDayOfMonth m
 
 -------------------------------------------------------------------------------
 -- Internals

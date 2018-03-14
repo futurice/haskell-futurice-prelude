@@ -14,6 +14,14 @@
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
 {-# LANGUAGE UndecidableInstances  #-}
+#if __GLASGOW_HASKELL__ >= 800
+-- a) THQ works on cross-compilers and unregisterised GHCs
+-- b) may make compilation faster as no dynamic loading is ever needed (not sure about this)
+-- c) removes one hindrance to have code inferred as SafeHaskell safe
+{-# LANGUAGE TemplateHaskellQuotes #-}
+#else
+{-# LANGUAGE TemplateHaskell       #-}
+#endif
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -- | This module defines some orphan instances for types and classes from
 -- packages "Futurice.Prelude" depends upon.
@@ -81,6 +89,7 @@ import qualified Generics.SOP                         as SOP
 import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
+import qualified Language.Haskell.TH.Syntax           as TH
 import qualified Network.HTTP.Client                  as HTTP
 import qualified Network.HTTP.Types.Status            as HTTP
 import qualified Network.Wai                          as Wai
@@ -525,6 +534,13 @@ instance CRandom UUID.UUID where
 instance Random (Fixed a) where
     random g = first MkFixed $ random g
     randomR (MkFixed a, MkFixed b) g = first MkFixed $ randomR (a, b) g
+
+-------------------------------------------------------------------------------
+-- template-haskell
+-------------------------------------------------------------------------------
+
+instance TH.Lift a => TH.Lift (NonEmpty a) where
+    lift (x :| xs) = [| x :| xs |]
 
 -------------------------------------------------------------------------------
 -- Binary
