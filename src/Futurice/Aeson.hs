@@ -3,6 +3,7 @@ module Futurice.Aeson (
     ParsedAsIntegral (..),
     withValueDump,
     withObjectDump,
+    withTextDump,
     FromJSONField1 (..),
     fromJSONField1,
     module Data.Aeson.Compat,
@@ -127,6 +128,9 @@ withValueDump n f v = modifyFailure modify (f v)
 withObjectDump :: String -> (Object -> Parser a) -> Value -> Parser a
 withObjectDump name f = withValueDump name $ withObject name f
 
+-- | A composition of 'withValueDump' with 'withText'.
+withTextDump :: String -> (Text -> Parser a) -> Value -> Parser a
+withTextDump name f = withValueDump name $ withText name f
 
 toplevel :: Value -> String -> String
 toplevel = go
