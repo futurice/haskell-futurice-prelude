@@ -2,3 +2,10 @@ packages: .
 
 package futurice-prelude
     ghc-options: -Wall -Werror
+
+allow-newer:
+  -- https://github.com/TomMD/monadcryptorandom/pull/12
+  monadcryptorandom:exceptions
+
+constraints:
+  unix-time >=0.3.8

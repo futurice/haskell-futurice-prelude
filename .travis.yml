@@ -66,7 +66,8 @@ install:
   - grep -Ev -- '^\s*--' ${HOME}/.cabal/config | grep -Ev '^\s*$'
   - if [ $HCNUMVER -ge 80000 ]; then cabal new-install -w ${HC} --symlink-bindir=$HOME/.local/bin doctest --constraint='doctest >=0.13'; fi
   - "printf 'packages: \".\"\\n' > cabal.project"
-  - "echo 'allow-newer: servant:http-types,servant-server:http-types,keys:base-orphans' >> cabal.project"
+  - "echo 'constraints: unix-time >=0.3.8' >> cabal.project"
+  - "echo 'allow-newer: monadcryptorandom:exceptions' >> cabal.project"
   - cat cabal.project
   - if [ -f "./configure.ac" ]; then
       (cd "." && autoreconf -i);
@@ -74,7 +75,7 @@ install:
   - rm -f cabal.project.freeze
   - cabal new-build -w ${HC} ${TEST} ${BENCH} --project-file="cabal.project" --dep -j2 all
   - cabal new-build -w ${HC} --disable-tests --disable-benchmarks --project-file="cabal.project" --dep -j2 all
-  - rm -rf "."/.ghc.environment.* "."/dist
+  - rm -rf .ghc.environment.* "."/dist
   - DISTDIR=$(mktemp -d /tmp/dist-test.XXXX)
 
 # Here starts the actual work to be performed for the package under test;
@@ -86,7 +87,8 @@ script:
   - cd ${DISTDIR} || false
   - find . -maxdepth 1 -name '*.tar.gz' -exec tar -xvf '{}' \;
   - "printf 'packages: futurice-prelude-*/*.cabal\\n' > cabal.project"
-  - "echo 'allow-newer: servant:http-types,servant-server:http-types,keys:base-orphans' >> cabal.project"
+  - "echo 'constraints: unix-time >=0.3.8' >> cabal.project"
+  - "echo 'allow-newer: monadcryptorandom:exceptions' >> cabal.project"
   - cat cabal.project
   # this builds all libraries and executables (without tests/benchmarks)
   - cabal new-build -w ${HC} --disable-tests --disable-benchmarks all

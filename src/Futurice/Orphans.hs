@@ -282,10 +282,6 @@ instance ToSchema1 NonEmpty.Interval where
 instance ToSchema a => ToSchema (NonEmpty.Interval a) where
     declareNamedSchema = declareNamedSchema1
 
--- | https://github.com/GetShopTV/swagger2/issues/93
-instance ToSchema a => ToSchema (NonEmpty a) where
-    declareNamedSchema _ = declareNamedSchema (Proxy :: Proxy [a])
-
 class ToSchema1 (f :: * -> *) where
     liftDeclareNamedSchema
         :: proxy f
