@@ -54,6 +54,7 @@ module Futurice.Prelude (
     type (:$),
     mcase,
     textShow,
+    textVal,
     swapMapMap,
     showsTernaryWith,
     WrappedResponse (..),
@@ -457,6 +458,14 @@ instance Aeson.ToJSON WrappedResponse where
         ]
       where
         headerToJSON (k, v) = (CI.map TE.decodeLatin1 k, TE.decodeLatin1 v)
+
+-------------------------------------------------------------------------------
+-- TypeLits
+-------------------------------------------------------------------------------
+
+-- | like 'symbolVal'  but returns strict 'Text'.
+textVal :: KnownSymbol a => Proxy a -> Text
+textVal p = symbolVal p ^. packed
 
 -------------------------------------------------------------------------------
 --

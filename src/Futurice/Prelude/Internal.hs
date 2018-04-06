@@ -141,6 +141,8 @@ module Futurice.Prelude.Internal (
     -- ** Indexed
     itoList,
     ifor, itraverse,
+    -- * Functor
+    (<&>),
     -- * Monad
     void, join, forever, foldM, guard, when, unless,
     -- * Function
@@ -149,6 +151,8 @@ module Futurice.Prelude.Internal (
     I (..), unI,
     K (..), unK,
     NP (..), NS (..),
+    -- * TypeLits
+    Symbol, KnownSymbol, symbolVal, sameSymbol,
     -- * http-client
     Manager, newManager,
     tlsManagerSettings,
@@ -201,6 +205,8 @@ module Futurice.Prelude.Internal (
     embedFile,
     embedStringFile,
     makeRelativeToProject,
+    -- * template-haskell
+    Lift,
     -- * Coercible
     Coercible, coerce,
     -- * Time
@@ -227,8 +233,8 @@ import Control.Lens
        LensLike', Prism, Prism', Traversal, Traversal', folded, from, ifoldMap,
        ifolded, ifor, ifor_, isn't, iso, itoList, itraverse, itraverse_, lazy,
        lens, makeLenses, makePrisms, makeWrapped, over, preview, prism, prism',
-       strict, view, (%=), (%~), (&), (.~), (?=), (?~), (^.), (^..), (^?), _1,
-       _2, _3, _Empty, _Just, _Left, _Nothing, _Right)
+       strict, view, (%=), (%~), (&), (.~), (<&>), (?=), (?~), (^.), (^..),
+       (^?), _1, _2, _3, _Empty, _Just, _Left, _Nothing, _Right)
 import Control.Monad.Base          (MonadBase (..))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
@@ -306,7 +312,8 @@ import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
 import GHC.Generics                (Generic)
-import Language.Haskell.TH.Lift    (deriveLift)
+import GHC.TypeLits                (KnownSymbol, Symbol, sameSymbol, symbolVal)
+import Language.Haskell.TH.Lift    (Lift, deriveLift)
 import Log
        (LogT, Logger, MonadLog, logAttention, logAttention_, logInfo, logInfo_,
        logTrace, logTrace_, runLogT)
