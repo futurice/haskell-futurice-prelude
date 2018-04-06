@@ -205,6 +205,9 @@ module Futurice.Prelude.Internal (
     embedFile,
     embedStringFile,
     makeRelativeToProject,
+    -- * file-embed-lzma
+    embedText,
+    embedByteString,
     -- * template-haskell
     Lift,
     -- * Coercible
@@ -308,6 +311,7 @@ import Data.Typeable               (Typeable)
 import Data.UUID                   (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
+import FileEmbedLzma               (embedByteString, embedText)
 import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
