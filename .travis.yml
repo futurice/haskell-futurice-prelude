@@ -67,7 +67,7 @@ install:
   - if [ $HCNUMVER -ge 80000 ]; then cabal new-install -w ${HC} --symlink-bindir=$HOME/.local/bin doctest --constraint='doctest >=0.13'; fi
   - "printf 'packages: \".\"\\n' > cabal.project"
   - "echo 'constraints: unix-time >=0.3.8' >> cabal.project"
-  - "echo 'allow-newer: monadcryptorandom:exceptions' >> cabal.project"
+  - "echo 'allow-newer: monadcryptorandom:exceptions, pretty-compact:base-compat' >> cabal.project"
   - cat cabal.project
   - if [ -f "./configure.ac" ]; then
       (cd "." && autoreconf -i);
@@ -88,7 +88,7 @@ script:
   - find . -maxdepth 1 -name '*.tar.gz' -exec tar -xvf '{}' \;
   - "printf 'packages: futurice-prelude-*/*.cabal\\n' > cabal.project"
   - "echo 'constraints: unix-time >=0.3.8' >> cabal.project"
-  - "echo 'allow-newer: monadcryptorandom:exceptions' >> cabal.project"
+  - "echo 'allow-newer: monadcryptorandom:exceptions, pretty-compact:base-compat' >> cabal.project"
   - cat cabal.project
   # this builds all libraries and executables (without tests/benchmarks)
   - cabal new-build -w ${HC} --disable-tests --disable-benchmarks all
