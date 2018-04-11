@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                    #-}
 {-# LANGUAGE DataKinds              #-}
 {-# LANGUAGE DefaultSignatures      #-}
 {-# LANGUAGE EmptyCase              #-}
@@ -35,7 +36,6 @@ module Futurice.Generics.Enum (
 import Control.Monad    ((>=>))
 import Data.Typeable    (typeRep)
 import Futurice.Prelude
-import GHC.TypeLits     (KnownSymbol, Symbol, symbolVal)
 import Lucid            (HtmlT, ToHtml (..))
 import Prelude ()
 import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
@@ -89,7 +89,9 @@ instance
   where
     enumToText' (S n) = coerce (enumToText' :: NS (NP I) xss -> Tagged ks Text) n
     enumToText' (Z Nil) = Tagged (symbolVal (Proxy :: Proxy sym) ^. packed)
-
+#if __GLASGOW_HASKELL < 800
+    enumToText' (Z x) = case x of
+#endif
 
 class GTextEnumFrom (ks :: [Symbol]) (xss :: [[*]]) | ks -> xss where
     enumMap :: Tagged ks (Map Text (NS (NP I) xss))

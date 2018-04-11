@@ -23,16 +23,15 @@ module Futurice.Time (
     AsScientific,
     ) where
 
-import Prelude ()
-import Futurice.Prelude
 import Control.Lens       (( # ))
 import Data.Aeson         (FromJSON (..), ToJSON (..))
 import Data.Binary.Tagged (HasSemanticVersion, HasStructuralInfo)
 import Data.Fixed         (Fixed, HasResolution)
 import Data.Swagger       (NamedSchema (..), ToSchema (..))
-import GHC.TypeLits
-       (KnownNat, KnownSymbol, Nat, Symbol, natVal, symbolVal)
+import Futurice.Prelude
+import GHC.TypeLits       (KnownNat, Nat, natVal)
 import Lucid              (ToHtml (..))
+import Prelude ()
 import System.Random      (Random (..))
 import Test.QuickCheck    (Arbitrary (..), CoArbitrary (..))
 

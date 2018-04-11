@@ -8,7 +8,7 @@ module Futurice.Prelude.Internal (
     -- | We use it as a basis. Yet we hide or generalise some definitions.
     -- E.g. 'zip'.
     --
-    module Prelude.Compat,
+    module Prelude.Compat.Repl.Batteries,
     -- * Types
     ByteString,
     Day (..),
@@ -225,7 +225,7 @@ module Futurice.Prelude.Internal (
     ) where
 
 import Prelude ()
-import Prelude.Compat hiding (zip, zipWith)
+import Prelude.Compat.Repl.Batteries hiding (zip, zipWith)
 
 import Control.Applicative
        (Alternative (..), Const (..), liftA2, optional)
@@ -238,11 +238,11 @@ import Control.Lens
        lens, makeLenses, makePrisms, makeWrapped, over, preview, prism, prism',
        strict, view, (%=), (%~), (&), (.~), (<&>), (?=), (?~), (^.), (^..),
        (^?), _1, _2, _3, _Empty, _Just, _Left, _Nothing, _Right)
+import Control.Monad
+       (MonadPlus (..), foldM, forever, guard, join, unless, void, when)
 import Control.Monad.Base          (MonadBase (..))
 import Control.Monad.Catch
        (Exception, MonadCatch (..), MonadThrow (..), SomeException (..))
-import Control.Monad.Compat
-       (MonadPlus (..), foldM, forever, guard, join, unless, void, when)
 import Control.Monad.Except
        (ExceptT (..), MonadError (..), runExceptT, withExceptT)
 import Control.Monad.Extra         (unlessM, whenM)
@@ -261,7 +261,7 @@ import Data.Align                  (Align (..))
 import Data.Align.Key              (AlignWithKey (..))
 import Data.Bifunctor              (bimap, first, second)
 import Data.Binary                 (Binary (..))
-import Data.Bool.Compat            (bool)
+import Data.Bool                   (bool)
 import Data.ByteString             (ByteString)
 import Data.Coerce                 (Coercible, coerce)
 import Data.FileEmbed
@@ -280,7 +280,7 @@ import Data.Int
 import Data.IntMap.Strict          (IntMap)
 import Data.IntSet                 (IntSet)
 import Data.Key                    (Zip (..), ZipWithKey (..))
-import Data.List.Compat            (nub, sort, sortBy, sortOn)
+import Data.List                   (nub, sort, sortBy, sortOn)
 import Data.List.Extra             (chunksOf)
 import Data.List.NonEmpty          (NonEmpty (..))
 import Data.Map.Lens               (toMapOf)
