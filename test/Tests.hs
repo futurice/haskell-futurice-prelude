@@ -5,7 +5,6 @@
 {-# LANGUAGE TypeOperators     #-}
 module Main (main) where
 
-import Control.Applicative   (liftA2)
 import Data.Type.Equality
 import Futurice.Generics
 import Futurice.Generics.SOP

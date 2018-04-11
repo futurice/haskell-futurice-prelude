@@ -1,5 +1,8 @@
 branches: master
 
+build-with-installed-step: False
+no-tests-no-benchmarks: False
+
 doctest: True
 doctest-options: --fast
 doctest-version: >=0.13

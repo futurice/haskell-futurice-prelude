@@ -40,7 +40,7 @@ library
     , array                 >=0.5.1.0  && <0.6
     , async                 ^>=2.2.1
     , attoparsec            >=0.13.1.0 && <0.14
-    , base-compat           >=0.9.1    && <0.9.4
+    , base-compat-batteries ^>=0.10.1
     , base-orphans          ==0.7
     , bifunctors
     , binary
@@ -84,7 +84,7 @@ library
     , lucid                 >=2.9.9    && <2.10
     , mmorph                >=1.0.6    && <1.2
     , monad-control         >=1.0.1.0  && <1.1
-    , monad-time            >=0.2      && <0.3
+    , monad-time            ^>=0.3.1.0
     , monadcryptorandom     >=0.7.2    && <0.7.3
     , mtl                   >=2.2.1    && <2.3
     , nats
