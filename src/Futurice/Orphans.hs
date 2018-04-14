@@ -44,10 +44,11 @@ import Test.QuickCheck.Instances ()
 import Text.Parsec.String ()
 import Text.Trifecta ()
 
-import Codec.Picture              (DynamicImage, Image, PixelRGBA8)
+import Codec.Picture                (DynamicImage, Image, PixelRGBA8)
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
-import Control.Monad.Trans.State  (StateT)
+import Control.Monad.Trans.Resource (MonadResource (..))
+import Control.Monad.Trans.State    (StateT)
 import Data.Aeson.Compat
        (FromJSON (..), Parser, ToJSON (..), object, withArray, withObject,
        (.:), (.=))
@@ -57,16 +58,16 @@ import Data.Aeson.Types
        contramapToJSONKeyFunction, parseJSON1, toEncoding1, toJSON1)
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
-import Data.Fixed                 (Fixed (..), HasResolution)
-import Data.Swagger               (NamedSchema (..), ToSchema (..))
-import Data.Time.Parsers          (day, utcTime)
+import Data.Fixed                   (Fixed (..), HasResolution)
+import Data.Swagger                 (NamedSchema (..), ToSchema (..))
+import Data.Time.Parsers            (day, utcTime)
 import Futurice.Control
-import Generics.SOP               (All)
-import Lucid                      (HtmlT, ToHtml (..), a_, href_)
-import Numeric.Interval           (Interval, inf, sup)
-import System.Random              (Random (..))
-import Test.QuickCheck            (Arbitrary (..))
-import Text.Parsec                (parse)
+import Generics.SOP                 (All)
+import Lucid                        (HtmlT, ToHtml (..), a_, href_)
+import Numeric.Interval             (Interval, inf, sup)
+import System.Random                (Random (..))
+import Test.QuickCheck              (Arbitrary (..))
+import Text.Parsec                  (parse)
 
 import qualified Crypto.Random.DRBG.Hash              as DRBG
 import qualified Data.Aeson.Encoding                  as Aeson
@@ -654,3 +655,10 @@ decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 
 instance MonadTime Servant.Handler where
     currentTime = liftIO currentTime
+
+-------------------------------------------------------------------------------
+-- resourcet
+-------------------------------------------------------------------------------
+
+instance MonadResource m => MonadResource (LogT m) where
+    liftResourceT = lift . liftResourceT

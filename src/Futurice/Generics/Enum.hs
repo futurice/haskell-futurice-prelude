@@ -89,7 +89,7 @@ instance
   where
     enumToText' (S n) = coerce (enumToText' :: NS (NP I) xss -> Tagged ks Text) n
     enumToText' (Z Nil) = Tagged (symbolVal (Proxy :: Proxy sym) ^. packed)
-#if __GLASGOW_HASKELL < 800
+#if __GLASGOW_HASKELL__ < 800
     enumToText' (Z x) = case x of
 #endif
 
