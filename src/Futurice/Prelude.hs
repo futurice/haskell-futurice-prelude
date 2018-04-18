@@ -10,6 +10,7 @@ module Futurice.Prelude (
     -- * Types
     Month,
     -- * lens
+    Pick (..),
     getter,
     -- * log
     withStderrLogger,
@@ -65,7 +66,8 @@ import Futurice.Prelude.Internal
 import Prelude ()
 
 import Control.Concurrent.Async    (waitCatch, withAsync)
-import Control.Lens                (Optic', ifoldMapOf, (<.>), _Wrapped)
+import Control.Lens
+       (Index, IxValue, Ixed (..), Optic', ifoldMapOf, (<.>), _Wrapped)
 import Control.Monad.Trans.Control
        (ComposeSt, RunDefault, defaultLiftBaseWith, defaultLiftWith,
        defaultRestoreM, defaultRestoreT)
@@ -190,6 +192,13 @@ swapMapMap = getUnionWith . ifoldMapOf (ifolded <.> ifolded) f
 -- @
 getter :: (Profunctor p, Contravariant f) => (s -> a) -> Optic' p f s a
 getter k = dimap k (contramap k)
+
+class Ixed m => Pick m where
+    pick :: Functor f => Index m -> LensLike' f m (IxValue m)
+
+instance Eq e => Pick (e -> a) where
+    pick e p f = p (f e) <&> \a e' -> if e == e' then a else f e'
+    {-# INLINE pick #-}
 
 -------------------------------------------------------------------------------
 -- UUID
