@@ -47,6 +47,8 @@ import Text.Trifecta ()
 import Codec.Picture                         (DynamicImage, Image, PixelRGBA8)
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
+import Control.Monad.IO.Unlift
+       (MonadUnliftIO (..), UnliftIO (..), withUnliftIO)
 import Control.Monad.Trans.Resource          (MonadResource (..))
 import Control.Monad.Trans.Resource.Internal (ResourceT (..))
 import Control.Monad.Trans.State             (StateT)
@@ -64,6 +66,7 @@ import Data.Swagger                          (NamedSchema (..), ToSchema (..))
 import Data.Time.Parsers                     (day, utcTime)
 import Futurice.Control
 import Generics.SOP                          (All)
+import Log.Monad                             (LogT (..))
 import Lucid                                 (HtmlT, ToHtml (..), a_, href_)
 import Numeric.Interval                      (Interval, inf, sup)
 import System.Random                         (Random (..))
@@ -658,11 +661,24 @@ instance MonadTime Servant.Handler where
     currentTime = liftIO currentTime
 
 -------------------------------------------------------------------------------
--- resourcet
+-- resourcet + unliftio-core
 -------------------------------------------------------------------------------
 
 instance MonadResource m => MonadResource (LogT m) where
     liftResourceT = lift . liftResourceT
+
+instance MonadUnliftIO m => MonadUnliftIO (LogT m) where
+    {-# INLINE askUnliftIO #-}
+    askUnliftIO =
+        LogT $ ReaderT $ \r ->
+        withUnliftIO $ \u ->
+        return (UnliftIO (unliftIO u . flip runReaderT r . unLogT))
+
+    {-# INLINE withRunInIO #-}
+    withRunInIO inner =
+        LogT $ ReaderT $ \r ->
+        withRunInIO $ \run ->
+        inner (run . flip runReaderT r . unLogT)
 
 #if MIN_VERSION_resourcet(1,2,0)
 instance MonadBase b m => MonadBase b (ResourceT m) where
