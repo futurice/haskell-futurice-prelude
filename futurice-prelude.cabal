@@ -1,5 +1,7 @@
+cabal-version:  2.0
 name:           futurice-prelude
 version:        1
+
 synopsis:       Futurice Prelude
 description:    'Futurice.Prelude' is used in Futurice apps:
                 .
@@ -14,9 +16,8 @@ author:         Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
 license:        BSD3
 license-file:   LICENSE
-tested-with:    GHC==7.10.3, GHC==8.0.2, GHC==8.2.2, GHC==8.4.2
+tested-with:    GHC==7.10.3, GHC==8.0.2, GHC==8.2.2, GHC==8.4.3
 build-type:     Simple
-cabal-version:  2.0
 
 extra-source-files:
     README.md
@@ -32,7 +33,7 @@ library
   ghc-options: -Wall
   build-depends:
       base                  >=4.8      && <4.12
-    , aeson                 >=1.3      && <1.4
+    , aeson                 ^>=1.4
     , aeson-compat          >=0.3.6    && <0.4
     , ansi-pretty           >=0.1.2.1
     , ansi-terminal         ^>=0.8
@@ -54,10 +55,10 @@ library
     , comonad               ^>=5.0.3
     , constraints           ^>=0.10
     , containers
-    , contravariant         >=1.4      && <1.5
+    , contravariant         ^>=1.5
     , deepseq               >=1.4.1.1  && <1.5
     , dependent-sum         >=0.3.2.2  && <0.5
-    , deriving-compat       ^>=0.4.1
+    , deriving-compat       ^>= 0.5
     , DRBG                  >=0.5.5    && <0.6
     , exceptions            ^>=0.10
     , extra                 ^>=1.6.2
@@ -103,7 +104,7 @@ library
     , scientific            >=0.3.4.9  && <0.4
     , semigroupoids         >=5.0.1    && <5.3
     , semigroups
-    , servant-server        ^>=0.13
+    , servant-server        ^>=0.14
     , strict-base-types     ^>=0.6.0
     , swagger2              ^>=2.2.1
     , tagged                >=0.8.4    && <0.9
