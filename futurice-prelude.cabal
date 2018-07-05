@@ -42,7 +42,7 @@ library
     , async                 ^>=2.2.1
     , attoparsec            >=0.13.1.0 && <0.14
     , base-compat-batteries ^>=0.10.1
-    , base-orphans          ==0.7
+    , base-orphans          ==0.8
     , bifunctors
     , binary
     , binary-orphans        ==0.1.8.*
@@ -79,7 +79,7 @@ library
     , intervals             >=0.8      && <0.9
     , JuicyPixels           >=3.2.8    && <3.3
     , keys                  ^>=3.12
-    , lens                  ^>=4.16
+    , lens                  ^>=4.17
     , lifted-base           >=0.2.3.0  && <0.3
     , log-base              >=0.7.4.0  && <0.8
     , lucid                 >=2.9.9    && <2.10
@@ -93,7 +93,7 @@ library
     , parsec                >=3.1.11   && <3.2
     , postgresql-simple     >=0.5.2.1  && <0.6
     , pretty-compact        >=3.0      && <3.1
-    , profunctors           >=5.2      && <5.3
+    , profunctors           ^>=5.3
     , QuickCheck            ^>=2.11.3
     , quickcheck-instances  ==0.3.18
     , random                >=1.1      && <1.2
@@ -102,9 +102,9 @@ library
     , resourcet             ^>=1.1.11 || ^>=1.2.1
     , resource-pool         >=0.2.3.2  && <0.3
     , scientific            >=0.3.4.9  && <0.4
-    , semigroupoids         >=5.0.1    && <5.3
+    , semigroupoids         ^>=5.3.1
     , semigroups
-    , servant-server        ^>=0.14
+    , servant-server        ^>=0.14.1
     , strict-base-types     ^>=0.6.0
     , swagger2              ^>=2.2.1
     , tagged                >=0.8.4    && <0.9
@@ -118,7 +118,7 @@ library
     , transformers          >=0.4.2.0  && <0.6
     , transformers-base     >=0.4.4    && <0.5
     , transformers-compat   >=0.5.1.4  && <0.7
-    , trifecta              >=1.5.2    && <1.8
+    , trifecta              ^>=2
     , tz                    >=0.1.2.0  && <0.2
     , unicode-transforms    >=0.3.0    && <0.4
     , unliftio-core         ^>=0.1.1.0
