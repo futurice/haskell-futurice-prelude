@@ -16,6 +16,9 @@ module Futurice.Prelude (
     withStderrLogger,
     logLocalData,
     logLocalDomain,
+    logTraceI,
+    logInfoI,
+    logAttentionI,
     -- * Monad
     iterateM,
     -- * @exception@
@@ -77,12 +80,14 @@ import Data.Time.Zones
        (localTimeToUTCTZ, timeZoneForUTCTime, utcToLocalTimeTZ)
 import Data.Time.Zones.TH          (includeTZFromDB)
 import Futurice.Control
+import Data.Char (isAlphaNum)
 import Futurice.Time.Month
 import Log
        (LogLevel (..), LogMessage (..), localData, localDomain, mkBulkLogger')
 import Log.Internal.Logger         (withLogger)
 import System.IO                   (hFlush, stderr)
 
+import qualified Data.Attoparsec.Text as AT
 import qualified Data.Aeson.Compat            as Aeson
 import qualified Data.Aeson.Types             as Aeson
 import qualified Data.ByteString.Lazy         as LBS
@@ -413,6 +418,52 @@ logLocalData = localData
 -- | Renamed 'Log.localDomain'.
 logLocalDomain :: MonadLog m => Text -> m a -> m a
 logLocalDomain = localDomain
+
+-------------------------------------------------------------------------------
+-- Interpolated log
+-------------------------------------------------------------------------------
+
+logTraceI :: (MonadLog m, Aeson.ToJSON a) => Text -> a -> m ()
+logTraceI = interpolatedLog logTrace
+
+logInfoI :: (MonadLog m, Aeson.ToJSON a) => Text -> a -> m ()
+logInfoI = interpolatedLog logInfo
+
+logAttentionI :: (MonadLog m, Aeson.ToJSON a) => Text -> a -> m ()
+logAttentionI = interpolatedLog logAttention
+
+interpolatedLog
+    :: (MonadLog m, Aeson.ToJSON a)
+    => (Text -> Aeson.Value -> m ())
+    -> Text -> a -> m ()
+interpolatedLog logFunc msg x
+    | T.any (== '$') msg = case Aeson.toJSON x of
+        obj@(Aeson.Object hm) -> logFunc (interpolate msg hm) obj
+        obj                   -> logFunc msg obj
+    | otherwise = logFunc msg (Aeson.toJSON x)
+
+interpolate :: Text -> HashMap Text Aeson.Value -> Text
+interpolate needle hm = either (const needle) mconcat $ AT.parseOnly go needle where
+    go :: AT.Parser [Text]
+    go = do
+        t <- AT.takeWhile (/= '$')
+        [t] <$ AT.endOfInput <|> variable t
+
+    variable :: Text -> AT.Parser [Text]
+    variable t = do
+        _ <- AT.char '$'
+        n <- AT.takeWhile isAlphaNum
+        ts <- go
+        return $ case hm ^. at n of
+            -- we print scalars
+            Just (Aeson.String t')  -> t : t' : ts
+            Just (Aeson.Number m)   -> t : textShow m : ts
+            Just (Aeson.Bool True)  -> t : "true" : ts
+            Just (Aeson.Bool False) -> t : "false" : ts
+            Just Aeson.Null         -> t : "null" : ts
+            Just (Aeson.Array _)    -> t : "[...]" : ts
+            Just (Aeson.Object _)   -> t : "{...}" : ts
+            Nothing                 -> t : "$" : n : ts
 
 -------------------------------------------------------------------------------
 -- Text
