@@ -9,6 +9,8 @@ module Futurice.Generics (
     Sopica (..),
     Enumica (..),
     TextEnum (..),
+    Textica (..),
+    Textual (..),
     -- * Classes
     Arbitrary(..),
     ToHtml (..),
@@ -33,6 +35,10 @@ module Futurice.Generics (
     -- ** swagger2
     enumToParamSchema,
     enumDeclareNamedSchema,
+    -- * Textual
+    -- ** swagger2
+    textualToParamSchema,
+    textualDeclareNamedSchema,
     -- * SOP
     -- ** swagger2
     sopDeclareNamedSchema,
@@ -43,12 +49,13 @@ import Futurice.Prelude
 import Prelude ()
 
 #if __GLASGOW_HASKELL__ >= 802
-import Data.Deriving.Via         (Via, deriveVia)
+import Data.Deriving.Via (Via, deriveVia)
 #endif
 
 import Futurice.Generics.Enum
 import Futurice.Generics.Newtype
 import Futurice.Generics.SOP
+import Futurice.Generics.Textual
 
 import Data.Aeson      (FromJSON (..), ToJSON (..))
 import Data.Csv
