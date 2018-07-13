@@ -143,6 +143,7 @@ library
       Futurice.Generics
       Futurice.Generics.Enum
       Futurice.Generics.Newtype
+      Futurice.Generics.Textual
       Futurice.Generics.SOP
       Futurice.Graph
       Futurice.Has
