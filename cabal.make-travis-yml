@@ -1,6 +1,5 @@
 branches: master
 
-build-with-installed-step: False
 no-tests-no-benchmarks: False
 
 doctest: True
