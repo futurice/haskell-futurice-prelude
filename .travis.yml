@@ -2,7 +2,7 @@
 #
 #   runghc make_travis_yml_2.hs '--config' '--output=.travis.yml' 'cabal.project'
 #
-# For more information, see https://github.com/hvr/multi-ghc-travis
+# For more information, see https://github.com/haskell-CI/haskell-ci
 #
 language: c
 sudo: false
@@ -41,9 +41,6 @@ matrix:
     - compiler: "ghc-8.0.2"
     # env: TEST=--disable-tests BENCH=--disable-benchmarks
       addons: {apt: {packages: [ghc-ppa-tools,cabal-install-2.2,ghc-8.0.2], sources: [hvr-ghc]}}
-    - compiler: "ghc-7.10.3"
-    # env: TEST=--disable-tests BENCH=--disable-benchmarks
-      addons: {apt: {packages: [ghc-ppa-tools,cabal-install-2.2,ghc-7.10.3], sources: [hvr-ghc]}}
 
 before_install:
   - HC=${CC}
@@ -68,11 +65,11 @@ install:
   - "sed -i.bak 's/^jobs:/-- jobs:/' ${HOME}/.cabal/config"
   - rm -fv cabal.project cabal.project.local
   - grep -Ev -- '^\s*--' ${HOME}/.cabal/config | grep -Ev '^\s*$'
-  - if [ $HCNUMVER -ge 80000 ]; then cabal new-install -w ${HC} --symlink-bindir=$HOME/.local/bin doctest --constraint='doctest >=0.13'; fi
+  - if [ $HCNUMVER -ge 80000 ]; then cabal new-install -w ${HC} -j2 --symlink-bindir=$HOME/.local/bin doctest --constraint='doctest >=0.13'; fi
   - "printf 'packages: \".\"\\n' > cabal.project"
   - "echo 'constraints: unix-time >=0.3.8' >> cabal.project"
   - touch cabal.project.local
-  - "if ! $NOINSTALLEDCONSTRAINTS; then for pkg in $($HCPKG list --simple-output); do echo $pkg | sed 's/^/constraints: /' | sed 's/-[^-]*$/ installed/' >> cabal.project.local; done; fi"
+  - "if ! $NOINSTALLEDCONSTRAINTS; then for pkg in $($HCPKG list --simple-output); do echo $pkg  | grep -vw -- futurice-prelude | sed 's/^/constraints: /' | sed 's/-[^-]*$/ installed/' >> cabal.project.local; done; fi"
   - cat cabal.project || true
   - cat cabal.project.local || true
   - if [ -f "./configure.ac" ]; then
@@ -94,7 +91,7 @@ script:
   - "printf 'packages: futurice-prelude-*/*.cabal\\n' > cabal.project"
   - "echo 'constraints: unix-time >=0.3.8' >> cabal.project"
   - touch cabal.project.local
-  - "if ! $NOINSTALLEDCONSTRAINTS; then for pkg in $($HCPKG list --simple-output); do echo $pkg | sed 's/^/constraints: /' | sed 's/-[^-]*$/ installed/' >> cabal.project.local; done; fi"
+  - "if ! $NOINSTALLEDCONSTRAINTS; then for pkg in $($HCPKG list --simple-output); do echo $pkg  | grep -vw -- futurice-prelude | sed 's/^/constraints: /' | sed 's/-[^-]*$/ installed/' >> cabal.project.local; done; fi"
   - cat cabal.project || true
   - cat cabal.project.local || true
 

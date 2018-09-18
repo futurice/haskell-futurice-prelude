@@ -16,7 +16,7 @@ author:         Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
 license:        BSD3
 license-file:   LICENSE
-tested-with:    GHC==7.10.3, GHC==8.0.2, GHC==8.2.2, GHC==8.4.3
+tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.3
 build-type:     Simple
 
 extra-source-files:
@@ -32,7 +32,7 @@ library
   default-extensions: DeriveDataTypeable DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable ScopedTypeVariables
   ghc-options: -Wall
   build-depends:
-      base                  >=4.8      && <4.12
+      base                  >=4.9      && <4.12
     , aeson                 ^>=1.4
     , aeson-compat          >=0.3.6    && <0.4
     , ansi-pretty           >=0.1.2.1
@@ -41,7 +41,7 @@ library
     , array                 >=0.5.1.0  && <0.6
     , async                 ^>=2.2.1
     , attoparsec            >=0.13.1.0 && <0.14
-    , base-compat-batteries ^>=0.10.1
+    , base-compat-batteries ^>=0.10.4
     , base-orphans          ==0.8
     , bifunctors
     , binary
@@ -130,6 +130,10 @@ library
     , wai
     , writer-cps-mtl        >=0.1.1.4  && <0.2
     , insert-ordered-containers
+
+  -- https://github.com/haskell-servant/servant/pull/1037
+  build-depends:
+    servant-client-core ^>=0.14.1
 
   exposed-modules:
       Futurice.Aeson

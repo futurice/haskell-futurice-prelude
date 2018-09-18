@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE DeriveDataTypeable    #-}
+{-# LANGUAGE DeriveLift            #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
@@ -56,9 +57,10 @@ import Data.Aeson.Compat
        (FromJSON (..), Parser, ToJSON (..), object, withArray, withObject,
        (.:), (.=))
 import Data.Aeson.Types
-       (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction, ToJSON1 (..),
-       ToJSONKey (..), ToJSONKeyFunction, coerceFromJSONKeyFunction,
-       contramapToJSONKeyFunction, parseJSON1, toEncoding1, toJSON1)
+       (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction (..),
+       ToJSON1 (..), ToJSONKey (..), ToJSONKeyFunction,
+       coerceFromJSONKeyFunction, contramapToJSONKeyFunction, parseJSON1,
+       toEncoding1, toJSON1, withText)
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
 import Data.Fixed                            (Fixed (..), HasResolution)
@@ -83,6 +85,7 @@ import qualified Data.Map                             as Map
 import qualified Data.Scientific                      as Scientific
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
+import qualified Data.Text                            as T
 import qualified Data.Text.Encoding                   as TE
 import qualified Data.Text.Encoding.Error             as TE
 import qualified Data.Tuple.Strict                    as S
@@ -100,6 +103,7 @@ import qualified Network.HTTP.Types.Status            as HTTP
 import qualified Network.Wai                          as Wai
 import qualified Numeric.Interval.Kaucher             as Kaucher
 import qualified Numeric.Interval.NonEmpty            as NonEmpty
+import qualified Servant.Client.Core.Internal.BaseUrl as Servant
 import qualified Servant.Server                       as Servant
 import qualified System.Clock                         as Clock
 
@@ -540,8 +544,7 @@ instance Random (Fixed a) where
 -- template-haskell
 -------------------------------------------------------------------------------
 
-instance TH.Lift a => TH.Lift (NonEmpty a) where
-    lift (x :| xs) = [| x :| xs |]
+deriving instance TH.Lift a => TH.Lift (NonEmpty a)
 
 -------------------------------------------------------------------------------
 -- Binary
@@ -661,6 +664,44 @@ instance MonadTime Servant.Handler where
     currentTime = liftIO currentTime
 
 -------------------------------------------------------------------------------
+-- servant-client-core
+-------------------------------------------------------------------------------
+
+-- https://github.com/haskell-servant/servant/pull/1037
+-- probably will be in servant-client-core-0.15
+
+deriving instance Lift Servant.Scheme
+deriving instance Lift Servant.BaseUrl
+
+-- | >>> traverse_ (LBS8.putStrLn . encode) $ parseBaseUrl "api.example.com"
+-- "http://api.example.com"
+instance ToJSON Servant.BaseUrl where
+    toJSON     = toJSON . Servant.showBaseUrl
+    toEncoding = toEncoding . Servant.showBaseUrl
+
+-- | >>> parseBaseUrl "api.example.com" >>= decode . encode :: Maybe BaseUrl
+-- Just (BaseUrl {baseUrlScheme = Http, baseUrlHost = "api.example.com", baseUrlPort = 80, baseUrlPath = ""})
+instance FromJSON Servant.BaseUrl where
+    parseJSON = withText "BaseUrl" $ \t -> case Servant.parseBaseUrl (T.unpack t) of
+        Just u  -> return u
+        Nothing -> fail $ "Invalid base url: " ++ T.unpack t
+
+-- | >>> :{
+-- traverse_ (LBS8.putStrLn . encode) $ do
+--   u1 <- parseBaseUrl "api.example.com"
+--   u2 <- parseBaseUrl "example.com"
+--   return $ Map.fromList [(u1, 'x'), (u2, 'y')]
+-- :}
+-- {"http://api.example.com":"x","http://example.com":"y"}
+instance ToJSONKey Servant.BaseUrl where
+    toJSONKey = contramapToJSONKeyFunction Servant.showBaseUrl toJSONKey
+
+instance FromJSONKey Servant.BaseUrl where
+    fromJSONKey = FromJSONKeyTextParser $ \t -> case Servant.parseBaseUrl (T.unpack t) of
+        Just u  -> return u
+        Nothing -> fail $ "Invalid base url: " ++ T.unpack t
+
+-------------------------------------------------------------------------------
 -- resourcet + unliftio-core
 -------------------------------------------------------------------------------
 
@@ -675,10 +716,10 @@ instance MonadUnliftIO m => MonadUnliftIO (LogT m) where
         return (UnliftIO (unliftIO u . flip runReaderT r . unLogT))
 
     {-# INLINE withRunInIO #-}
-    withRunInIO inner =
+    withRunInIO inne =
         LogT $ ReaderT $ \r ->
         withRunInIO $ \run ->
-        inner (run . flip runReaderT r . unLogT)
+        inne (run . flip runReaderT r . unLogT)
 
 #if MIN_VERSION_resourcet(1,2,0)
 instance MonadBase b m => MonadBase b (ResourceT m) where
@@ -698,3 +739,10 @@ instance MonadBaseControl b m => MonadBaseControl b (ResourceT m) where
              f $ runInBase . (\(ResourceT r) -> r reader'  )
      restoreM = ResourceT . const . restoreM
 #endif
+
+-- $setup
+--
+-- >>> import Data.Aeson
+-- >>> import Data.Foldable (traverse_)
+-- >>> import qualified Data.ByteString.Lazy.Char8 as LBS8
+-- >>> import Servant.Client.Core (BaseUrl, parseBaseUrl)
