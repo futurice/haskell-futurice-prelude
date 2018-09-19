@@ -92,7 +92,9 @@ import qualified Data.Tuple.Strict                    as S
 import qualified Data.UUID                            as UUID
 import qualified Data.Vector                          as V
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
+import qualified Database.PostgreSQL.Simple.FromRow   as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
+import qualified Database.PostgreSQL.Simple.ToRow     as Postgres
 import qualified Generics.SOP                         as SOP
 import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
@@ -106,6 +108,7 @@ import qualified Numeric.Interval.NonEmpty            as NonEmpty
 import qualified Servant.Client.Core.Internal.BaseUrl as Servant
 import qualified Servant.Server                       as Servant
 import qualified System.Clock                         as Clock
+
 
 #if !MIN_VERSION_transformers_compat(0,5,0)
 import Data.Functor.Identity (Identity (..))
@@ -700,6 +703,16 @@ instance FromJSONKey Servant.BaseUrl where
     fromJSONKey = FromJSONKeyTextParser $ \t -> case Servant.parseBaseUrl (T.unpack t) of
         Just u  -> return u
         Nothing -> fail $ "Invalid base url: " ++ T.unpack t
+
+-------------------------------------------------------------------------------
+-- postgresql-simple + NP
+-------------------------------------------------------------------------------
+
+instance (All Postgres.ToField xs, f ~ I) => Postgres.ToRow (NP f xs) where
+    toRow = SOP.hcollapse . SOP.hcmap (Proxy :: Proxy Postgres.ToField) (K . Postgres.toField . unI)
+
+instance (All Postgres.FromField xs, f ~ I) => Postgres.FromRow (NP f xs) where
+    fromRow = SOP.hsequence $ SOP.hcpure (Proxy :: Proxy Postgres.FromField) Postgres.field
 
 -------------------------------------------------------------------------------
 -- resourcet + unliftio-core
