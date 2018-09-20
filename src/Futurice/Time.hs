@@ -182,6 +182,12 @@ class AsScientific a where
 instance AsScientific Int where
     _Scientific = prism' fromIntegral Scientific.toBoundedInteger
 
+instance AsScientific Scientific where
+    _Scientific = id
+
+instance AsScientific Double where
+    _Scientific = prism' scientificFromReal scientificToRational
+
 instance HasResolution a => AsScientific (Fixed a) where
     _Scientific = prism' scientificFromReal scientificToRational
 
