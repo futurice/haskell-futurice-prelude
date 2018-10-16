@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -10,9 +11,12 @@ module Futurice.Clock (
 
 import Control.DeepSeq     (NFData, force)
 import Control.Monad.Trans
-import Servant.Server      (Handler)
 import System.Clock
        (Clock (Monotonic), TimeSpec (..), diffTimeSpec, getTime, toNanoSecs)
+
+#ifndef __GHCJS__
+import Servant.Server      (Handler)
+#endif
 
 -- | Class of monads which carry the notion of the current time.
 class Monad m => MonadClock m where
@@ -31,8 +35,10 @@ instance {-# OVERLAPPING #-}
   where
     monotonicClock = lift monotonicClock
 
+#ifndef __GHCJS__
 instance MonadClock Handler where
     monotonicClock = liftIO monotonicClock
+#endif
 
 clocked :: (MonadClock m, NFData a) => m a -> m (TimeSpec, a)
 clocked action = do

@@ -19,29 +19,31 @@ module Futurice.Generics (
     FromRecord(..),
     ToJSON(..),
     FromJSON(..),
+#ifdef MIN_VERSION_swagger2
     ToSchema(..),
     ToParamSchema (..),
+#endif
     ToHttpApiData (..),
     FromHttpApiData (..),
-    -- * Empty
+#ifdef MIN_VERSION_swagger2
+    -- * Swagger2
+    -- ** Empty
     emptyDeclareNamedSchema,
-    -- * Newtype
-    -- | We export this because they aren't GND deriviable.
+    -- *( Newtype
     newtypeToParamSchema,
     newtypeDeclareNamedSchema,
-    -- * Enum
-    enumPrism,
-    enumFromTextE,
-    -- ** swagger2
+    -- **( swagger2
     enumToParamSchema,
     enumDeclareNamedSchema,
-    -- * Textual
-    -- ** swagger2
+    -- ** Textual
     textualToParamSchema,
     textualDeclareNamedSchema,
-    -- * SOP
-    -- ** swagger2
+    -- ** SOP
     sopDeclareNamedSchema,
+#endif
+    -- * Enum prisms
+    enumPrism,
+    enumFromTextE,
     ) where
 
 import Data.Typeable    (typeRep)
@@ -60,17 +62,21 @@ import Futurice.Generics.Textual
 import Data.Aeson      (FromJSON (..), ToJSON (..))
 import Data.Csv
        (DefaultOrdered (..), FromRecord (..), ToNamedRecord (..))
-import Data.Swagger    (ToParamSchema (..), ToSchema (..))
 import Lucid           (ToHtml (..))
 import Test.QuickCheck (Arbitrary (..))
 import Web.HttpApiData (FromHttpApiData (..), ToHttpApiData (..))
 
+#ifdef MIN_VERSION_swagger2
+import           Data.Swagger         (ToParamSchema (..), ToSchema (..))
 import qualified Data.Swagger         as Swagger
 import qualified Data.Swagger.Declare as Swagger
+#endif
 
+#ifdef MIN_VERSION_swagger2
 -- | Declares with named but empty schema.
 emptyDeclareNamedSchema
     :: forall a proxy. Typeable a => proxy a
     -> Swagger.Declare (Swagger.Definitions Swagger.Schema) Swagger.NamedSchema
 emptyDeclareNamedSchema _ = pure $ Swagger.NamedSchema (Just name) mempty where
     name = textShow $ typeRep (Proxy :: Proxy a)
+#endif

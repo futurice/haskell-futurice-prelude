@@ -22,8 +22,10 @@ module Futurice.Generics.SOP (
     sopToJSON,
     sopToEncoding,
     sopParseJSON,
+#ifdef MIN_VERSION_swagger2
     -- ** swagger2
     sopDeclareNamedSchema,
+#endif
     -- * Utilities
     sopRecordFieldNames,
     IsNewtype,
@@ -48,11 +50,14 @@ import qualified Data.Aeson           as Aeson
 import qualified Data.Aeson.Types     as Aeson
 import qualified Data.Csv             as Csv
 import qualified Data.HashMap.Strict  as HM
-import qualified Data.Swagger         as Swagger
-import qualified Data.Swagger.Declare as Swagger
 import qualified Data.Vector          as V
 import qualified GHC.Exts             as Exts
 import qualified Test.QuickCheck      as QC
+
+#ifdef MIN_VERSION_swagger2
+import qualified Data.Swagger         as Swagger
+import qualified Data.Swagger.Declare as Swagger
+#endif
 
 -------------------------------------------------------------------------------
 -- Deriving via
@@ -327,6 +332,7 @@ sopParseJSON' obj prefix = go
 -- swagger2
 -------------------------------------------------------------------------------
 
+#ifdef MIN_VERSION_swagger2
 type SwaggerM = Swagger.Declare (Swagger.Definitions Swagger.Schema)
 type SwaggerPP = (Text, Swagger.Referenced Swagger.Schema)
 
@@ -363,7 +369,7 @@ sopDeclareNamedSchema _ = do
 
     proxy :: Proxy a
     proxy = Proxy
-
+#endif
 
 -------------------------------------------------------------------------------
 -- Utilities

@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 -- | 'Month' data type.
 module Futurice.Time.Month (
@@ -18,7 +19,6 @@ import Data.Aeson
        (FromJSON (..), FromJSONKey (..), ToJSON (..), ToJSONKey (..), withText)
 import Data.Aeson.Types
        (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
-import Data.Swagger              (ToParamSchema (..), ToSchema (..))
 import Data.Time
        (fromGregorian, gregorianMonthLength, toGregorian)
 import Numeric.Interval.NonEmpty (Interval, (...))
@@ -27,9 +27,13 @@ import Web.HttpApiData           (FromHttpApiData (..), ToHttpApiData (..))
 
 import qualified Data.Aeson.Encoding  as Aeson.Encoding
 import qualified Data.Attoparsec.Text as AT
-import qualified Data.Swagger         as Swagger
 import qualified Data.Text            as T
 import qualified Data.Time.Parsers    as Parsers
+
+#ifdef MIN_VERSION_swagger2
+import           Data.Swagger (ToParamSchema (..), ToSchema (..))
+import qualified Data.Swagger as Swagger
+#endif
 
 -------------------------------------------------------------------------------
 -- MonthName
@@ -138,6 +142,7 @@ instance FromJSONKey Month where
     fromJSONKey = FromJSONKeyTextParser $
         either fail pure . AT.parseOnly (mkMonth <$> Parsers.month)
 
+#ifdef MIN_VERSION_swagger2
 instance ToSchema Month where
     declareNamedSchema _ = pure $ Swagger.NamedSchema (Just "Month") $ mempty
         & Swagger.type_ .~ Swagger.SwaggerString
@@ -148,6 +153,7 @@ instance ToParamSchema Month where
   toParamSchema _ = mempty
       & Swagger.type_  .~ Swagger.SwaggerString
       & Swagger.format ?~ "month"
+#endif
 
 instance ToHttpApiData Month where
     toUrlPiece = fromString . monthToString

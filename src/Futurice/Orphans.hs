@@ -46,8 +46,6 @@ import Text.Parsec.String ()
 import Text.Trifecta ()
 
 import Codec.Picture                         (DynamicImage, Image, PixelRGBA8)
-import Control.Monad.CryptoRandom
-       (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
 import Control.Monad.IO.Unlift
        (MonadUnliftIO (..), UnliftIO (..), withUnliftIO)
 import Control.Monad.Trans.Resource          (MonadResource (..))
@@ -64,7 +62,6 @@ import Data.Aeson.Types
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
 import Data.Fixed                            (Fixed (..), HasResolution)
-import Data.Swagger                          (NamedSchema (..), ToSchema (..))
 import Data.Time.Parsers                     (day, utcTime)
 import Futurice.Control
 import Generics.SOP                          (All)
@@ -75,7 +72,6 @@ import System.Random                         (Random (..))
 import Test.QuickCheck                       (Arbitrary (..))
 import Text.Parsec                           (parse)
 
-import qualified Crypto.Random.DRBG.Hash              as DRBG
 import qualified Data.Aeson.Encoding                  as Aeson
 import qualified Data.CaseInsensitive                 as CI
 import qualified Data.Csv                             as Csv
@@ -83,31 +79,39 @@ import qualified Data.Fixed                           as Fixed
 import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
 import qualified Data.Map                             as Map
 import qualified Data.Scientific                      as Scientific
-import qualified Data.Swagger                         as Swagger
-import qualified Data.Swagger.Declare                 as Swagger
 import qualified Data.Text                            as T
 import qualified Data.Text.Encoding                   as TE
 import qualified Data.Text.Encoding.Error             as TE
 import qualified Data.Tuple.Strict                    as S
-import qualified Data.UUID                            as UUID
+import qualified Data.UUID.Types                      as UUID
 import qualified Data.Vector                          as V
+import qualified Generics.SOP                         as SOP
+import qualified GHC.Exts                             as Exts
+import qualified Language.Haskell.TH.Syntax           as TH
+import qualified Network.HTTP.Types.Status            as HTTP
+import qualified Numeric.Interval.Kaucher             as Kaucher
+import qualified Numeric.Interval.NonEmpty            as NonEmpty
+import qualified Servant.Client.Core.Internal.BaseUrl as Servant
+import qualified System.Clock                         as Clock
+
+#ifndef __GHCJS__
+import Control.Monad.CryptoRandom
+       (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
+import Data.Swagger                          (NamedSchema (..), ToSchema (..))
+
+import qualified Crypto.Random.DRBG.Hash              as DRBG
+import qualified Data.Swagger                         as Swagger
+import qualified Data.Swagger.Declare                 as Swagger
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.FromRow   as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
 import qualified Database.PostgreSQL.Simple.ToRow     as Postgres
-import qualified Generics.SOP                         as SOP
-import qualified GHC.Exts                             as Exts
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
-import qualified Language.Haskell.TH.Syntax           as TH
 import qualified Network.HTTP.Client                  as HTTP
-import qualified Network.HTTP.Types.Status            as HTTP
 import qualified Network.Wai                          as Wai
-import qualified Numeric.Interval.Kaucher             as Kaucher
-import qualified Numeric.Interval.NonEmpty            as NonEmpty
-import qualified Servant.Client.Core.Internal.BaseUrl as Servant
 import qualified Servant.Server                       as Servant
-import qualified System.Clock                         as Clock
+#endif
 
 
 #if !MIN_VERSION_transformers_compat(0,5,0)
@@ -124,6 +128,7 @@ import Data.Type.Equality
 instance (Hashable k, Hashable v) => Hashable (Map k v) where
     hashWithSalt salt = hashWithSalt salt . Map.toList
 
+#ifndef  __GHCJS__
 -- | Defined in 'Futurice.Prelude'.
 instance MonadTransControl (CRandT g e) where
     type StT (CRandT g e) a = StT (ExceptT e) (StT (StateT g) a)
@@ -131,6 +136,7 @@ instance MonadTransControl (CRandT g e) where
     restoreT = defaultRestoreT2 CRandT
     {-# INLINABLE liftWith #-}
     {-# INLINABLE restoreT #-}
+#endif
 
 -- | Defined in 'Futurice.Prelude'.
 --
@@ -169,25 +175,31 @@ deriving instance Typeable DynamicImage
 -- ansi-pretty instances
 -------------------------------------------------------------------------------
 
+#ifndef  __GHCJS__
 instance AnsiPretty (GH.Name entity)
 instance AnsiPretty GH.Language
+#endif
 
 -------------------------------------------------------------------------------
 -- QuickCheck
 -------------------------------------------------------------------------------
 
+#ifndef  __GHCJS__
 instance Arbitrary (GH.Name entity) where
     arbitrary = GH.mkName Proxy <$> arbitrary -- TODO: maybe use some alphabet?
+#endif
 
 -------------------------------------------------------------------------------
 -- Postgres
 -------------------------------------------------------------------------------
 
-instance Postgres.FromField (GH.Name entity) where
-    fromField f mbs = GH.N <$> Postgres.fromField f mbs
+#ifndef __GHCJS__
+instance PG.FromField (GH.Name entity) where
+    fromField f mbs = GH.N <$> PG.fromField f mbs
 
-instance Postgres.ToField (GH.Name entity) where
-    toField = Postgres.toField . GH.untagName
+instance PG.ToField (GH.Name entity) where
+    toField = PG.toField . GH.untagName
+#endif
 
 -------------------------------------------------------------------------------
 -- cassava
@@ -251,12 +263,16 @@ instance All Csv.ToField xs => Csv.ToRecord (NP Maybe xs) where
         . SOP.hcollapse
         . SOP.hcmap (Proxy :: Proxy Csv.ToField) (K . maybe "" Csv.toField)
 
+#ifndef  __GHCJS__
 instance Csv.ToField (GH.Name a) where
     toField = Csv.toField . GH.untagName
+#endif
 
 -------------------------------------------------------------------------------
 -- Swagger schemas
 -------------------------------------------------------------------------------
+
+#ifndef __GHCJS__
 
 -- | /TODO:/ this is partly incorrect instance
 instance ToSchema Value where
@@ -339,6 +355,8 @@ instance (ToSchema a, ToSchema b) => ToSchema (These a b) where
             & Swagger.maxProperties ?~ 2
             & Swagger.minProperties ?~ 1
 
+#endif
+
 -------------------------------------------------------------------------------
 -- NFData
 -------------------------------------------------------------------------------
@@ -352,6 +370,7 @@ instance NFData (a :~: b) where
 instance NFData HTTP.Status where
     rnf (HTTP.Status c m) = rnf c `seq` rnf m
 
+#ifndef  __GHCJS__
 instance NFData a => NFData (HTTP.Response a) where
     rnf res =
         rnf (HTTP.responseStatus res) `seq`
@@ -360,6 +379,7 @@ instance NFData a => NFData (HTTP.Response a) where
         rnf (HTTP.responseBody res) `seq`
         HTTP.responseCookieJar res `seq`  -- no NFData
         ()
+#endif
 
 -------------------------------------------------------------------------------
 -- aeson
@@ -377,6 +397,7 @@ instance (Ord a, FromJSON a) => FromJSON (NonEmpty.Interval a) where
         <$> obj .: "inf"
         <*> obj .: "sup"
 
+#ifndef  __GHCJS__
 -- | This istance is used in logging
 instance ToJSON Wai.Request where
     toJSON r = object
@@ -396,6 +417,8 @@ instance ToJSON Wai.Request where
         goodHeader h = notElem h ["authorization","cookie"]
         -- elem h ["Accept", "Content-Type", "remote-user"]
 
+#endif
+
 instance ToJSON a => ToJSON (CI.CI a) where
     toJSON     = toJSON . CI.foldedCase
     toEncoding = toEncoding . CI.foldedCase
@@ -411,6 +434,7 @@ instance FromJSON Clock.TimeSpec
 -- Lucid
 -------------------------------------------------------------------------------
 
+#ifndef  __GHCJS__
 class GHNameToHtml e where
     ghNameToHtml :: Monad m => GH.Name e -> HtmlT m ()
 
@@ -425,6 +449,7 @@ instance GHNameToHtml e => ToHtml (GH.Name e) where
 
 instance ToSchema (HtmlT m a) where
     declareNamedSchema _ = pure $ NamedSchema (Just $ "some html") mempty
+#endif
 
 -------------------------------------------------------------------------------
 -- aeson + generics-sop
@@ -504,13 +529,16 @@ instance (FromJSON1 f, All FromJSON xs) => FromJSON (NP f xs) where
 -- NFData for CryptoGen
 -------------------------------------------------------------------------------
 
+#ifndef __GHCJS__
 instance NFData (DRBG.State a) where
     rnf s = s `seq` ()
+#endif
 
 -------------------------------------------------------------------------------
 -- CRandom
 -------------------------------------------------------------------------------
 
+#ifndef __GHCJS__
 instance (CRandom a, CRandom b) => CRandom (a, b) where
     crandom = runCRand $ do
         a <- getCRandom
@@ -534,6 +562,7 @@ instance (CRandom a, CRandom b, CRandom c, CRandom d) => CRandom (a, b, c, d) wh
 
 instance CRandom UUID.UUID where
     crandom = runCRand $ view (from uuidWords) <$> getCRandom
+#endif
 
 -------------------------------------------------------------------------------
 -- Random
@@ -557,6 +586,7 @@ instance (Binary a, Ord a) => Binary (NonEmpty.Interval a) where
     put i = put (NonEmpty.inf i) >> put (NonEmpty.sup i)
     get = (NonEmpty....) <$> get <*> get
 
+#ifndef __GHCJS__
 instance Binary a => Binary (GH.Request k a) where
     get = undefined
 
@@ -585,11 +615,13 @@ instance Binary (GH.CommandMethod a) where
     put GH.Put    = put (2 :: Int)
     put GH.Put'   = put (3 :: Int)
     put GH.Delete = put (4 :: Int)
+#endif
 
 -------------------------------------------------------------------------------
 -- binary-tagged
 -------------------------------------------------------------------------------
 
+#ifndef __GHCJS__
 instance HasStructuralInfo GH.Event
 instance HasStructuralInfo GH.Invitation
 instance HasStructuralInfo GH.InvitationRole
@@ -643,6 +675,7 @@ instance HasSemanticVersion GH.User
 instance HasSemanticVersion (GH.Name a)
 instance HasSemanticVersion (GH.Id a)
 instance HasSemanticVersion GH.URL
+#endif
 
 instance HasStructuralInfo a => HasStructuralInfo (Interval a) where
     structuralInfo _ =
@@ -663,8 +696,10 @@ decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 -- monad-time
 -------------------------------------------------------------------------------
 
+#ifndef __GHCJS__
 instance MonadTime Servant.Handler where
     currentTime = liftIO currentTime
+#endif
 
 -------------------------------------------------------------------------------
 -- servant-client-core
@@ -708,11 +743,13 @@ instance FromJSONKey Servant.BaseUrl where
 -- postgresql-simple + NP
 -------------------------------------------------------------------------------
 
-instance (All Postgres.ToField xs, f ~ I) => Postgres.ToRow (NP f xs) where
-    toRow = SOP.hcollapse . SOP.hcmap (Proxy :: Proxy Postgres.ToField) (K . Postgres.toField . unI)
+#ifndef __GHCJS__
+instance (All PG.ToField xs, f ~ I) => PG.ToRow (NP f xs) where
+    toRow = SOP.hcollapse . SOP.hcmap (Proxy :: Proxy PG.ToField) (K . PG.toField . unI)
 
-instance (All Postgres.FromField xs, f ~ I) => Postgres.FromRow (NP f xs) where
-    fromRow = SOP.hsequence $ SOP.hcpure (Proxy :: Proxy Postgres.FromField) Postgres.field
+instance (All PG.FromField xs, f ~ I) => PG.FromRow (NP f xs) where
+    fromRow = SOP.hsequence $ SOP.hcpure (Proxy :: Proxy PG.FromField) PG.field
+#endif
 
 -------------------------------------------------------------------------------
 -- resourcet + unliftio-core

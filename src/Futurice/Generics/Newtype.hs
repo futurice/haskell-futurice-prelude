@@ -12,8 +12,10 @@ module Futurice.Generics.Newtype (
     -- * Deriving Via
     Newtypica (..),
     -- * Explicit
+#ifdef MIN_VERSION_swagger2
     newtypeToParamSchema,
     newtypeDeclareNamedSchema,
+#endif
     -- * Utilities
     repNewtype
     ) where
@@ -23,8 +25,10 @@ import Generics.SOP      hiding (constructorInfo, datatypeName)
 import Generics.SOP.Lens
 import Prelude ()
 
+#ifdef MIN_VERSION_swagger2
 import qualified Data.Swagger         as Swagger
 import qualified Data.Swagger.Declare as Swagger
+#endif
 
 -------------------------------------------------------------------------------
 -- Deriving via
@@ -37,6 +41,7 @@ newtype Newtypica a = Newtypica a
 -- swagger2
 -------------------------------------------------------------------------------
 
+#ifdef MIN_VERSION_swagger2
 newtypeToParamSchema
     :: forall a r proxy t. (IsNewtype a r, Swagger.ToParamSchema r)
     => proxy a -> Swagger.ParamSchema t
@@ -49,6 +54,7 @@ newtypeDeclareNamedSchema _ = rename <$> Swagger.declareNamedSchema (Proxy :: Pr
   where
     rename (Swagger.NamedSchema _ schema) = Swagger.NamedSchema (Just name) schema
     name = datatypeInfo (Proxy :: Proxy a) ^. datatypeName . packed
+#endif
 
 -------------------------------------------------------------------------------
 -- Utilities

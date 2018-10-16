@@ -3,10 +3,10 @@ module Futurice.UUID (
     uuidWords,
     ) where
 
-import Prelude ()
 import Futurice.Prelude.Internal
+import Prelude ()
 
-import qualified Data.UUID    as UUID
+import qualified Data.UUID.Types as UUID
 
 -- $setup
 -- >>> import Futurice.Prelude

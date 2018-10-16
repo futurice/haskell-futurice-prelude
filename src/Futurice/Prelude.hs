@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                #-}
 {-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE PolyKinds          #-}
@@ -28,7 +29,9 @@ module Futurice.Prelude (
     -- * Text
     TE.encodeUtf8,
     decodeUtf8Lenient,
+#ifdef MIN_VERSION_unicode_transforms
     canonicalize,
+#endif
     -- * Time
     currentDay,
     currentMonth,
@@ -55,13 +58,15 @@ module Futurice.Prelude (
     traceShow,
     traceShowId,
     -- * Misc extras
-    type (:$),
+    -- type (:$),
     mcase,
     textShow,
     textVal,
     swapMapMap,
     showsTernaryWith,
+#ifdef MIN_VERSION_http_client
     WrappedResponse (..),
+#endif
     embedFromJSON,
     ) where
 
@@ -75,21 +80,21 @@ import Control.Monad.Trans.Control
        (ComposeSt, RunDefault, defaultLiftBaseWith, defaultLiftWith,
        defaultRestoreM, defaultRestoreT)
 import Control.Monad.Writer.CPS    (Writer, execWriter)
+import Data.Char                   (isAlphaNum)
 import Data.Time                   (defaultTimeLocale, formatTime, timeZoneName)
 import Data.Time.Zones
        (localTimeToUTCTZ, timeZoneForUTCTime, utcToLocalTimeTZ)
 import Data.Time.Zones.TH          (includeTZFromDB)
 import Futurice.Control
-import Data.Char (isAlphaNum)
 import Futurice.Time.Month
 import Log
        (LogLevel (..), LogMessage (..), localData, localDomain, mkBulkLogger')
 import Log.Internal.Logger         (withLogger)
 import System.IO                   (hFlush, stderr)
 
-import qualified Data.Attoparsec.Text as AT
 import qualified Data.Aeson.Compat            as Aeson
 import qualified Data.Aeson.Types             as Aeson
+import qualified Data.Attoparsec.Text         as AT
 import qualified Data.ByteString.Lazy         as LBS
 import qualified Data.CaseInsensitive         as CI
 import qualified Data.HashMap.Strict          as HM
@@ -99,15 +104,18 @@ import qualified Data.Text.Encoding           as TE
 import qualified Data.Text.Encoding.Error     as TE
 import qualified Data.Text.IO                 as T
 import qualified Data.Text.Lazy.Builder       as TB
-import qualified Data.Text.Normalize          as TN
 import qualified Data.Vector                  as V
 import qualified Data.Vector.Algorithms.Intro as Intro
 import qualified Debug.Trace                  as DT
 import qualified Language.Haskell.TH.Syntax   as TH
-import qualified Network.HTTP.Client          as H
 import qualified Network.HTTP.Types           as H
 import qualified System.Console.ANSI          as ANSI
 import qualified Text.PrettyPrint.Compact     as PC
+
+#ifdef MIN_VERSION_unicode_transforms
+import qualified Data.Text.Normalize as TN
+import qualified Network.HTTP.Client as H
+#endif
 
 import Futurice.Orphans ()
 
@@ -472,6 +480,7 @@ interpolate needle hm = either (const needle) mconcat $ AT.parseOnly go needle w
 decodeUtf8Lenient :: ByteString -> Text
 decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 
+#ifdef MIN_VERSION_unicode_transforms
 -- | @toLower . stripSpecials . normalize NFK@
 --
 -- >>> canonicalize "\196ITI" -- ÄITI
@@ -484,6 +493,7 @@ canonicalize :: Text -> Text
 canonicalize = T.toLower . T.filter p . TN.normalize TN.NFKD
   where
     p c = fromEnum c < 128
+#endif
 
 -------------------------------------------------------------------------------
 -- Vector
@@ -503,6 +513,7 @@ introsort = introsortBy compare
 -- Logging response
 -------------------------------------------------------------------------------
 
+#ifdef MIN_VERSION_http_client
 -- | A newtype to allow logging 'H.Response' (it has 'ToJSON' instance).
 newtype WrappedResponse = WrapResponse
     { unwrapResponse :: H.Response LazyByteString
@@ -518,6 +529,7 @@ instance Aeson.ToJSON WrappedResponse where
         ]
       where
         headerToJSON (k, v) = (CI.map TE.decodeLatin1 k, TE.decodeLatin1 v)
+#endif
 
 -------------------------------------------------------------------------------
 -- TypeLits

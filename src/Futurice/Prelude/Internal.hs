@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- | This is the internal prelude, which re-exports definitions from the
 -- dependency packages.
 --
@@ -153,9 +154,11 @@ module Futurice.Prelude.Internal (
     NP (..), NS (..),
     -- * TypeLits
     Symbol, KnownSymbol, symbolVal, sameSymbol,
+#ifdef MIN_VERSION_http_client
     -- * http-client
     Manager, newManager,
     tlsManagerSettings,
+#endif
     -- * Lens
     Lens', Lens, lens,
     Prism', Prism, prism, prism',
@@ -201,13 +204,17 @@ module Futurice.Prelude.Internal (
     NF,
     makeNF,
     getNF,
+#ifdef MIN_VERSION_file_embed
     -- * file-embed
     embedFile,
     embedStringFile,
     makeRelativeToProject,
+#endif
+#ifdef MIN_VERSION_file_embed_lzma
     -- * file-embed-lzma
     embedText,
     embedByteString,
+#endif
     -- * template-haskell
     Lift,
     -- * Coercible
@@ -264,8 +271,6 @@ import Data.Binary                 (Binary (..))
 import Data.Bool                   (bool)
 import Data.ByteString             (ByteString)
 import Data.Coerce                 (Coercible, coerce)
-import Data.FileEmbed
-       (embedFile, embedStringFile, makeRelativeToProject)
 import Data.Foldable               (fold, for_, sequenceA_, toList, traverse_)
 import Data.Function               (on)
 import Data.Functor.Classes
@@ -308,10 +313,9 @@ import Data.Time.TH                (mkDay, mkUTCTime)
 import Data.Time.Zones             (TZ)
 import Data.Traversable            (for)
 import Data.Typeable               (Typeable)
-import Data.UUID                   (UUID)
+import Data.UUID.Types             (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
-import FileEmbedLzma               (embedByteString, embedText)
 import Futurice.Clock
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
@@ -321,11 +325,21 @@ import Language.Haskell.TH.Lift    (Lift, deriveLift)
 import Log
        (LogT, Logger, MonadLog, logAttention, logAttention_, logInfo, logInfo_,
        logTrace, logTrace_, runLogT)
-import Network.HTTP.Client         (Manager, newManager)
-import Network.HTTP.Client.TLS     (tlsManagerSettings)
 import Numeric.Natural             (Natural)
 import System.Random.Shuffle       (shuffleM)
 import Text.Read                   (readMaybe)
+
+#ifdef MIN_VERSION_file_embed
+import Data.FileEmbed
+       (embedFile, embedStringFile, makeRelativeToProject)
+#endif
+#ifdef MIN_VERSION_file_embed_lzma
+import FileEmbedLzma               (embedByteString, embedText)
+#endif
+#ifdef MIN_VERSION_http_client
+import Network.HTTP.Client         (Manager, newManager)
+import Network.HTTP.Client.TLS     (tlsManagerSettings)
+#endif
 
 import qualified Data.Aeson.Types     as Aeson
 import qualified Data.ByteString.Lazy as LBS

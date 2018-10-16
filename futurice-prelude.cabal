@@ -1,4 +1,4 @@
-cabal-version:  2.0
+cabal-version:  2.2
 name:           futurice-prelude
 version:        1
 
@@ -14,7 +14,7 @@ homepage:       https://github.com/futurice/haskell-futurice-prelude#readme
 bug-reports:    https://github.com/futurice/haskell-futurice-prelude/issues
 author:         Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
-license:        BSD3
+license:        BSD-3-Clause
 license-file:   LICENSE
 tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.3
 build-type:     Simple
@@ -59,22 +59,16 @@ library
     , deepseq               >=1.4.1.1  && <1.5
     , dependent-sum         >=0.3.2.2  && <0.5
     , deriving-compat       ^>= 0.5
-    , DRBG                  >=0.5.5    && <0.6
     , exceptions            ^>=0.10
     , extra                 ^>=1.6.2
     , fail
     , fin                   >=0        && <0.1
-    , file-embed            ==0.0.11
-    , file-embed-lzma       ^>=0
     , generics-sop          >=0.3.1.0  && <0.4
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
-    , github                ^>=0.19
     , hashable              >=1.2.4
     , hashable-time         >=0.2      && <0.3
     , http-api-data         >=0.3.1    && <0.4
-    , http-client           >=0.5.4    && <0.6
-    , http-client-tls       >=0.3.3    && <0.4
     , http-types            ^>=0.12
     , intervals             >=0.8      && <0.9
     , JuicyPixels           ^>=3.3.1
@@ -86,12 +80,10 @@ library
     , mmorph                >=1.0.6    && <1.2
     , monad-control         >=1.0.1.0  && <1.1
     , monad-time            ^>=0.3.1.0
-    , monadcryptorandom     >=0.7.2    && <0.7.3
     , mtl                   >=2.2.1    && <2.3
     , nats
     , nf                    >=1.0.1.0  && <1.1
     , parsec                >=3.1.11   && <3.2
-    , postgresql-simple     >=0.5.2.1  && <0.6
     , pretty-compact        >=3.0      && <3.1
     , profunctors           ^>=5.3
     , QuickCheck            ^>=2.12.4
@@ -104,9 +96,7 @@ library
     , scientific            >=0.3.4.9  && <0.4
     , semigroupoids         ^>=5.3.1
     , semigroups
-    , servant-server        ^>=0.14.1
     , strict-base-types     ^>=0.6.0
-    , swagger2              ^>=2.3
     , tagged                >=0.8.4    && <0.9
     , template-haskell
     , text
@@ -120,14 +110,12 @@ library
     , transformers-compat   >=0.5.1.4  && <0.7
     , trifecta              ^>=2
     , tz                    >=0.1.2.0  && <0.2
-    , unicode-transforms    >=0.3.0    && <0.4
     , unliftio-core         ^>=0.1.1.0
     , unordered-containers  >=0.2.7.1  && <0.3
-    , uuid                  >=1.3.12   && <1.4
+    , uuid-types            ^>=1.0.3
     , vector                >=0.11.0.0 && <0.13
     , vector-algorithms     >=0.8.0.0  && <0.9
     , vector-instances      >=3.4      && <3.5
-    , wai
     , writer-cps-mtl        >=0.1.1.4  && <0.2
     , insert-ordered-containers
 
@@ -142,7 +130,6 @@ library
       Futurice.Constraint.ForallSymbol
       Futurice.Constraint.Unit1
       Futurice.Control
-      Futurice.CryptoRandom
       Futurice.Exit
       Futurice.Generics
       Futurice.Generics.Enum
@@ -168,6 +155,31 @@ library
       Futurice.Time.Month
       Futurice.TypeTag
       Futurice.UUID
+
+  if impl(ghcjs)
+    build-depends:
+      primitive <0.6.4
+
+  else
+    exposed-modules:
+      Futurice.CryptoRandom
+
+    build-depends:
+      , DRBG                  >=0.5.5    && <0.6
+      , file-embed            ==0.0.11
+      , file-embed-lzma       ^>=0
+      , github                ^>=0.19
+      , http-client           >=0.5.4    && <0.6
+      , http-client-tls       >=0.3.3    && <0.4
+      , monadcryptorandom     >=0.7.2    && <0.7.3
+      , postgresql-simple     >=0.5.2.1  && <0.6
+      , servant-server        ^>=0.14.1
+      , swagger2              ^>=2.3
+      , wai
+
+      -- https://github.com/ghcjs/ghcjs/issues/703
+      , unicode-transforms    >=0.3.0    && <0.4
+
   default-language: Haskell2010
 
 test-suite tests

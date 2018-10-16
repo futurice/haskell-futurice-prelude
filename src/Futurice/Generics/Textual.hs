@@ -26,8 +26,10 @@ module Futurice.Generics.Textual (
     textualToHtml,
 -}
     -- ** swagger2
+#ifdef MIN_VERSION_swagger2
     textualToParamSchema,
     textualDeclareNamedSchema,
+#endif
 {-
     -- * Explicit
     -- ** cassava
@@ -48,10 +50,16 @@ import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
 
 import qualified Data.Aeson.Compat                    as Aeson
 import qualified Data.Csv                             as Csv
+
+#ifdef MIN_VERSION_swagger2
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
+#endif
+
+#ifdef MIN_VERSION_http_client
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
+#endif
 
 -- | A helper newtype to use @DerivingVia@ extension.
 newtype Textica a = Textica a
@@ -100,6 +108,7 @@ instance Textual a => FromHttpApiData (Textica a) where
 -- swagger2
 -------------------------------------------------------------------------------
 
+#ifdef MIN_VERSION_swagger2
 textualToParamSchema
     :: forall a t proxy. Textual a
     => proxy a -> Swagger.ParamSchema t
@@ -123,11 +132,13 @@ instance Textual a => Swagger.ToParamSchema (Textica a) where
 
 instance (Typeable a, Textual a) => Swagger.ToSchema (Textica a) where
     declareNamedSchema _ = textualDeclareNamedSchema (Proxy :: Proxy a)
+#endif
 
 -------------------------------------------------------------------------------
 -- postgresql-simple
 -------------------------------------------------------------------------------
 
+#ifdef MIN_VERSION_postgresql_simple
 instance Textual a => Postgres.ToField (Textica a) where
     toField = Postgres.toField . texticaToText
 
@@ -136,6 +147,7 @@ instance (Typeable a, Textual a) => Postgres.FromField (Textica a) where
         t <- Postgres.fromField f mbs
         either (Postgres.returnError Postgres.ConversionFailed f) pure $
             texticaFromText t
+#endif
 
 -------------------------------------------------------------------------------
 -- cassava

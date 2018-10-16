@@ -23,14 +23,18 @@ module Futurice.Generics.Enum (
     -- ** lucid
     enumToHtml,
     -- ** swagger2
+#ifdef MIN_VERSION_swagger2
     enumToParamSchema,
     enumDeclareNamedSchema,
+#endif
     -- ** cassava
     enumCsvToField,
     enumCsvParseField,
     -- ** postgresql-simple
+#ifdef MIN_VERSION_postgresql_simple
     enumPostgresToField,
     enumPostgresFromField,
+#endif
     ) where
 
 import Control.Monad    ((>=>))
@@ -43,12 +47,18 @@ import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
 import qualified Data.Aeson.Compat                    as Aeson
 import qualified Data.Csv                             as Csv
 import qualified Data.Map                             as Map
+import qualified Data.Text                            as T
+import qualified Generics.SOP                         as SOP
+
+#ifdef MIN_VERSION_swagger2
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
-import qualified Data.Text                            as T
+#endif
+
+#ifdef MIN_VERSION_postgresql_simple
 import qualified Database.PostgreSQL.Simple.FromField as Postgres
 import qualified Database.PostgreSQL.Simple.ToField   as Postgres
-import qualified Generics.SOP                         as SOP
+#endif
 
 -- | A helper newtype to use @DerivingVia@ extension.
 newtype Enumica a = Enumica a
@@ -150,6 +160,7 @@ enumParseJSON = Aeson.withText name $
 
 -- no Enumica instances yet. Doesn't work with GHC-8.2
 
+#ifdef MIN_VERSION_swagger2
 enumToParamSchema
     :: forall a t proxy. TextEnum a
     => proxy a -> Swagger.ParamSchema t
@@ -164,6 +175,7 @@ enumDeclareNamedSchema _ = pure $ Swagger.NamedSchema (Just name) $ mempty
     & Swagger.paramSchema .~ enumToParamSchema (Proxy :: Proxy a)
   where
     name = textShow $ typeRep (Proxy :: Proxy a)
+#endif
 
 -------------------------------------------------------------------------------
 -- http-api-data
@@ -207,6 +219,7 @@ enumCsvParseField = Csv.parseField >=>
 -- postgresql-simple
 -------------------------------------------------------------------------------
 
+#ifdef MIN_VERSION_postgresql_simple
 enumPostgresToField :: TextEnum a => a -> Postgres.Action
 enumPostgresToField = Postgres.toField . enumToText
 
@@ -215,3 +228,4 @@ enumPostgresFromField f mbs = Postgres.fromField f mbs >>=
     either (err . view unpacked) pure . enumFromTextE
   where
     err = Postgres.returnError Postgres.ConversionFailed f
+#endif

@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds              #-}
 {-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE FlexibleInstances      #-}
@@ -27,7 +28,6 @@ import Control.Lens       (( # ))
 import Data.Aeson         (FromJSON (..), ToJSON (..))
 import Data.Binary.Tagged (HasSemanticVersion, HasStructuralInfo)
 import Data.Fixed         (Fixed, HasResolution)
-import Data.Swagger       (NamedSchema (..), ToSchema (..))
 import Futurice.Prelude
 import GHC.TypeLits       (KnownNat, Nat, natVal)
 import Lucid              (ToHtml (..))
@@ -36,6 +36,10 @@ import System.Random      (Random (..))
 import Test.QuickCheck    (Arbitrary (..), CoArbitrary (..))
 
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty (..))
+
+#ifdef MIN_VERSION_swagger2
+import Data.Swagger       (NamedSchema (..), ToSchema (..))
+#endif
 
 import qualified Data.Aeson         as Aeson
 import qualified Data.Binary        as B
@@ -165,12 +169,14 @@ instance Csv.ToField a => Csv.ToField (NDT tu a) where
 instance Csv.FromField a => Csv.FromField (NDT tu a) where
     parseField = fmap NDT . Csv.parseField
 
+#ifdef MIN_VERSION_swagger2
 instance (ToSchema a,  IsTimeUnit tu) => ToSchema (NDT tu a) where
     declareNamedSchema _ = do
         NamedSchema _ schema <- declareNamedSchema (Proxy :: Proxy a)
         pure $ NamedSchema (Just $ "NDT " <> sfx ^. packed) schema
      where
        sfx  = symbolVal (Proxy :: Proxy (TimeUnitSfx tu))
+#endif
 
 -------------------------------------------------------------------------------
 -- Helper class to convert from/to Scientific
