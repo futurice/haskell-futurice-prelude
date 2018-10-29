@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE EmptyCase            #-}
+{-# LANGUAGE FlexibleContexts     #-}
 {-# LANGUAGE KindSignatures       #-}
 {-# LANGUAGE PolyKinds            #-}
 {-# LANGUAGE RankNTypes           #-}
@@ -17,9 +18,9 @@ module Futurice.List (
     UnSingleton,
     ) where
 
-import Prelude ()
 import Futurice.Prelude
-import Generics.SOP     ((:.:) (..), SList (..), SListI (..))
+import Generics.SOP     ((:.:) (..), SList (..), SListI, sList)
+import Prelude ()
 
 -- $setup
 -- >>> :set -XDataKinds

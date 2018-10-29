@@ -58,7 +58,7 @@ module Futurice.Prelude (
     traceShow,
     traceShowId,
     -- * Misc extras
-    -- type (:$),
+    type (:$),
     mcase,
     textShow,
     textVal,
