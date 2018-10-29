@@ -25,6 +25,7 @@ module Futurice.Prelude.Internal (
     Natural,
     NominalDiffTime,
     NonEmpty (..),
+    Only (..),
     Pair,
     Proxy(..),
     Scientific,
@@ -119,6 +120,7 @@ module Futurice.Prelude.Internal (
     -- * contravariant
     Contravariant (..), (>$<), phantom,
     -- * deepseq
+    force,
     ($!!),
     -- * exception
     SomeException(..),
@@ -236,7 +238,7 @@ import Prelude.Compat.Repl.Batteries hiding (zip, zipWith)
 
 import Control.Applicative
        (Alternative (..), Const (..), liftA2, optional)
-import Control.DeepSeq             (NFData (..), ($!!))
+import Control.DeepSeq             (NFData (..), force, ($!!))
 import Control.Exception           (evaluate)
 import Control.Lens
        (At (..), Getter, Iso, Iso', Ixed (..), Lens, Lens', LensLike,
@@ -312,6 +314,7 @@ import Data.Time
 import Data.Time.TH                (mkDay, mkUTCTime)
 import Data.Time.Zones             (TZ)
 import Data.Traversable            (for)
+import Data.Tuple.Only             (Only (..))
 import Data.Typeable               (Typeable)
 import Data.UUID.Types             (UUID)
 import Data.Vector                 (Vector)

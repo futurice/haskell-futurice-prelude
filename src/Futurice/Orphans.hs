@@ -102,10 +102,10 @@ import Data.Swagger                          (NamedSchema (..), ToSchema (..))
 import qualified Crypto.Random.DRBG.Hash              as DRBG
 import qualified Data.Swagger                         as Swagger
 import qualified Data.Swagger.Declare                 as Swagger
-import qualified Database.PostgreSQL.Simple.FromField as Postgres
-import qualified Database.PostgreSQL.Simple.FromRow   as Postgres
-import qualified Database.PostgreSQL.Simple.ToField   as Postgres
-import qualified Database.PostgreSQL.Simple.ToRow     as Postgres
+import qualified Database.PostgreSQL.Simple.FromField as PG
+import qualified Database.PostgreSQL.Simple.FromRow   as PG
+import qualified Database.PostgreSQL.Simple.ToField   as PG
+import qualified Database.PostgreSQL.Simple.ToRow     as PG
 import qualified GitHub                               as GH
 import qualified GitHub.Data.Name                     as GH
 import qualified Network.HTTP.Client                  as HTTP

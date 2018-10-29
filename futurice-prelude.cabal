@@ -16,7 +16,7 @@ author:         Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
 license:        BSD-3-Clause
 license-file:   LICENSE
-tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.3
+tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4
 build-type:     Simple
 
 extra-source-files:
@@ -46,7 +46,7 @@ library
     , bifunctors
     , binary
     , binary-orphans        ==0.1.8.*
-    , binary-tagged         ==0.1.5
+    , binary-tagged         ==0.1.5.1
     , bytestring
     , case-insensitive      >=1.2.0.7  && <1.3
     , cassava               >=0.5.1.0  && <0.5.2.0
@@ -63,7 +63,7 @@ library
     , extra                 ^>=1.6.2
     , fail
     , fin                   >=0        && <0.1
-    , generics-sop          >=0.3.1.0  && <0.4
+    , generics-sop          >=0.4.0.0  && <0.5
     , generics-sop-lens     >=0.1.1.0  && <0.2
     , ghc-prim
     , hashable              >=1.2.4
@@ -83,6 +83,7 @@ library
     , mtl                   >=2.2.1    && <2.3
     , nats
     , nf                    >=1.0.1.0  && <1.1
+    , Only                  ^>=0.1
     , parsec                >=3.1.11   && <3.2
     , pretty-compact        >=3.0      && <3.1
     , profunctors           ^>=5.3
@@ -168,11 +169,11 @@ library
       , DRBG                  >=0.5.5    && <0.6
       , file-embed            ==0.0.11
       , file-embed-lzma       ^>=0
-      , github                ^>=0.19
+      , github                ^>=0.20
       , http-client           >=0.5.4    && <0.6
       , http-client-tls       >=0.3.3    && <0.4
       , monadcryptorandom     >=0.7.2    && <0.7.3
-      , postgresql-simple     >=0.5.2.1  && <0.6
+      , postgresql-simple     ^>=0.6
       , servant-server        ^>=0.14.1
       , swagger2              ^>=2.3
       , wai
