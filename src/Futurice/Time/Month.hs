@@ -10,6 +10,7 @@ module Futurice.Time.Month (
     monthInterval,
     firstDayOfMonth,
     lastDayOfMonth,
+    monthToText,
     ) where
 
 import Futurice.Prelude.Internal
@@ -21,6 +22,7 @@ import Data.Aeson.Types
        (FromJSONKeyFunction (..), ToJSONKeyFunction (..))
 import Data.Time
        (fromGregorian, gregorianMonthLength, toGregorian)
+import Lucid                     (ToHtml (..))
 import Numeric.Interval.NonEmpty (Interval, (...))
 import Test.QuickCheck           (Arbitrary (..), arbitraryBoundedEnum)
 import Web.HttpApiData           (FromHttpApiData (..), ToHttpApiData (..))
@@ -161,6 +163,10 @@ instance ToHttpApiData Month where
 instance FromHttpApiData Month where
     parseUrlPiece = first T.pack . AT.parseOnly (mkMonth <$> Parsers.month)
 
+instance ToHtml Month where
+    toHtmlRaw = toHtml
+    toHtml = toHtml . monthToText
+
 instance Arbitrary Month where
     arbitrary = mk <$> arbitrary <*> arbitrary
       where
@@ -224,6 +230,9 @@ monthToString (Month y October)  = show y ++ "-10"
 monthToString (Month y November) = show y ++ "-11"
 monthToString (Month y December) = show y ++ "-12"
 monthToString (Month y m)        = show y ++ "-0" ++ show (fromEnum m)
+
+monthToText :: Month -> Text
+monthToText m = monthToString m ^. packed
 
 -- $setup
 -- >>> :set -XTemplateHaskell
