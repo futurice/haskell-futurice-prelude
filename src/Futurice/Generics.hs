@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP             #-}
+{-# LANGUAGE ConstraintKinds #-}
 -- | "Generics.SOP" derivation for record types (i.e. products).
 module Futurice.Generics (
     -- * Deriving Via
@@ -7,6 +8,9 @@ module Futurice.Generics (
     Via,
 #endif
     Sopica (..),
+    SopGeneric,
+    GhcGeneric,
+    SOP.HasDatatypeInfo,
     Enumica (..),
     TextEnum (..),
     Textica (..),
@@ -66,11 +70,17 @@ import Lucid           (ToHtml (..))
 import Test.QuickCheck (Arbitrary (..))
 import Web.HttpApiData (FromHttpApiData (..), ToHttpApiData (..))
 
+import qualified Generics.SOP as SOP
+import qualified GHC.Generics as GHC
+
 #ifdef MIN_VERSION_swagger2
 import           Data.Swagger         (ToParamSchema (..), ToSchema (..))
 import qualified Data.Swagger         as Swagger
 import qualified Data.Swagger.Declare as Swagger
 #endif
+
+type SopGeneric = SOP.Generic
+type GhcGeneric = GHC.Generic
 
 #ifdef MIN_VERSION_swagger2
 -- | Declares with named but empty schema.
