@@ -91,6 +91,14 @@ instance IsTimeUnit 'Fortnights where
 newtype NDT (tu :: TimeUnit) a = NDT a
   deriving (Eq, Ord, Show, Read, Functor, Foldable, Traversable, Generic)
 
+-- | Only reasonable monoid for Time is addition?
+instance Num a => Semigroup (NDT tu a) where
+    NDT x <> NDT y = NDT (x + y)
+
+instance Num a => Monoid (NDT tu a) where
+    mempty  = NDT 0
+    mappend = (<>)
+
 unNDT :: NDT tu a -> a
 unNDT (NDT x) = x
 
