@@ -42,7 +42,7 @@ import Data.Char                 (toLower)
 import Futurice.Aeson            (withObjectDump)
 import Futurice.IsMaybe
 import Futurice.Prelude          hiding (Generic, from)
-import Generics.SOP              hiding (constructorInfo, datatypeName)
+import Generics.SOP              hiding (constructorInfo, constructorName, datatypeName)
 import Generics.SOP.Lens
 import Prelude ()
 
@@ -464,11 +464,11 @@ fieldInfo = lens g s
   where
     g :: ConstructorInfo xs -> NP FieldInfo xs
     g (Record _ fs) = fs
-    g _             = error "fieldInfo get: only record supported"
+    g cis           = error $ "fieldInfo get: only record supported -- " ++ cis ^. constructorName
 
     s :: ConstructorInfo xs -> NP FieldInfo xs -> ConstructorInfo xs
     s (Record n _) fs = Record n fs
-    s _ _             = error "fieldInfo set: only record supported"
+    s cis _           = error $ "fieldInfo set: only record supported -- " ++ cis ^. constructorName
 
 -------------------------------------------------------------------------------
 -- Doctest
