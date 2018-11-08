@@ -20,6 +20,7 @@ module Futurice.Generics (
     ToHtml (..),
     ToNamedRecord(..),
     DefaultOrdered(..),
+    ToRecord(..),
     FromRecord(..),
     ToJSON(..),
     FromJSON(..),
@@ -65,7 +66,8 @@ import Futurice.Generics.Textual
 
 import Data.Aeson      (FromJSON (..), ToJSON (..))
 import Data.Csv
-       (DefaultOrdered (..), FromRecord (..), ToNamedRecord (..))
+       (DefaultOrdered (..), FromRecord (..), ToNamedRecord (..),
+       ToRecord (..))
 import Lucid           (ToHtml (..))
 import Test.QuickCheck (Arbitrary (..))
 import Web.HttpApiData (FromHttpApiData (..), ToHttpApiData (..))

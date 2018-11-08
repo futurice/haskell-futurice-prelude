@@ -127,9 +127,13 @@ instance (HasDatatypeInfo a, IsProductType a xs, All Csv.ToField xs)
   where
     toNamedRecord = coerce (sopToNamedRecord :: a -> Csv.NamedRecord)
 
+instance (IsProductType a xs, All Csv.ToField xs)
+    => Csv.ToRecord (Sopica a)
+  where
+    toRecord = coerce (sopToRecord :: a -> Csv.Record)
+
 sopToNamedRecord
-    :: forall a xs.
-       (Generic a, HasDatatypeInfo a, All Csv.ToField xs, Code a ~ '[xs])
+    :: forall a xs. (IsProductType a xs, HasDatatypeInfo a, All Csv.ToField xs)
     => a
     -> Csv.NamedRecord
 sopToNamedRecord
@@ -139,6 +143,17 @@ sopToNamedRecord
     . from
   where
     p = Proxy :: Proxy a
+
+sopToRecord
+    :: forall a xs. (IsProductType a xs, All Csv.ToField xs)
+    => a
+    -> Csv.Record
+sopToRecord
+    = V.fromList
+    . hcollapse
+    . hcmap (Proxy :: Proxy Csv.ToField) (mapIK Csv.toField)
+    . (^. unsop . unSingletonS)
+    . from
 
 sopToNamedRecord'
     :: All Csv.ToField xs
@@ -150,9 +165,6 @@ sopToNamedRecord' prefix = go
     go Nil Nil = []
     go (FieldInfo f :* fs) (I x :* xs) =
         Csv.namedField (fromString $ processFieldName prefix f) x : go fs xs
-#if __GLASGOW_HASKELL__ < 800
-    go _ _ = error "sopToNamedRecord' go: impossible happened"
-#endif
 
 sopHeaderOrder
     :: forall a xs.
