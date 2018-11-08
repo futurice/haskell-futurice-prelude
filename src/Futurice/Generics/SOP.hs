@@ -122,7 +122,10 @@ instance
   where
     headerOrder = coerce (sopHeaderOrder :: a -> Csv.Header)
 
--- TODO: ToNamedRecord
+instance (HasDatatypeInfo a, IsProductType a xs, All Csv.ToField xs)
+    => Csv.ToNamedRecord (Sopica a)
+  where
+    toNamedRecord = coerce (sopToNamedRecord :: a -> Csv.NamedRecord)
 
 sopToNamedRecord
     :: forall a xs.
