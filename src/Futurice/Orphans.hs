@@ -58,7 +58,7 @@ import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction (..),
        ToJSON1 (..), ToJSONKey (..), ToJSONKeyFunction,
        coerceFromJSONKeyFunction, contramapToJSONKeyFunction, parseJSON1,
-       toEncoding1, toJSON1, withText)
+       toEncoding1, toJSON1)
 import Data.Binary.Tagged
        (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
 import Data.Fixed                            (Fixed (..), HasResolution)
@@ -79,7 +79,6 @@ import qualified Data.Fixed                           as Fixed
 import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
 import qualified Data.Map                             as Map
 import qualified Data.Scientific                      as Scientific
-import qualified Data.Text                            as T
 import qualified Data.Text.Encoding                   as TE
 import qualified Data.Text.Encoding.Error             as TE
 import qualified Data.Tuple.Strict                    as S
@@ -91,7 +90,6 @@ import qualified Language.Haskell.TH.Syntax           as TH
 import qualified Network.HTTP.Types.Status            as HTTP
 import qualified Numeric.Interval.Kaucher             as Kaucher
 import qualified Numeric.Interval.NonEmpty            as NonEmpty
-import qualified Servant.Client.Core.Internal.BaseUrl as Servant
 import qualified System.Clock                         as Clock
 
 #ifndef __GHCJS__
@@ -700,44 +698,6 @@ decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
 instance MonadTime Servant.Handler where
     currentTime = liftIO currentTime
 #endif
-
--------------------------------------------------------------------------------
--- servant-client-core
--------------------------------------------------------------------------------
-
--- https://github.com/haskell-servant/servant/pull/1037
--- probably will be in servant-client-core-0.15
-
-deriving instance Lift Servant.Scheme
-deriving instance Lift Servant.BaseUrl
-
--- | >>> traverse_ (LBS8.putStrLn . encode) $ parseBaseUrl "api.example.com"
--- "http://api.example.com"
-instance ToJSON Servant.BaseUrl where
-    toJSON     = toJSON . Servant.showBaseUrl
-    toEncoding = toEncoding . Servant.showBaseUrl
-
--- | >>> parseBaseUrl "api.example.com" >>= decode . encode :: Maybe BaseUrl
--- Just (BaseUrl {baseUrlScheme = Http, baseUrlHost = "api.example.com", baseUrlPort = 80, baseUrlPath = ""})
-instance FromJSON Servant.BaseUrl where
-    parseJSON = withText "BaseUrl" $ \t -> case Servant.parseBaseUrl (T.unpack t) of
-        Just u  -> return u
-        Nothing -> fail $ "Invalid base url: " ++ T.unpack t
-
--- | >>> :{
--- traverse_ (LBS8.putStrLn . encode) $ do
---   u1 <- parseBaseUrl "api.example.com"
---   u2 <- parseBaseUrl "example.com"
---   return $ Map.fromList [(u1, 'x'), (u2, 'y')]
--- :}
--- {"http://api.example.com":"x","http://example.com":"y"}
-instance ToJSONKey Servant.BaseUrl where
-    toJSONKey = contramapToJSONKeyFunction Servant.showBaseUrl toJSONKey
-
-instance FromJSONKey Servant.BaseUrl where
-    fromJSONKey = FromJSONKeyTextParser $ \t -> case Servant.parseBaseUrl (T.unpack t) of
-        Just u  -> return u
-        Nothing -> fail $ "Invalid base url: " ++ T.unpack t
 
 -------------------------------------------------------------------------------
 -- postgresql-simple + NP
