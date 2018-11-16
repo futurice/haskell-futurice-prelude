@@ -101,6 +101,8 @@ library
     , tagged                >=0.8.4    && <0.9
     , template-haskell
     , text
+    , text-short            ^>=0.1.2
+    , text-containers       ^>=0.1.0.0
     , th-lift               >=0.7.7    && <0.8
     , th-lift-instances     >=0.1.11   && <0.2
     , these                 ^>=0.7.5

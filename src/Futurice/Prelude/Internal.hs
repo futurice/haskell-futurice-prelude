@@ -33,6 +33,7 @@ module Futurice.Prelude.Internal (
     StrictPair,
     Tagged (..), untag,
     Text,
+    ShortText,
     These (..),
     TimeOfDay (..),
     TimeSpec(..),
@@ -307,6 +308,7 @@ import Data.String                 (IsString (..))
 import Data.Tagged                 (Tagged (..), untag)
 import Data.Text                   (Text)
 import Data.Text.Lens              (packed, unpacked)
+import Data.Text.Short             (ShortText)
 import Data.These                  (These (..))
 import Data.Time
        (Day (..), LocalTime (..), NominalDiffTime, TimeOfDay (..),

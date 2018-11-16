@@ -72,30 +72,32 @@ import System.Random                         (Random (..))
 import Test.QuickCheck                       (Arbitrary (..))
 import Text.Parsec                           (parse)
 
-import qualified Data.Aeson.Encoding                  as Aeson
-import qualified Data.CaseInsensitive                 as CI
-import qualified Data.Csv                             as Csv
-import qualified Data.Fixed                           as Fixed
-import qualified Data.HashMap.Strict.InsOrd           as InsOrdHashMap
-import qualified Data.Map                             as Map
-import qualified Data.Scientific                      as Scientific
-import qualified Data.Text.Encoding                   as TE
-import qualified Data.Text.Encoding.Error             as TE
-import qualified Data.Tuple.Strict                    as S
-import qualified Data.UUID.Types                      as UUID
-import qualified Data.Vector                          as V
-import qualified Generics.SOP                         as SOP
-import qualified GHC.Exts                             as Exts
-import qualified Language.Haskell.TH.Syntax           as TH
-import qualified Network.HTTP.Types.Status            as HTTP
-import qualified Numeric.Interval.Kaucher             as Kaucher
-import qualified Numeric.Interval.NonEmpty            as NonEmpty
-import qualified System.Clock                         as Clock
+import qualified Data.Aeson.Encoding        as Aeson
+import qualified Data.CaseInsensitive       as CI
+import qualified Data.Csv                   as Csv
+import qualified Data.Fixed                 as Fixed
+import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
+import qualified Data.Map                   as Map
+import qualified Data.Scientific            as Scientific
+import qualified Data.Text.Encoding         as TE
+import qualified Data.Text.Encoding.Error   as TE
+import qualified Data.Text.Short            as TS
+import qualified Data.TextSet.Unboxed       as TextSet
+import qualified Data.Tuple.Strict          as S
+import qualified Data.UUID.Types            as UUID
+import qualified Data.Vector                as V
+import qualified Generics.SOP               as SOP
+import qualified GHC.Exts                   as Exts
+import qualified Language.Haskell.TH.Syntax as TH
+import qualified Network.HTTP.Types.Status  as HTTP
+import qualified Numeric.Interval.Kaucher   as Kaucher
+import qualified Numeric.Interval.NonEmpty  as NonEmpty
+import qualified System.Clock               as Clock
 
 #ifndef __GHCJS__
 import Control.Monad.CryptoRandom
        (CRandT (..), CRandom (..), MonadCRandom (..), runCRand)
-import Data.Swagger                          (NamedSchema (..), ToSchema (..))
+import Data.Swagger               (NamedSchema (..), ToSchema (..))
 
 import qualified Crypto.Random.DRBG.Hash              as DRBG
 import qualified Data.Swagger                         as Swagger
@@ -710,6 +712,30 @@ instance (All PG.ToField xs, f ~ I) => PG.ToRow (NP f xs) where
 instance (All PG.FromField xs, f ~ I) => PG.FromRow (NP f xs) where
     fromRow = SOP.hsequence $ SOP.hcpure (Proxy :: Proxy PG.FromField) PG.field
 #endif
+
+-------------------------------------------------------------------------------
+-- text-short
+-------------------------------------------------------------------------------
+
+instance ToJSON ShortText where
+    toJSON     = toJSON . TS.unpack
+    toEncoding = toEncoding . TS.unpack
+
+instance FromJSON ShortText where
+    parseJSON = fmap TS.pack . parseJSON
+
+instance ToSchema ShortText where
+    declareNamedSchema  _ = declareNamedSchema (Proxy  :: Proxy Text)
+
+instance ToJSON TextSet.TextSet where
+    toJSON     = toJSON . TextSet.toList
+    toEncoding = toEncoding . TextSet.toList
+
+instance FromJSON TextSet.TextSet where
+    parseJSON = fmap TextSet.fromList . parseJSON
+
+instance ToSchema TextSet.TextSet where
+    declareNamedSchema  _ = declareNamedSchema (Proxy  :: Proxy (Set Text))
 
 -------------------------------------------------------------------------------
 -- resourcet + unliftio-core
