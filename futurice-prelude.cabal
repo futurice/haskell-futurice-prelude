@@ -16,7 +16,7 @@ author:         Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
 license:        BSD-3-Clause
 license-file:   LICENSE
-tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4
+tested-with:    GHC==8.0.2, GHC==8.2.2, GHC==8.4.4, GHC==8.6.2
 build-type:     Simple
 
 extra-source-files:
@@ -32,7 +32,7 @@ library
   default-extensions: DeriveDataTypeable DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable ScopedTypeVariables
   ghc-options: -Wall
   build-depends:
-      base                  >=4.9      && <4.12
+      base                  >=4.9      && <4.13
     , aeson                 ^>=1.4
     , aeson-compat          >=0.3.6    && <0.4
     , ansi-pretty           >=0.1.2.1
