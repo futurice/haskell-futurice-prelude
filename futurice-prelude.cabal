@@ -33,7 +33,7 @@ library
   ghc-options: -Wall
   build-depends:
       base                  >=4.9      && <4.13
-    , aeson                 ^>=1.4
+    , aeson                 ^>=1.4.2.0
     , aeson-compat          >=0.3.6    && <0.4
     , ansi-pretty           >=0.1.2.1
     , ansi-terminal         ^>=0.8
