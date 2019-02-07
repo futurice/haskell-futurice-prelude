@@ -112,7 +112,6 @@ instance Show Month where
 
 -- TODO write Read instance to match above Show instance
 
--- generic derived instances
 instance Hashable Month
 instance Csv.ToField Month
 instance Csv.FromField Month
