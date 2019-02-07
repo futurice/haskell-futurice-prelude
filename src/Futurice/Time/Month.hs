@@ -29,6 +29,7 @@ import Web.HttpApiData           (FromHttpApiData (..), ToHttpApiData (..))
 
 import qualified Data.Aeson.Encoding  as Aeson.Encoding
 import qualified Data.Attoparsec.Text as AT
+import qualified Data.Csv             as Csv
 import qualified Data.Text            as T
 import qualified Data.Time.Parsers    as Parsers
 
@@ -112,6 +113,9 @@ instance Show Month where
 -- TODO write Read instance to match above Show instance
 
 instance Hashable Month
+instance Csv.ToField Month
+instance Csv.FromField Month
+
 instance NFData Month where rnf (Month _ _) = ()
 
 instance Enum Month where
