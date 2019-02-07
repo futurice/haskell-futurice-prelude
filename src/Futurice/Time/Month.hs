@@ -112,7 +112,11 @@ instance Show Month where
 
 -- TODO write Read instance to match above Show instance
 
+-- generic derived instances
 instance Hashable Month
+instance Csv.ToField Month
+instance Csv.FromField Month
+
 instance NFData Month where rnf (Month _ _) = ()
 
 instance Enum Month where
@@ -167,9 +171,6 @@ instance FromHttpApiData Month where
 instance ToHtml Month where
     toHtmlRaw = toHtml
     toHtml = toHtml . monthToText
-
-instance Csv.ToField Month where
-    toField = Csv.toField . show
 
 instance Arbitrary Month where
     arbitrary = mk <$> arbitrary <*> arbitrary
