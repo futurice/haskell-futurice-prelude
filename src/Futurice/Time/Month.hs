@@ -113,8 +113,6 @@ instance Show Month where
 -- TODO write Read instance to match above Show instance
 
 instance Hashable Month
-instance Csv.ToField Month
-instance Csv.FromField Month
 
 instance NFData Month where rnf (Month _ _) = ()
 
@@ -129,6 +127,12 @@ instance Enum Month where
     toEnum i =
         let (y, m) = divMod i 12
         in Month (fromIntegral y) (toEnum $ m + 1)
+
+instance Csv.ToField Month where
+    toField = Csv.toField . monthToString
+
+instance Csv.FromField Month where
+    parseField = Csv.parseField
 
 -- | TODO: use builder if we really want speed
 instance ToJSON Month where
