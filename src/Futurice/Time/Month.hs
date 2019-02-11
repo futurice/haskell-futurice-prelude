@@ -32,8 +32,8 @@ import qualified Data.Attoparsec.Text  as AT
 import qualified Data.Csv              as Csv
 import qualified Data.Text             as T
 import qualified Data.Time.Parsers     as Parsers
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.List             as L
+import qualified Data.Text.Encoding    as TE
+import qualified Data.Text.Encoding.Error as TE
 
 #ifdef MIN_VERSION_swagger2
 import           Data.Swagger (ToParamSchema (..), ToSchema (..))
@@ -133,18 +133,13 @@ instance Enum Month where
 instance Csv.ToField Month where
     toField = Csv.toField . monthToString
 
--- | TODO: safer parsing method for this that doesn't use read for the month parts
 instance Csv.FromField Month where
-    parseField field | BS.length field == 7 = parsed
-                     | otherwise            = empty
-        where
-            parsed =
-                case map BS.unpack $ BS.split '-' field of
-                    []          -> empty
-                    [yr, mo]    -> pure $ Month (read yr :: Integer) (toMonth mo)
-                    _           -> empty
-
-            toMonth = toEnum . read
+    parseField field =
+        let monthtext = TE.decodeUtf8With TE.lenientDecode field
+            month = parseUrlPiece monthtext :: Either Text Month
+        in case month of
+                Left _ -> empty
+                Right m -> pure m
 
 -- | TODO: use builder if we really want speed
 instance ToJSON Month where
