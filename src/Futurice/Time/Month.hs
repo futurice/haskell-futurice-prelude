@@ -138,7 +138,7 @@ instance Csv.FromField Month where
         let monthtext = TE.decodeUtf8With TE.lenientDecode field
             month = parseUrlPiece monthtext :: Either Text Month
         in case month of
-                Left _ -> empty
+                Left err -> fail $ T.unpack err
                 Right m -> pure m
 
 -- | TODO: use builder if we really want speed
