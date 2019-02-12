@@ -27,11 +27,13 @@ import Numeric.Interval.NonEmpty (Interval, (...))
 import Test.QuickCheck           (Arbitrary (..), arbitraryBoundedEnum)
 import Web.HttpApiData           (FromHttpApiData (..), ToHttpApiData (..))
 
-import qualified Data.Aeson.Encoding  as Aeson.Encoding
-import qualified Data.Attoparsec.Text as AT
-import qualified Data.Csv             as Csv
-import qualified Data.Text            as T
-import qualified Data.Time.Parsers    as Parsers
+import qualified Data.Aeson.Encoding   as Aeson.Encoding
+import qualified Data.Attoparsec.Text  as AT
+import qualified Data.Csv              as Csv
+import qualified Data.Text             as T
+import qualified Data.Time.Parsers     as Parsers
+import qualified Data.Text.Encoding    as TE
+import qualified Data.Text.Encoding.Error as TE
 
 #ifdef MIN_VERSION_swagger2
 import           Data.Swagger (ToParamSchema (..), ToSchema (..))
@@ -113,8 +115,6 @@ instance Show Month where
 -- TODO write Read instance to match above Show instance
 
 instance Hashable Month
-instance Csv.ToField Month
-instance Csv.FromField Month
 
 instance NFData Month where rnf (Month _ _) = ()
 
@@ -129,6 +129,17 @@ instance Enum Month where
     toEnum i =
         let (y, m) = divMod i 12
         in Month (fromIntegral y) (toEnum $ m + 1)
+
+instance Csv.ToField Month where
+    toField = Csv.toField . monthToString
+
+instance Csv.FromField Month where
+    parseField field =
+        let monthtext = TE.decodeUtf8With TE.lenientDecode field
+            month = parseUrlPiece monthtext :: Either Text Month
+        in case month of
+                Left err -> fail $ T.unpack err
+                Right m -> pure m
 
 -- | TODO: use builder if we really want speed
 instance ToJSON Month where
