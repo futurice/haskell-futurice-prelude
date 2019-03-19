@@ -13,7 +13,7 @@ description:
 category:           Web
 homepage:           https://github.com/futurice/haskell-futurice-prelude#readme
 bug-reports:        https://github.com/futurice/haskell-futurice-prelude/issues
-author:             Toni Okuogume <toni.okuogume@futurice.com>
+author:             Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:         Toni Okuogume <toni.okuogume@futurice.com>
 license:            BSD-3-Clause
 license-file:       LICENSE
