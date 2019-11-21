@@ -29,7 +29,7 @@ module Futurice.Has (
 
 import Control.Lens      (Lens', Prism', lens, set, view)
 import Generics.SOP      (I (..), NP (..), NS (..))
-import Generics.SOP.Lens (headLens, tailLens, uni, _S, _Z)
+import Generics.SOP.Lens (npHead, npTail, _I, _S, _Z)
 
 import qualified Futurice.Peano as N
 
@@ -49,11 +49,11 @@ class Has r f where
 --
 -- This is extremly handy for specifying ad-hoc environments.
 instance In x xs => Has (NP I xs) x where
-    field = proj . uni
+    field = proj . _I
 
 -- | 'I' wrapped value 'Has' itself.
 instance Has (I x) x where
-    field = uni
+    field = _I
 
 -------------------------------------------------------------------------------
 -- IsElem
@@ -70,11 +70,11 @@ class IsElem' a xs i => IsElem a xs i where
     inj  :: forall f. Prism' (NS f xs) (f a)
 
 instance IsElem x (x ': xs) 'N.Z where
-    proj = headLens
+    proj = npHead
     inj  = _Z
 
 instance ('N.S i ~ N.Index x (y ': ys), IsElem x ys i) => IsElem x (y ': ys) ('N.S i) where
-    proj = tailLens . proj
+    proj = npTail . proj
     inj  = _S . inj
 
 -------------------------------------------------------------------------------
