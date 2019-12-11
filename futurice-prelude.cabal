@@ -17,7 +17,7 @@ author:             Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:         Toni Okuogume <toni.okuogume@futurice.com>
 license:            BSD-3-Clause
 license-file:       LICENSE
-tested-with:        ghc ==8.0.2 ghc ==8.2.2 ghc ==8.4.4 ghc ==8.6.5
+tested-with:        ghc ==8.0.2 ghc ==8.2.2 ghc ==8.4.4 ghc ==8.6.5 ghc ==8.8.1
 build-type:         Simple
 extra-source-files: README.md
 
@@ -105,13 +105,13 @@ library
     , resourcet                  ^>=1.1.11 || ^>=1.2.1
     , scientific                 ^>=0.3.4.9
     , semialign                  ^>=1.1
+    , semialign-indexed          ^>=1.1
     , semigroupoids              ^>=5.3.1
     , semigroups
     , strict-base-types          ^>=0.6.1
     , tagged                     ^>=0.8.4
     , template-haskell
     , text
-    , text-containers            ^>=0.1.0.0
     , text-short                 ^>=0.1.2
     , th-lift                    ^>=0.8
     , th-lift-instances          ^>=0.1.11
@@ -140,13 +140,13 @@ library
       , DRBG               ^>=0.5.5
       , file-embed         ==0.0.11
       , file-embed-lzma    ^>=0
-      , github             ^>=0.23
+      , github             ^>=0.24
       , http-client        ^>=0.5.4
       , http-client-tls    ^>=0.3.3
       , monadcryptorandom  >=0.7.2  && <0.7.3
       , postgresql-simple  ^>=0.6
       , servant-server     ^>=0.16
-      , swagger2           ^>=2.4
+      , swagger2           ^>=2.5
       , wai
 
     -- https://github.com/ghcjs/ghcjs/issues/703

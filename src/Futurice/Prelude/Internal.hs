@@ -52,7 +52,7 @@ module Futurice.Prelude.Internal (
     UnionWith (..),
     -- * Data Classes
     Align (..),
-    AlignWithKey (..),
+    SemialignWithIndex (..),
     Binary (..),
     Generic,
     Hashable(..),
@@ -268,7 +268,6 @@ import Control.Monad.Trans.Control
 import Control.Monad.Trans.Maybe   (MaybeT (..))
 import Control.Monad.Writer.Class  (MonadWriter (..))
 import Data.Align                  (Align (..))
-import Data.Align.Key              (AlignWithKey (..))
 import Data.Bifunctor              (bimap, first, second)
 import Data.Binary                 (Binary (..))
 import Data.Bool                   (bool)
@@ -299,6 +298,7 @@ import Data.NF                     (NF, getNF, makeNF)
 import Data.Profunctor             (Profunctor (..))
 import Data.Proxy                  (Proxy (..))
 import Data.Scientific             (Scientific)
+import Data.Semialign.Indexed      (SemialignWithIndex (..))
 import Data.Semigroup              (Endo (..), Semigroup (..), Sum (..))
 import Data.Semigroup.Foldable     (Foldable1 (..))
 import Data.Semigroup.Traversable  (Traversable1 (..))
@@ -335,15 +335,14 @@ import System.Random.Shuffle       (shuffleM)
 import Text.Read                   (readMaybe)
 
 #ifdef MIN_VERSION_file_embed
-import Data.FileEmbed
-       (embedFile, embedStringFile, makeRelativeToProject)
+import Data.FileEmbed (embedFile, embedStringFile, makeRelativeToProject)
 #endif
 #ifdef MIN_VERSION_file_embed_lzma
-import FileEmbedLzma               (embedByteString, embedText)
+import FileEmbedLzma (embedByteString, embedText)
 #endif
 #ifdef MIN_VERSION_http_client
-import Network.HTTP.Client         (Manager, newManager)
-import Network.HTTP.Client.TLS     (tlsManagerSettings)
+import Network.HTTP.Client     (Manager, newManager)
+import Network.HTTP.Client.TLS (tlsManagerSettings)
 #endif
 
 import qualified Data.Aeson.Types     as Aeson

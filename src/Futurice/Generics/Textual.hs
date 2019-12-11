@@ -48,12 +48,12 @@ import Lucid            (ToHtml (..))
 import Prelude ()
 import Web.HttpApiData  (FromHttpApiData (..), ToHttpApiData (..))
 
-import qualified Data.Aeson.Compat                    as Aeson
-import qualified Data.Csv                             as Csv
+import qualified Data.Aeson.Compat as Aeson
+import qualified Data.Csv          as Csv
 
 #ifdef MIN_VERSION_swagger2
-import qualified Data.Swagger                         as Swagger
-import qualified Data.Swagger.Declare                 as Swagger
+import qualified Data.Swagger         as Swagger
+import qualified Data.Swagger.Declare as Swagger
 #endif
 
 #ifdef MIN_VERSION_http_client
@@ -102,7 +102,7 @@ instance Textual a => ToHttpApiData (Textica a) where
 instance Textual a => FromHttpApiData (Textica a) where
     parseUrlPiece t = do
         t' <- parseUrlPiece t
-        either (fail . view packed) pure $ texticaFromText t'
+        either (Left . view packed) pure $ texticaFromText t'
 
 -------------------------------------------------------------------------------
 -- swagger2
@@ -113,7 +113,7 @@ textualToParamSchema
     :: forall a t proxy. Textual a
     => proxy a -> Swagger.ParamSchema t
 textualToParamSchema _ = mempty
-    & Swagger.type_  .~ Swagger.SwaggerString
+    & Swagger.type_  .~ Just Swagger.SwaggerString
     -- & Swagger.format ?~ "format?"
 
 textualDeclareNamedSchema

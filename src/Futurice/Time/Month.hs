@@ -27,13 +27,13 @@ import Numeric.Interval.NonEmpty (Interval, (...))
 import Test.QuickCheck           (Arbitrary (..), arbitraryBoundedEnum)
 import Web.HttpApiData           (FromHttpApiData (..), ToHttpApiData (..))
 
-import qualified Data.Aeson.Encoding   as Aeson.Encoding
-import qualified Data.Attoparsec.Text  as AT
-import qualified Data.Csv              as Csv
-import qualified Data.Text             as T
-import qualified Data.Time.Parsers     as Parsers
-import qualified Data.Text.Encoding    as TE
+import qualified Data.Aeson.Encoding      as Aeson.Encoding
+import qualified Data.Attoparsec.Text     as AT
+import qualified Data.Csv                 as Csv
+import qualified Data.Text                as T
+import qualified Data.Text.Encoding       as TE
 import qualified Data.Text.Encoding.Error as TE
+import qualified Data.Time.Parsers        as Parsers
 
 #ifdef MIN_VERSION_swagger2
 import           Data.Swagger (ToParamSchema (..), ToSchema (..))
@@ -162,13 +162,13 @@ instance FromJSONKey Month where
 #ifdef MIN_VERSION_swagger2
 instance ToSchema Month where
     declareNamedSchema _ = pure $ Swagger.NamedSchema (Just "Month") $ mempty
-        & Swagger.type_ .~ Swagger.SwaggerString
+        & Swagger.type_ .~ Just Swagger.SwaggerString
         & Swagger.format ?~ "month"
 
 -- | Format @"month"@ corresponds to @yyyy-mm@ format.
 instance ToParamSchema Month where
   toParamSchema _ = mempty
-      & Swagger.type_  .~ Swagger.SwaggerString
+      & Swagger.type_  .~ Just Swagger.SwaggerString
       & Swagger.format ?~ "month"
 #endif
 

@@ -165,7 +165,7 @@ enumToParamSchema
     :: forall a t proxy. TextEnum a
     => proxy a -> Swagger.ParamSchema t
 enumToParamSchema _ = mempty
-    & Swagger.type_ .~ Swagger.SwaggerString
+    & Swagger.type_ .~ Just Swagger.SwaggerString
     & Swagger.enum_ ?~ map enumToJSON [ minBound .. maxBound :: a ]
 
 enumDeclareNamedSchema

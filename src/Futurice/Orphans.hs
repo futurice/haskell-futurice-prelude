@@ -81,13 +81,11 @@ import qualified Data.Scientific            as Scientific
 import qualified Data.Text.Encoding         as TE
 import qualified Data.Text.Encoding.Error   as TE
 import qualified Data.Text.Short            as TS
-import qualified Data.TextSet.Unboxed       as TextSet
 import qualified Data.Tuple.Strict          as S
 import qualified Data.UUID.Types            as UUID
 import qualified Data.Vector                as V
 import qualified Generics.SOP               as SOP
 import qualified GHC.Exts                   as Exts
-import qualified Language.Haskell.TH.Syntax as TH
 import qualified Network.HTTP.Types.Status  as HTTP
 import qualified Numeric.Interval.Kaucher   as Kaucher
 import qualified Numeric.Interval.NonEmpty  as NonEmpty
@@ -299,7 +297,7 @@ instance ToSchema1 NonEmpty.Interval where
         pure $ NamedSchema (Just "NonEmpty.Interval") $ schema ref
       where
         schema s = mempty
-          & Swagger.type_       .~ Swagger.SwaggerObject
+          & Swagger.type_       .~ Just Swagger.SwaggerObject
           & Swagger.properties  .~ Exts.fromList
               [ ("inf", s)
               , ("sup", s)
@@ -345,7 +343,7 @@ instance (ToSchema a, ToSchema b) => ToSchema (These a b) where
         aSchema <- Swagger.declareSchemaRef (Proxy :: Proxy a)
         bSchema <- Swagger.declareSchemaRef (Proxy :: Proxy b)
         return $ NamedSchema (Just "These") $ mempty
-            & Swagger.type_ .~ Swagger.SwaggerObject
+            & Swagger.type_ .~ Just Swagger.SwaggerObject
             & Swagger.properties .~ InsOrdHashMap.fromList
                 [ ("This", aSchema)
                 , ("That", bSchema)
@@ -569,12 +567,6 @@ instance Random (Fixed a) where
     randomR (MkFixed a, MkFixed b) g = first MkFixed $ randomR (a, b) g
 
 -------------------------------------------------------------------------------
--- template-haskell
--------------------------------------------------------------------------------
-
-deriving instance TH.Lift a => TH.Lift (NonEmpty a)
-
--------------------------------------------------------------------------------
 -- Binary
 -------------------------------------------------------------------------------
 
@@ -583,19 +575,7 @@ instance (Binary a, Ord a) => Binary (NonEmpty.Interval a) where
     get = (NonEmpty....) <$> get <*> get
 
 #ifndef __GHCJS__
-instance Binary a => Binary (GH.Request k a) where
-    get = undefined
-
-    put (GH.SimpleQuery r)    =
-        put (0 :: Int) >> put r
-    put (GH.StatusQuery sm r) =
-        put (1 :: Int) >> put sm >> put r
-    put (GH.HeaderQuery hs r) =
-        put (2 :: Int) >> put hs >> put r
-    put (GH.RedirectQuery r) =
-        put (3 :: Int) >> put r
-
-instance Binary (GH.SimpleRequest k a) where
+instance Binary (GH.GenRequest mt rw a) where
     get = undefined
     put (GH.Query ps qs) =
         put (0 :: Int) >> put ps >> put qs
@@ -604,12 +584,12 @@ instance Binary (GH.SimpleRequest k a) where
     put (GH.Command m ps bs) =
         put (2 :: Int) >> put m >> put ps >> put bs
 
-instance Binary (GH.CommandMethod a) where
+instance Binary GH.CommandMethod where
     get = undefined
     put GH.Post   = put (0 :: Int)
     put GH.Patch  = put (1 :: Int)
     put GH.Put    = put (2 :: Int)
-    put GH.Put'   = put (3 :: Int)
+    -- skip number for just-in-case backward compatibility. May not be needed?
     put GH.Delete = put (4 :: Int)
 #endif
 
@@ -623,6 +603,7 @@ instance HasStructuralInfo GH.Invitation
 instance HasStructuralInfo GH.InvitationRole
 instance HasStructuralInfo GH.Issue
 instance HasStructuralInfo GH.IssueLabel
+instance HasStructuralInfo GH.IssueNumber
 instance HasStructuralInfo GH.IssueState
 instance HasStructuralInfo GH.Language
 instance HasStructuralInfo GH.Milestone
@@ -722,16 +703,6 @@ instance FromJSON ShortText where
 
 instance ToSchema ShortText where
     declareNamedSchema  _ = declareNamedSchema (Proxy  :: Proxy Text)
-
-instance ToJSON TextSet.TextSet where
-    toJSON     = toJSON . TextSet.toList
-    toEncoding = toEncoding . TextSet.toList
-
-instance FromJSON TextSet.TextSet where
-    parseJSON = fmap TextSet.fromList . parseJSON
-
-instance ToSchema TextSet.TextSet where
-    declareNamedSchema  _ = declareNamedSchema (Proxy  :: Proxy (Set Text))
 
 -------------------------------------------------------------------------------
 -- resourcet + unliftio-core
