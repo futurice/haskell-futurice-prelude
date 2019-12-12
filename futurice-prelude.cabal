@@ -116,7 +116,7 @@ library
     , th-lift                    ^>=0.8
     , th-lift-instances          ^>=0.1.11
     , these                      ^>=1.0.0
-    , time                       ^>=1.9
+    , time                       >=1.8 && <2.0
     , time-parsers               ^>=0.1.2.0
     , transformers               >=0.4.2.0  && <0.6
     , transformers-base          ^>=0.4.4
