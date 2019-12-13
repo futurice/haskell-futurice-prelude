@@ -9,13 +9,13 @@ module Futurice.Aeson (
     module Data.Aeson.Compat,
     ) where
 
-import Prelude ()
-import Futurice.Prelude
 import Data.Aeson.Compat
 import Data.Aeson.Internal (JSONPathElement (..), (<?>))
 import Data.Aeson.Types    (modifyFailure, typeMismatch)
 import Data.Foldable       (foldl')
 import Data.Scientific     (floatingOrInteger)
+import Futurice.Prelude
+import Prelude ()
 
 import qualified Data.Attoparsec.Text as A
 import qualified Data.HashMap.Strict  as HM
@@ -109,7 +109,7 @@ integralScientific = fromInteger . snd  <$> A.runScanner 0 f
 -- | Amend error with value shallow dump.
 --
 -- >>> parseEither (withValueDump "Int" parseJSON) (fromJust $ decode "[1,2,3,[4,5]]") :: Either String Int
--- Left "Error in $: invalid json for Int: [1.0,2.0,3.0,[...]] -- expected Int, encountered Array"
+-- Left "Error in $: invalid json for Int: [1.0,2.0,3.0,[...]] -- parsing Int failed, expected Number, but encountered Array"
 --
 -- /Note:/ prints only first 10 items of an array or an object.
 withValueDump :: String -> (Value -> Parser a) -> Value -> Parser a
