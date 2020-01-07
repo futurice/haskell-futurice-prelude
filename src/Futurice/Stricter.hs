@@ -4,9 +4,8 @@
 {-# LANGUAGE UndecidableInstances  #-}
 module Futurice.Stricter where
 
-import Prelude
-import Futurice.Prelude          hiding (Binary (..))
 import Control.Monad.State.Class (MonadState (..))
+import Futurice.Prelude          hiding (Binary (..))
 
 import qualified Control.Monad.Fail as Fail
 
@@ -143,8 +142,6 @@ instance (Monad m) => Monad (StricterT s m) where
         (a, s') <- runStricterT m s
         runStricterT (k a) s'
     {-# INLINE (>>=) #-}
-    fail str = StricterT $ \ _ -> fail str
-    {-# INLINE fail #-}
 
 instance (Fail.MonadFail m) => Fail.MonadFail (StricterT s m) where
     fail str = StricterT $ \ _ -> Fail.fail str

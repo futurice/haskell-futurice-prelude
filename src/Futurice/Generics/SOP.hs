@@ -38,21 +38,21 @@ module Futurice.Generics.SOP (
     strippedFieldNamesT,
     ) where
 
-import Data.Char                 (toLower)
-import Futurice.Aeson            (withObjectDump)
+import Data.Char         (toLower)
+import Futurice.Aeson    (withObjectDump)
 import Futurice.IsMaybe
-import Futurice.Prelude          hiding (Generic, from)
-import Generics.SOP              hiding (constructorInfo, constructorName, datatypeName)
+import Futurice.Prelude  hiding (Generic, from)
+import Generics.SOP      hiding (constructorInfo, constructorName, datatypeName)
 import Generics.SOP.Lens
 import Prelude ()
 
-import qualified Data.Aeson           as Aeson
-import qualified Data.Aeson.Types     as Aeson
-import qualified Data.Csv             as Csv
-import qualified Data.HashMap.Strict  as HM
-import qualified Data.Vector          as V
-import qualified GHC.Exts             as Exts
-import qualified Test.QuickCheck      as QC
+import qualified Data.Aeson          as Aeson
+import qualified Data.Aeson.Types    as Aeson
+import qualified Data.Csv            as Csv
+import qualified Data.HashMap.Strict as HM
+import qualified Data.Vector         as V
+import qualified GHC.Exts            as Exts
+import qualified Test.QuickCheck     as QC
 
 #ifdef MIN_VERSION_swagger2
 import qualified Data.Swagger         as Swagger
@@ -139,7 +139,7 @@ sopToNamedRecord
 sopToNamedRecord
     = Csv.namedRecord
     . sopToNamedRecord' (longestFieldPrefix p) (fieldInfos p)
-    . (^. unsop . unSingletonS)
+    . (^. sop . nsSingleton)
     . from
   where
     p = Proxy :: Proxy a
@@ -152,7 +152,7 @@ sopToRecord
     = V.fromList
     . hcollapse
     . hcmap (Proxy :: Proxy Csv.ToField) (mapIK Csv.toField)
-    . (^. unsop . unSingletonS)
+    . (^. sop . nsSingleton)
     . from
 
 sopToNamedRecord'
@@ -243,7 +243,7 @@ sopToJSON
 sopToJSON
     = Aeson.object
     . sopToJSON' (longestFieldPrefix p) (fieldInfos p)
-    . (^. unsop . unSingletonS)
+    . (^. sop . nsSingleton)
     . from
   where
     p = Proxy :: Proxy a
@@ -279,7 +279,7 @@ sopToEncoding
 sopToEncoding
     = Aeson.pairs
     . sopToEncoding' (longestFieldPrefix p) (fieldInfos p)
-    . (^. unsop . unSingletonS)
+    . (^. sop . nsSingleton)
     . from
   where
     p = Proxy :: Proxy a
@@ -363,7 +363,7 @@ sopDeclareNamedSchema _ = do
     name = datatypeInfo proxy ^. datatypeName
 
     schema props = mempty
-      & Swagger.type_ .~ Swagger.SwaggerObject
+      & Swagger.type_ .~ Just Swagger.SwaggerObject
       & Swagger.properties .~ props
       & Swagger.required .~ hcollapse (hmap req fis)
 
@@ -380,7 +380,7 @@ sopDeclareNamedSchema _ = do
         s = Swagger.declareSchemaRef (Proxy :: Proxy y)
 
     fis :: NP FieldInfo xs
-    fis = datatypeInfo proxy ^. constructorInfo . unSingletonP . fieldInfo
+    fis = datatypeInfo proxy ^. constructorInfo . npSingleton . fieldInfo
 
     proxy :: Proxy a
     proxy = Proxy
@@ -399,7 +399,7 @@ fieldInfos
     :: forall a proxy xs. (IsProductType a xs, HasDatatypeInfo a)
     => proxy a -> NP FieldInfo xs
 fieldInfos _ = datatypeInfo (Proxy :: Proxy a) ^.
-    constructorInfo . unSingletonP . fieldInfo
+    constructorInfo . npSingleton . fieldInfo
 
 -- | Get the field names of the record, with stripped prefixes.
 --
@@ -468,7 +468,7 @@ sopRecordFieldNames proxy = hmap mk fis
     prefix = longestFieldInfoPrefix fis
 
     fis :: NP FieldInfo xs
-    fis = datatypeInfo proxy ^. constructorInfo . unSingletonP . fieldInfo
+    fis = datatypeInfo proxy ^. constructorInfo . npSingleton . fieldInfo
 
 -------------------------------------------------------------------------------
 -- generics-sop-lens

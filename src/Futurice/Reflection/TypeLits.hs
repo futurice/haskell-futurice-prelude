@@ -11,7 +11,9 @@ module Futurice.Reflection.TypeLits (
     ) where
 
 import Data.Proxy    (Proxy)
+#if !MIN_VERSION_base(4,13,0)
 import Data.Typeable (Typeable)
+#endif
 import GHC.TypeLits
 
 -- This could be for base-4.8.0, but we use it for testing
@@ -49,7 +51,11 @@ newtype ReifiedTypeable s = ReifiedTypeable (Proxy# s -> TypeRep)
 -- >>> let p = Proxy :: Proxy "foo" in typeRep p
 -- "foo"
 --
+#if MIN_VERSION_base(4,13,0)
+reifyTypeableSymbol :: forall s r. KnownSymbol s => Proxy s -> r -> r
+#else
 reifyTypeableSymbol :: forall s r. KnownSymbol s => Proxy s -> (Typeable s => r) -> r
+#endif
 #if !MIN_VERSION_base(4,9,0)
 reifyTypeableSymbol p k = unsafeCoerce (MagicTypeable k :: MagicTypeable s r) rtr
   where
