@@ -17,7 +17,9 @@ author:             Oleg Grenrus <oleg.grenrus@iki.fi>
 maintainer:         Toni Okuogume <toni.okuogume@futurice.com>
 license:            BSD-3-Clause
 license-file:       LICENSE
-tested-with:        ghc ==8.0.2 ghc ==8.2.2 ghc ==8.4.4 ghc ==8.6.5 ghc ==8.8.1
+tested-with:
+  ghc ==8.0.2 ghc ==8.2.2 ghc ==8.4.4 ghc ==8.6.5 ghc ==8.8.1
+
 build-type:         Simple
 extra-source-files: README.md
 
@@ -42,14 +44,14 @@ library
   build-depends:
     , aeson                      ^>=1.4.2.0
     , aeson-compat               ^>=0.3.6
-    , ansi-pretty                >=0.1.2.1
-    , ansi-terminal              ^>=0.8
-    , ansi-wl-pprint             ^>=0.6.7.3
+    , ansi-pretty                ^>=0.1.2.2
+    , ansi-terminal              ^>=0.10.2
+    , ansi-wl-pprint             ^>=0.6.9
     , array                      ^>=0.5.1.0
     , async                      ^>=2.2.1
     , attoparsec                 ^>=0.13.1.0
     , base                       >=4.9      && <4.14
-    , base-compat-batteries      ^>=0.10.4
+    , base-compat-batteries      >=0.10.0   && <0.12.0
     , base-orphans               ==0.8.1
     , bifunctors
     , binary
@@ -116,7 +118,7 @@ library
     , th-lift                    ^>=0.8
     , th-lift-instances          ^>=0.1.11
     , these                      ^>=1.0.0
-    , time                       >=1.6 && <2.0
+    , time                       >=1.6      && <2.0
     , time-parsers               ^>=0.1.2.0
     , transformers               >=0.4.2.0  && <0.6
     , transformers-base          ^>=0.4.4
@@ -141,12 +143,12 @@ library
       , file-embed         ==0.0.11
       , file-embed-lzma    ^>=0
       , github             ^>=0.24
-      , http-client        ^>=0.5.4
-      , http-client-tls    ^>=0.3.3
+      , http-client        ^>=0.6.4
+      , http-client-tls    ^>=0.3.5
       , monadcryptorandom  >=0.7.2  && <0.7.3
       , postgresql-simple  ^>=0.6
       , servant-server     ^>=0.16
-      , swagger2           ^>=2.5
+      , swagger2           >=2.3 && <2.6
       , wai
 
     -- https://github.com/ghcjs/ghcjs/issues/703
