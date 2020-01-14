@@ -52,6 +52,7 @@ module Futurice.Prelude.Internal (
     UnionWith (..),
     -- * Data Classes
     Align (..),
+    Semialign(..),
     SemialignWithIndex (..),
     Binary (..),
     Generic,
@@ -267,7 +268,7 @@ import Control.Monad.Trans.Control
        (MonadBaseControl (..), MonadTransControl (..))
 import Control.Monad.Trans.Maybe   (MaybeT (..))
 import Control.Monad.Writer.Class  (MonadWriter (..))
-import Data.Align                  (Align (..))
+import Data.Align                  (Align (..), Semialign (..))
 import Data.Bifunctor              (bimap, first, second)
 import Data.Binary                 (Binary (..))
 import Data.Bool                   (bool)
