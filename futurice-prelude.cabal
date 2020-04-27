@@ -40,7 +40,7 @@ library
     ScopedTypeVariables
 
   -- https://github.com/haskell-servant/servant/pull/1037
-  build-depends:      servant-client-core ^>=0.16
+  build-depends:      servant-client-core ^>=0.17
   build-depends:
     , aeson                      ^>=1.4.2.0
     , aeson-compat               ^>=0.3.6
@@ -147,7 +147,7 @@ library
       , http-client-tls    ^>=0.3.5
       , monadcryptorandom  >=0.7.2  && <0.7.3
       , postgresql-simple  ^>=0.6
-      , servant-server     ^>=0.16
+      , servant-server     ^>=0.17
       , swagger2           >=2.3 && <2.6
       , wai
 
