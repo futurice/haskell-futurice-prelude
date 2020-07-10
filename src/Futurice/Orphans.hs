@@ -46,8 +46,7 @@ import Text.Parsec.String ()
 import Text.Trifecta ()
 
 import Codec.Picture                         (DynamicImage, Image, PixelRGBA8)
-import Control.Monad.IO.Unlift
-       (MonadUnliftIO (..), UnliftIO (..), withUnliftIO)
+import Control.Monad.IO.Unlift               (MonadUnliftIO (..))
 import Control.Monad.Trans.Resource          (MonadResource (..))
 import Control.Monad.Trans.Resource.Internal (ResourceT (..))
 import Control.Monad.Trans.State             (StateT)
@@ -712,12 +711,6 @@ instance MonadResource m => MonadResource (LogT m) where
     liftResourceT = lift . liftResourceT
 
 instance MonadUnliftIO m => MonadUnliftIO (LogT m) where
-    {-# INLINE askUnliftIO #-}
-    askUnliftIO =
-        LogT $ ReaderT $ \r ->
-        withUnliftIO $ \u ->
-        return (UnliftIO (unliftIO u . flip runReaderT r . unLogT))
-
     {-# INLINE withRunInIO #-}
     withRunInIO inne =
         LogT $ ReaderT $ \r ->

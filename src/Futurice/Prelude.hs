@@ -92,25 +92,26 @@ import Log
 import Log.Internal.Logger         (withLogger)
 import System.IO                   (hFlush, stderr)
 
-import qualified Data.Aeson.Compat            as Aeson
-import qualified Data.Aeson.Types             as Aeson
-import qualified Data.Attoparsec.Text         as AT
-import qualified Data.ByteString.Lazy         as LBS
-import qualified Data.CaseInsensitive         as CI
-import qualified Data.HashMap.Strict          as HM
-import qualified Data.Map                     as Map
-import qualified Data.Text                    as T
-import qualified Data.Text.Encoding           as TE
-import qualified Data.Text.Encoding.Error     as TE
-import qualified Data.Text.IO                 as T
-import qualified Data.Text.Lazy.Builder       as TB
-import qualified Data.Vector                  as V
-import qualified Data.Vector.Algorithms.Intro as Intro
-import qualified Debug.Trace                  as DT
-import qualified Language.Haskell.TH.Syntax   as TH
-import qualified Network.HTTP.Types           as H
-import qualified System.Console.ANSI          as ANSI
-import qualified Text.PrettyPrint.Compact     as PC
+import qualified Data.Aeson.Compat                         as Aeson
+import qualified Data.Aeson.Types                          as Aeson
+import qualified Data.Attoparsec.Text                      as AT
+import qualified Data.ByteString.Lazy                      as LBS
+import qualified Data.CaseInsensitive                      as CI
+import qualified Data.HashMap.Strict                       as HM
+import qualified Data.Map                                  as Map
+import qualified Data.Text                                 as T
+import qualified Data.Text.Encoding                        as TE
+import qualified Data.Text.Encoding.Error                  as TE
+import qualified Data.Text.IO                              as T
+import qualified Data.Text.Lazy.Builder                    as TB
+import qualified Data.Text.Prettyprint.Doc                 as PP
+import qualified Data.Text.Prettyprint.Doc.Render.Terminal as PPT
+import qualified Data.Vector                               as V
+import qualified Data.Vector.Algorithms.Intro              as Intro
+import qualified Debug.Trace                               as DT
+import qualified Language.Haskell.TH.Syntax                as TH
+import qualified Network.HTTP.Types                        as H
+import qualified System.Console.ANSI                       as ANSI
 
 #ifdef MIN_VERSION_unicode_transforms
 import qualified Data.Text.Normalize as TN
@@ -324,8 +325,8 @@ mkStderrLogger = mkBulkLogger' 1000 100000 "ansi-stderr" (traverse_ log') (hFlus
         -- JSON value
         when (data_ /= Aeson.emptyObject && data_ /= Aeson.Null) $ do
             let doc = prettiestJSON data_
-            T.hPutStrLn stderr $ view strict $ TB.toLazyText $
-                PC.renderWith pcOpts doc
+            T.hPutStrLn stderr $ view strict $
+                PPT.renderLazy $ PP.layoutPretty (PP.LayoutOptions $ PP.AvailablePerLine 120 1.0) doc
 
         -- flush at the end
         hFlush stderr
@@ -358,48 +359,41 @@ mkStderrLogger = mkBulkLogger' 1000 100000 "ansi-stderr" (traverse_ log') (hFlus
         m
         tell $ TB.fromString $ ANSI.setSGRCode []
 
-    pcOpts :: PC.Options [ANSI.SGR] TB.Builder
-    pcOpts = PC.defaultOptions
-        { PC.optsAnnotate = \sgr s -> TB.fromString $
-            ANSI.setSGRCode sgr ++ s ++ ANSI.setSGRCode []
-        , PC.optsPageWidth = 120
-        }
-
 type WB = Writer TB.Builder
 
 -- |
 --
--- >>> putStrLn $ PC.render $ prettiestJSON $ Aeson.Bool True
+-- >>> putStrLn $ T.unpack $ PPT.renderStrict $ PP.unAnnotateS $ PP.layoutPretty PP.defaultLayoutOptions $ prettiestJSON $ Aeson.Bool True
 -- true
 --
--- >>> let render = PC.renderWith PC.defaultOptions { PC.optsPageWidth = 20 }
--- >>> putStrLn $ render $ prettiestJSON $ Aeson.Array $ V.replicate 4 "foobar"
+-- >>> let render = PPT.renderStrict . PP.unAnnotateS . PP.layoutPretty (PP.LayoutOptions (PP.AvailablePerLine 20 1.0))
+-- >>> putStrLn $ T.unpack $ render $ prettiestJSON $ Aeson.Array $ V.replicate 4 "foobar"
 -- ["foobar"
 -- ,"foobar"
 -- ,"foobar"
 -- ,"foobar"]
 --
-prettiestJSON :: Value -> PC.Doc [ANSI.SGR]
+prettiestJSON :: Value -> PP.Doc PPT.AnsiStyle
 prettiestJSON = go where
-    go (Aeson.Bool True)  = dullyellow $ PC.text "true"
-    go (Aeson.Bool False) = dullyellow $ PC.text "false"
+    go (Aeson.Bool True)  = dullyellow "true"
+    go (Aeson.Bool False) = dullyellow "false"
     go (Aeson.Object o)   =
-          PC.encloseSep (dullgreen PC.lbrace) (dullgreen PC.rbrace) (dullgreen PC.comma) $
+          PP.encloseSep (dullgreen PP.lbrace) (dullgreen PP.rbrace) (dullgreen PP.comma) $
               map prettyKV $ HM.toList o
-    go (Aeson.String s)   = PC.string (show s)
+    go (Aeson.String s)   = PP.vcat $ PP.pretty <$> lines (show s)
     go (Aeson.Array a)    =
-        PC.encloseSep (dullgreen PC.lbracket) (dullgreen PC.rbracket) (dullgreen PC.comma) $
+        PP.encloseSep (dullgreen PP.lbracket) (dullgreen PP.rbracket) (dullgreen PP.comma) $
             map go $ toList a
-    go Aeson.Null         = cyan (PC.text "null")
-    go (Aeson.Number n)   = PC.text (show n)
+    go Aeson.Null         = cyan "null"
+    go (Aeson.Number n)   = PP.viaShow n
 
-    prettyKV (k,v)        = dullwhite (PC.text (show k)) PC.<> blue PC.colon PC.<+> go v
+    prettyKV (k,v)        = dullwhite (PP.viaShow k) PP.<> blue PP.colon PP.<+> go v
 
-    blue       = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Vivid ANSI.Blue]
-    cyan       = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Vivid ANSI.Cyan]
-    dullgreen  = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Dull ANSI.Green]
-    dullwhite  = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Dull ANSI.White]
-    dullyellow = PC.annotate [ANSI.SetColor ANSI.Foreground ANSI.Dull ANSI.Yellow]
+    blue       = PP.annotate (PPT.color PPT.Blue)
+    cyan       = PP.annotate (PPT.color PPT.Cyan)
+    dullgreen  = PP.annotate (PPT.colorDull PPT.Green)
+    dullwhite  = PP.annotate (PPT.colorDull PPT.White)
+    dullyellow = PP.annotate (PPT.colorDull PPT.Yellow)
 
 {-
     vectorOfText :: Vector Value -> Maybe (Vector Text)
