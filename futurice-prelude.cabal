@@ -96,7 +96,8 @@ library
     , nf                         ^>=1.0.1.0
     , Only                       ^>=0.1
     , parsec                     ^>=3.1.11
-    , pretty-compact             ^>=3.0
+    , prettyprinter              ^>=1.6.2
+    , prettyprinter-ansi-terminal ^>=1.1.1.2
     , profunctors                ^>=5.3
     , QuickCheck                 ^>=2.13.1
     , quickcheck-instances       ==0.3.22
