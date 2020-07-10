@@ -363,11 +363,11 @@ type WB = Writer TB.Builder
 
 -- |
 --
--- >>> putStrLn $ TL.unpack $ PPT.renderLazy $ PP.layoutPretty PP.defaultLayoutOptions $ prettiestJSON $ Aeson.Bool True
+-- >>> putStrLn $ T.unpack $ PPT.renderStrict $ PP.layoutPretty PP.defaultLayoutOptions $ prettiestJSON $ Aeson.Bool True
 -- true
 --
--- >>> let render = PPT.renderLazy . PP.layoutPretty (PP.LayoutOptions (PP.AvailablePerLine 20 1.0))
--- >>> putStrLn $ TL.unpack $ render $ prettiestJSON $ Aeson.Array $ V.replicate 4 "foobar"
+-- >>> let render = PPT.renderStrict . PP.layoutPretty (PP.LayoutOptions (PP.AvailablePerLine 20 1.0))
+-- >>> putStrLn $ T.unpack $ render $ prettiestJSON $ Aeson.Array $ V.replicate 4 "foobar"
 -- ["foobar"
 -- ,"foobar"
 -- ,"foobar"

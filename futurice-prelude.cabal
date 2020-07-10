@@ -118,7 +118,7 @@ library
     , text-short                 ^>=0.1.2
     , th-lift                    ^>=0.8
     , th-lift-instances          ^>=0.1.11
-    , these                      ^>=1.0.0
+    , these                      ^>=1.1.1
     , time                       >=1.6      && <2.0
     , time-parsers               ^>=0.1.2.0
     , transformers               >=0.4.2.0  && <0.6
@@ -143,7 +143,7 @@ library
       , DRBG               ^>=0.5.5
       , file-embed         ==0.0.11
       , file-embed-lzma    ^>=0
-      , github             ^>=0.24
+      , github             ^>=0.26
       , http-client        ^>=0.6.4
       , http-client-tls    ^>=0.3.5
       , monadcryptorandom  >=0.7.2  && <0.7.3
