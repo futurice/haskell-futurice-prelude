@@ -73,7 +73,7 @@ library
     , extra                      ^>=1.6.2
     , fail
     , fin                        ^>=0.1
-    , generics-sop               ^>=0.4.0.1
+    , generics-sop               ^>=0.5.1.0
     , generics-sop-lens          ^>=0.2
     , ghc-prim
     , hashable                   >=1.2.4
