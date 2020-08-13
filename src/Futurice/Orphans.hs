@@ -46,7 +46,6 @@ import Text.Parsec.String ()
 import Text.Trifecta ()
 
 import Codec.Picture                         (DynamicImage, Image, PixelRGBA8)
-import Control.Monad.IO.Unlift               (MonadUnliftIO (..))
 import Control.Monad.Trans.Resource          (MonadResource (..))
 import Control.Monad.Trans.Resource.Internal (ResourceT (..))
 import Control.Monad.Trans.State             (StateT)
@@ -709,13 +708,6 @@ instance ToSchema ShortText where
 
 instance MonadResource m => MonadResource (LogT m) where
     liftResourceT = lift . liftResourceT
-
-instance MonadUnliftIO m => MonadUnliftIO (LogT m) where
-    {-# INLINE withRunInIO #-}
-    withRunInIO inne =
-        LogT $ ReaderT $ \r ->
-        withRunInIO $ \run ->
-        inne (run . flip runReaderT r . unLogT)
 
 #if MIN_VERSION_resourcet(1,2,0)
 instance MonadBase b m => MonadBase b (ResourceT m) where
