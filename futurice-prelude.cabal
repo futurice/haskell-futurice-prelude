@@ -18,7 +18,7 @@ maintainer:         Toni Okuogume <toni.okuogume@futurice.com>
 license:            BSD-3-Clause
 license-file:       LICENSE
 tested-with:
-  ghc ==8.2.2 ghc ==8.4.4 ghc ==8.6.5 ghc ==8.8.1 ghc ==8.10.1
+  ghc ==8.2.2 ghc ==8.4.4 ghc ==8.6.5 ghc ==8.8.4 ghc ==8.10.2
 
 build-type:         Simple
 extra-source-files: README.md
@@ -39,8 +39,6 @@ library
     DeriveTraversable
     ScopedTypeVariables
 
-  -- https://github.com/haskell-servant/servant/pull/1037
-  build-depends:      servant-client-core ^>=0.17
   build-depends:
     , aeson                      ^>=1.4.7.1
     , aeson-compat               ^>=0.3.9
@@ -82,12 +80,12 @@ library
     , http-types                 ^>=0.12
     , insert-ordered-containers
     , intervals                  ^>=0.8
-    , JuicyPixels                ^>=3.3.1
+    , JuicyPixels                ^>=3.3.5
     , keys                       ^>=3.12
-    , lens                       ^>=4.18
+    , lens                       ^>=4.19
     , lifted-base                ^>=0.2.3.0
     , log-base                   ^>=0.8.0.1
-    , lucid                      ^>=2.9.9
+    , lucid                      ^>=2.9.12
     , mmorph                     >=1.0.6    && <1.2
     , monad-control              ^>=1.0.1.0
     , monad-time                 ^>=0.3.1.0
@@ -95,7 +93,7 @@ library
     , nats
     , nf                         ^>=1.0.1.0
     , Only                       ^>=0.1
-    , parsec                     ^>=3.1.11
+    , parsec                     ^>=3.1.14
     , prettyprinter              ^>=1.6.2
     , prettyprinter-ansi-terminal ^>=1.1.1.2
     , profunctors                ^>=5.3
@@ -147,7 +145,7 @@ library
       , http-client-tls    ^>=0.3.5
       , monadcryptorandom  >=0.7.2  && <0.7.3
       , postgresql-simple  ^>=0.6
-      , servant-server     ^>=0.17
+      , servant-server     ^>=0.18
       , swagger2           >=2.3    && <2.7
       , wai
 
