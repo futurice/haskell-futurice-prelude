@@ -50,19 +50,17 @@ import Control.Monad.Trans.Resource          (MonadResource (..))
 import Control.Monad.Trans.Resource.Internal (ResourceT (..))
 import Control.Monad.Trans.State             (StateT)
 import Data.Aeson.Compat
-       (FromJSON (..), Parser, ToJSON (..), object, withArray, withObject,
-       (.:), (.=))
+       (FromJSON (..), Parser, ToJSON (..), object, withArray, withObject, (.:),
+       (.=))
 import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction (..),
        ToJSON1 (..), ToJSONKey (..), coerceFromJSONKeyFunction,
        contramapToJSONKeyFunction, parseJSON1, toEncoding1, toJSON1)
-import Data.Binary.Tagged
-       (HasSemanticVersion, HasStructuralInfo (..), StructuralInfo (..))
+import Data.Binary.Tagged                    (Structured)
 import Data.Fixed                            (Fixed (..), HasResolution)
 import Data.Time.Parsers                     (day, utcTime)
 import Futurice.Control
 import Generics.SOP                          (All)
-import Log.Monad                             (LogT (..))
 import Lucid                                 (HtmlT, ToHtml (..), a_, href_)
 import Numeric.Interval                      (Interval, inf, sup)
 import System.Random                         (Random (..))
@@ -82,8 +80,8 @@ import qualified Data.Text.Short            as TS
 import qualified Data.Tuple.Strict          as S
 import qualified Data.UUID.Types            as UUID
 import qualified Data.Vector                as V
-import qualified Generics.SOP               as SOP
 import qualified GHC.Exts                   as Exts
+import qualified Generics.SOP               as SOP
 import qualified Network.HTTP.Types.Status  as HTTP
 import qualified Numeric.Interval.Kaucher   as Kaucher
 import qualified Numeric.Interval.NonEmpty  as NonEmpty
@@ -596,73 +594,38 @@ instance Binary GH.CommandMethod where
 -------------------------------------------------------------------------------
 
 #ifndef __GHCJS__
-instance HasStructuralInfo GH.Event
-instance HasStructuralInfo GH.Invitation
-instance HasStructuralInfo GH.InvitationRole
-instance HasStructuralInfo GH.Issue
-instance HasStructuralInfo GH.IssueLabel
-instance HasStructuralInfo GH.IssueNumber
-instance HasStructuralInfo GH.IssueState
-instance HasStructuralInfo GH.Language
-instance HasStructuralInfo GH.Milestone
-instance HasStructuralInfo GH.Organization
-instance HasStructuralInfo GH.Owner
-instance HasStructuralInfo GH.OwnerType
-instance HasStructuralInfo GH.Permission
-instance HasStructuralInfo GH.Privacy
-instance HasStructuralInfo GH.PullRequestReference
-instance HasStructuralInfo GH.Repo
-instance HasStructuralInfo GH.RepoRef
-instance HasStructuralInfo GH.SimpleOrganization
-instance HasStructuralInfo GH.SimpleOwner
-instance HasStructuralInfo GH.SimpleTeam
-instance HasStructuralInfo GH.SimpleUser
-instance HasStructuralInfo GH.User
-instance HasStructuralInfo GH.Team
+instance Structured GH.Event
+instance Structured GH.Invitation
+instance Structured GH.InvitationRole
+instance Structured GH.Issue
+instance Structured GH.IssueLabel
+instance Structured GH.IssueNumber
+instance Structured GH.IssueState
+instance Structured GH.Language
+instance Structured GH.Milestone
+instance Structured GH.Organization
+instance Structured GH.Owner
+instance Structured GH.OwnerType
+instance Structured GH.Permission
+instance Structured GH.Privacy
+instance Structured GH.PullRequestReference
+instance Structured GH.Repo
+instance Structured GH.RepoRef
+instance Structured GH.SimpleOrganization
+instance Structured GH.SimpleOwner
+instance Structured GH.SimpleTeam
+instance Structured GH.SimpleUser
+instance Structured GH.User
+instance Structured GH.Team
 
-instance HasStructuralInfo (GH.Name a)
-instance HasStructuralInfo (GH.Id a)
-instance HasStructuralInfo GH.URL
-
-instance HasSemanticVersion GH.Event
-instance HasSemanticVersion GH.Invitation
-instance HasSemanticVersion GH.InvitationRole
-instance HasSemanticVersion GH.Issue
-instance HasSemanticVersion GH.IssueLabel
-instance HasSemanticVersion GH.IssueState
-instance HasSemanticVersion GH.Language
-instance HasSemanticVersion GH.Milestone
-instance HasSemanticVersion GH.Organization
-instance HasSemanticVersion GH.Owner
-instance HasSemanticVersion GH.OwnerType
-instance HasSemanticVersion GH.Permission
-instance HasSemanticVersion GH.Privacy
-instance HasSemanticVersion GH.PullRequestReference
-instance HasSemanticVersion GH.Repo
-instance HasSemanticVersion GH.RepoRef
-instance HasSemanticVersion GH.SimpleOrganization
-instance HasSemanticVersion GH.SimpleOwner
-instance HasSemanticVersion GH.SimpleTeam
-instance HasSemanticVersion GH.SimpleUser
-instance HasSemanticVersion GH.Team
-instance HasSemanticVersion GH.User
-
-instance HasSemanticVersion (GH.Name a)
-instance HasSemanticVersion (GH.Id a)
-instance HasSemanticVersion GH.URL
+instance (Typeable a) => Structured (GH.Name a)
+instance (Typeable a) => Structured (GH.Id a)
+instance Structured GH.URL
 #endif
 
-instance HasStructuralInfo a => HasStructuralInfo (Interval a) where
-    structuralInfo _ =
-        NominalNewtype "Interval" $ structuralInfo (Proxy :: Proxy a)
-
-instance HasStructuralInfo a => HasStructuralInfo (NonEmpty.Interval a) where
-    structuralInfo _ =
-        NominalNewtype "Interval.NonEmpty" $ structuralInfo (Proxy :: Proxy a)
-
-instance HasStructuralInfo a => HasStructuralInfo (Kaucher.Interval a) where
-    structuralInfo _ =
-        NominalNewtype "Interval.Kaucher" $ structuralInfo (Proxy :: Proxy a)
+instance Structured a => Structured (Interval a)
+instance Structured a => Structured (NonEmpty.Interval a)
+instance Structured a => Structured (Kaucher.Interval a)
 
 decodeUtf8Lenient :: ByteString -> Text
 decodeUtf8Lenient = TE.decodeUtf8With TE.lenientDecode
