@@ -243,12 +243,12 @@ import Control.Applicative
 import Control.DeepSeq             (NFData (..), force, ($!!))
 import Control.Exception           (evaluate)
 import Control.Lens
-       (At (..), Getter, Iso, Iso', Ixed (..), Lens, Lens', LensLike,
-       LensLike', Prism, Prism', Traversal, Traversal', folded, from, ifoldMap,
-       ifolded, ifor, ifor_, isn't, iso, itoList, itraverse, itraverse_, lazy,
-       lens, makeLenses, makePrisms, makeWrapped, over, preview, prism, prism',
-       strict, view, (%=), (%~), (&), (.~), (<&>), (?=), (?~), (^.), (^..),
-       (^?), _1, _2, _3, _Empty, _Just, _Left, _Nothing, _Right)
+       (At (..), Getter, Iso, Iso', Ixed (..), Lens, Lens', LensLike, LensLike',
+       Prism, Prism', Traversal, Traversal', _1, _2, _3, _Empty, _Just, _Left,
+       _Nothing, _Right, folded, from, ifoldMap, ifolded, ifor, ifor_, isn't,
+       iso, itoList, itraverse, itraverse_, lazy, lens, makeLenses, makePrisms,
+       makeWrapped, over, preview, prism, prism', strict, view, (%=), (%~), (&),
+       (.~), (<&>), (?=), (?~), (^.), (^..), (^?))
 import Control.Monad
        (MonadPlus (..), foldM, forever, guard, join, unless, void, when)
 import Control.Monad.Base          (MonadBase (..))
@@ -281,9 +281,9 @@ import Data.Functor.Compose        (Compose (..))
 import Data.Functor.Contravariant  (Contravariant (..), phantom, (>$<))
 import Data.Functor.Identity       (Identity (..))
 import Data.Functor.Syntax         ((<$$>))
-import Data.Hashable               (Hashable (..))
 import Data.HashMap.Strict         (HashMap)
 import Data.HashSet                (HashSet)
+import Data.Hashable               (Hashable (..))
 import Data.Int
 import Data.IntMap.Strict          (IntMap)
 import Data.IntSet                 (IntSet)
@@ -312,8 +312,7 @@ import Data.Text.Lens              (packed, unpacked)
 import Data.Text.Short             (ShortText)
 import Data.These                  (These (..))
 import Data.Time
-       (Day (..), LocalTime (..), NominalDiffTime, TimeOfDay (..),
-       UTCTime (..))
+       (Day (..), LocalTime (..), NominalDiffTime, TimeOfDay (..), UTCTime (..))
 import Data.Time.TH                (mkDay, mkUTCTime)
 import Data.Time.Zones             (TZ)
 import Data.Traversable            (for)
@@ -323,10 +322,10 @@ import Data.UUID.Types             (UUID)
 import Data.Vector                 (Vector)
 import Data.Word
 import Futurice.Clock
-import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
-import Generics.SOP.TH             (deriveGeneric)
 import GHC.Generics                (Generic)
 import GHC.TypeLits                (KnownSymbol, Symbol, sameSymbol, symbolVal)
+import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
+import Generics.SOP.TH             (deriveGeneric)
 import Language.Haskell.TH.Lift    (Lift, deriveLift)
 import Log
        (LogT, Logger, MonadLog, logAttention, logAttention_, logInfo, logInfo_,
@@ -348,8 +347,8 @@ import Network.HTTP.Client.TLS (tlsManagerSettings)
 
 import qualified Data.Aeson.Types     as Aeson
 import qualified Data.ByteString.Lazy as LBS
+import qualified Data.Strict.Tuple    as STuple
 import qualified Data.Text.Lazy       as LT
-import qualified Data.Tuple.Strict    as STuple
 
 import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
 

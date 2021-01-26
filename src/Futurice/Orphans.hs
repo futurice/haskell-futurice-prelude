@@ -74,10 +74,10 @@ import qualified Data.Fixed                 as Fixed
 import qualified Data.HashMap.Strict.InsOrd as InsOrdHashMap
 import qualified Data.Map                   as Map
 import qualified Data.Scientific            as Scientific
+import qualified Data.Strict.Tuple          as S
 import qualified Data.Text.Encoding         as TE
 import qualified Data.Text.Encoding.Error   as TE
 import qualified Data.Text.Short            as TS
-import qualified Data.Tuple.Strict          as S
 import qualified Data.UUID.Types            as UUID
 import qualified Data.Vector                as V
 import qualified GHC.Exts                   as Exts
