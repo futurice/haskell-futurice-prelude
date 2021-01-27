@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP                    #-}
 {-# LANGUAGE DataKinds              #-}
 {-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE FlexibleInstances      #-}
@@ -24,9 +24,9 @@ module Futurice.Time (
     AsScientific,
     ) where
 
-import Control.Lens       (( # ))
+import Control.Lens       ((#))
 import Data.Aeson         (FromJSON (..), ToJSON (..))
-import Data.Binary.Tagged (HasSemanticVersion, HasStructuralInfo)
+import Data.Binary.Tagged (Structured)
 import Data.Fixed         (Fixed, HasResolution)
 import Futurice.Prelude
 import GHC.TypeLits       (KnownNat, Nat, natVal)
@@ -38,7 +38,7 @@ import Test.QuickCheck    (Arbitrary (..), CoArbitrary (..))
 import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty (..))
 
 #ifdef MIN_VERSION_swagger2
-import Data.Swagger       (NamedSchema (..), ToSchema (..))
+import Data.Swagger (NamedSchema (..), ToSchema (..))
 #endif
 
 import qualified Data.Aeson         as Aeson
@@ -121,8 +121,7 @@ instance AnsiPretty a => AnsiPretty (NDT tu a) where
     ansiPretty (NDT x) = ansiPretty x
 
 -- | /TODO/ use unit
-instance HasStructuralInfo a => HasStructuralInfo (NDT tu a)
-instance HasSemanticVersion (NDT tu a)
+instance (Typeable tu, Structured a) => Structured (NDT tu a)
 
 instance Arbitrary a => Arbitrary (NDT tu a) where
     arbitrary      = NDT <$> arbitrary
