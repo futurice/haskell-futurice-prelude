@@ -107,8 +107,6 @@ module Futurice.Prelude.Internal (
     runLogT,
     -- * generics-sop
     deriveGeneric,
-    -- * th-lift
-    deriveLift,
     -- * composition-extra
     (<$$>),
     -- * applicative
@@ -326,7 +324,7 @@ import GHC.Generics                (Generic)
 import GHC.TypeLits                (KnownSymbol, Symbol, sameSymbol, symbolVal)
 import Generics.SOP                (I (..), K (..), NP (..), NS (..), unI, unK)
 import Generics.SOP.TH             (deriveGeneric)
-import Language.Haskell.TH.Lift    (Lift, deriveLift)
+import Language.Haskell.TH.Lift    (Lift)
 import Log
        (LogT, Logger, MonadLog, logAttention, logAttention_, logInfo, logInfo_,
        logTrace, logTrace_, runLogT)
