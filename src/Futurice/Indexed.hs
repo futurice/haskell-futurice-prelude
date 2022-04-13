@@ -17,6 +17,7 @@ module Futurice.Indexed (
     )  where
 
 import Control.Category (Category)
+import Data.Kind (Type)
 import Futurice.Prelude
 import Prelude ()
 
@@ -60,7 +61,7 @@ instance Category cat => IxApplicative (IxConst cat) where
 -------------------------------------------------------------------------------
 
 -- | Free 'IxApplicative'.
-data IxAp :: (k -> k -> * -> *) -> k -> k -> * -> * where
+data IxAp :: (k -> k -> Type -> Type) -> k -> k -> Type -> Type where
     IxPure  ::  a                               -> IxAp f i i a
     IxAp    ::  f i j a -> IxAp f j k (a -> b)  -> IxAp f i k b
 

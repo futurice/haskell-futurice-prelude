@@ -15,18 +15,14 @@
             final.haskell-nix.project' {
               src = ./.;
               projectFileName = "cabal.project";
-              compiler-nix-name = "ghc8107";
-              plan-sha256 = "1fvgzivzk3z8xc8l17rmpswqbj500qplm670vimhaq3zsx3n7kys";
-              # This is used by `nix develop .` to open a shell for use with
-              # `cabal`, `hlint` and `haskell-language-server`
-              shell.tools = {
-                cabal = {};
-                hlint = {};
+              compiler-nix-name = "ghc902";
+              plan-sha256 = "147lxrkx7wrvq06glaxw4xij11rg7lw78vv8dgipqxgsc9q09l3g";
+
+              shell = {
+                tools.cabal = {};
+                buildInputs = with pkgs; [ haskell-ci ];
+                withHoogle = false;
               };
-              # Non-Haskell shell tools go here
-              shell.buildInputs = with pkgs; [
-                nixpkgs-fmt
-              ];
             };
         })
       ];

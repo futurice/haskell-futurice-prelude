@@ -32,6 +32,11 @@ jobs:
     strategy:
       matrix:
         include:
+          - compiler: ghc-9.0.2
+            compilerKind: ghc
+            compilerVersion: 9.0.2
+            setup-method: ghcup
+            allow-failure: false
           - compiler: ghc-8.10.7
             compilerKind: ghc
             compilerVersion: 8.10.7
@@ -40,11 +45,6 @@ jobs:
           - compiler: ghc-8.8.4
             compilerKind: ghc
             compilerVersion: 8.8.4
-            setup-method: hvr-ppa
-            allow-failure: false
-          - compiler: ghc-8.6.5
-            compilerKind: ghc
-            compilerVersion: 8.6.5
             setup-method: hvr-ppa
             allow-failure: false
       fail-fast: false
@@ -185,11 +185,6 @@ jobs:
           echo "package futurice-prelude" >> cabal.project
           echo "    ghc-options: -Werror=missing-methods" >> cabal.project
           cat >> cabal.project <<EOF
-          constraints: unix-time >=0.3.8
-          constraints: containers installed
-          allow-newer: tzdata:containers
-          allow-newer: tz:containers
-          allow-newer: tz:template-haskell
           EOF
           $HCPKG list --simple-output --names-only | perl -ne 'for (split /\s+/) { print "constraints: $_ installed\n" unless /^(futurice-prelude)$/; }' >> cabal.project.local
           cat cabal.project

@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Futurice.Aeson (
     ParsedAsText (..),
     ParsedAsIntegral (..),
@@ -11,14 +13,26 @@ module Futurice.Aeson (
 
 import Data.Aeson.Compat
 import Data.Aeson.Internal (JSONPathElement (..), (<?>))
+#if MIN_VERSION_aeson(2,0,0)
+import Data.Aeson.Types    (modifyFailure, typeMismatch, Key)
+#else
 import Data.Aeson.Types    (modifyFailure, typeMismatch)
+#endif
 import Data.Foldable       (foldl')
 import Data.Scientific     (floatingOrInteger)
 import Futurice.Prelude
 import Prelude ()
 
 import qualified Data.Attoparsec.Text as A
+#if MIN_VERSION_aeson(2,0,0)
+import qualified Data.Aeson.KeyMap    as HM
+#else
 import qualified Data.HashMap.Strict  as HM
+#endif
+
+#if !MIN_VERSION_aeson(2,0,0)
+type Key = Text
+#endif
 
 -- $setup
 -- >>> :set -XOverloadedStrings
@@ -166,7 +180,7 @@ toplevel = go
 -------------------------------------------------------------------------------
 
 class FromJSONField1 f where
-    explicitFromJSONField1 :: Object -> Text -> (Value -> Parser a) -> Parser (f a)
+    explicitFromJSONField1 :: Object -> Key -> (Value -> Parser a) -> Parser (f a)
 
 instance FromJSONField1 Proxy where
     explicitFromJSONField1 _ _ _ = pure Proxy
@@ -191,5 +205,5 @@ instance FromJSONField1 Maybe where
 
 fromJSONField1
     :: (FromJSONField1 f, FromJSON a)
-    => Object -> Text -> Parser (f a)
+    => Object -> Key -> Parser (f a)
 fromJSONField1 obj key = explicitFromJSONField1 obj key parseJSON

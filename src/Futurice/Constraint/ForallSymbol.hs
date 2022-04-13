@@ -10,8 +10,9 @@ module Futurice.Constraint.ForallSymbol (
 
 import Data.Constraint (Constraint, Dict (..))
 import GHC.TypeLits    (KnownSymbol, Symbol)
+import Data.Kind (Type)
 
--- | 'ForallF' from "Data.Constraint.Forall", where f is @'Symbol' -> *@.
+-- | 'ForallF' from "Data.Constraint.Forall", where f is @'Symbol' -> Type@.
 -- Provides @'KnownSymbol' s@ to work with.
-class ForallFSymbol (p :: * -> Constraint) (f :: Symbol -> *) where
+class ForallFSymbol (p :: Type -> Constraint) (f :: Symbol -> Type) where
     instFSymbol :: forall s. KnownSymbol s => Dict (p (f s))

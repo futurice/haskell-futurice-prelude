@@ -49,7 +49,12 @@ import Prelude ()
 import qualified Data.Aeson          as Aeson
 import qualified Data.Aeson.Types    as Aeson
 import qualified Data.Csv            as Csv
+#if MIN_VERSION_aeson(2,0,0)
+import Data.Aeson.Key (Key, fromText)
+import qualified Data.Aeson.KeyMap   as HM
+#else
 import qualified Data.HashMap.Strict as HM
+#endif
 import qualified Data.Vector         as V
 import qualified GHC.Exts            as Exts
 import qualified Test.QuickCheck     as QC
@@ -57,6 +62,13 @@ import qualified Test.QuickCheck     as QC
 #ifdef MIN_VERSION_swagger2
 import qualified Data.Swagger         as Swagger
 import qualified Data.Swagger.Declare as Swagger
+#endif
+
+#if !MIN_VERSION_aeson(2,0,0)
+type Key = Text
+
+fromText :: Text -> Key
+fromText = id
 #endif
 
 -------------------------------------------------------------------------------
@@ -268,8 +280,8 @@ sopToJSON' prefix = go
             Just _  -> Just $ key Aeson..= x
         SIsNotMaybe -> Just $ key Aeson..= x
       where
-        key :: Text
-        key = fromString $ processFieldName prefix f
+        key :: Key
+        key = fromText $ fromString $ processFieldName prefix f
 
 sopToEncoding
     :: forall a xs y0 y1 ys.
@@ -304,8 +316,8 @@ sopToEncoding' prefix = go
             Just _  -> key Aeson..= x
         SIsNotMaybe -> key Aeson..= x
       where
-        key :: Text
-        key = fromString $ processFieldName prefix f
+        key :: Key
+        key = fromText $ fromString $ processFieldName prefix f
 
 sopParseJSON
     :: forall a xs y0 y1 ys.
@@ -340,8 +352,8 @@ sopParseJSON' obj prefix = go
             -- things right now.
         SIsNotMaybe -> obj Aeson..: key
       where
-        key :: Text
-        key = fromString $ processFieldName prefix f
+        key :: Key
+        key = fromText $ fromString $ processFieldName prefix f
 
 -------------------------------------------------------------------------------
 -- swagger2

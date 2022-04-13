@@ -18,7 +18,7 @@ maintainer:         Toni Okuogume <toni.okuogume@futurice.com>
 license:            BSD-3-Clause
 license-file:       LICENSE
 tested-with:
-  ghc ==8.6.5 ghc ==8.8.4 ghc ==8.10.7
+  ghc ==8.8.4 ghc ==8.10.7 ghc ==9.0.2
 
 build-type:         Simple
 extra-source-files: README.md
@@ -42,13 +42,11 @@ library
   build-depends:
     , aeson
     , aeson-compat
-    , ansi-pretty
     , ansi-terminal
-    , ansi-wl-pprint
     , array
     , async
     , attoparsec
-    , base < 4.15
+    , base < 4.17
     , base-compat-batteries
     , base-orphans
     , bifunctors

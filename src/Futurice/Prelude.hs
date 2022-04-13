@@ -97,7 +97,13 @@ import qualified Data.Aeson.Types                          as Aeson
 import qualified Data.Attoparsec.Text                      as AT
 import qualified Data.ByteString.Lazy                      as LBS
 import qualified Data.CaseInsensitive                      as CI
+#if MIN_VERSION_aeson(2,0,0)
+import Data.Aeson.KeyMap (KeyMap)
+import Data.Aeson.Key (fromText)
+import qualified Data.Aeson.KeyMap                         as HM
+#else
 import qualified Data.HashMap.Strict                       as HM
+#endif
 import qualified Data.Map                                  as Map
 import qualified Data.Text                                 as T
 import qualified Data.Text.Encoding                        as TE
@@ -119,6 +125,13 @@ import qualified Network.HTTP.Client as H
 #endif
 
 import Futurice.Orphans ()
+
+#if !MIN_VERSION_aeson(2,0,0)
+type KeyMap = HashMap Text
+
+fromText :: Text -> Text
+fromText = id
+#endif
 
 -------------------------------------------------------------------------------
 -- Our additions
@@ -444,7 +457,7 @@ interpolatedLog logFunc msg x
         obj                   -> logFunc msg obj
     | otherwise = logFunc msg (Aeson.toJSON x)
 
-interpolate :: Text -> HashMap Text Aeson.Value -> Text
+interpolate :: Text -> KeyMap Aeson.Value -> Text
 interpolate needle hm = either (const needle) mconcat $ AT.parseOnly go needle where
     go :: AT.Parser [Text]
     go = do
@@ -456,7 +469,7 @@ interpolate needle hm = either (const needle) mconcat $ AT.parseOnly go needle w
         _ <- AT.char '$'
         n <- AT.takeWhile isAlphaNum
         ts <- go
-        return $ case hm ^. at n of
+        return $ case hm ^. at (fromText n) of
             -- we print scalars
             Just (Aeson.String t')  -> t : t' : ts
             Just (Aeson.Number m)   -> t : textShow m : ts

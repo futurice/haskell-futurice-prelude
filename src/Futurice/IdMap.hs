@@ -27,6 +27,7 @@ module Futurice.IdMap (
 import Prelude ()
 import Futurice.Prelude
 
+import Data.Kind (Type)
 import Control.Lens
        (At (..), Getting, Index, IndexedFold, IxValue, Ixed (..), iall,
        ifolded, set, to, toListOf, views)
@@ -39,7 +40,7 @@ import qualified Data.Map as Map
 -------------------------------------------------------------------------------
 
 class Ord (Key a) => HasKey a where
-    type Key a :: *
+    type Key a :: Type
     key :: Lens' a (Key a)
 
 instance (HasKey a, HasKey b, Key a ~ Key b) => HasKey (Either a b) where
