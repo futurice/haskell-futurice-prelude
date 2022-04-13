@@ -104,8 +104,8 @@ import qualified Data.Text.Encoding                        as TE
 import qualified Data.Text.Encoding.Error                  as TE
 import qualified Data.Text.IO                              as T
 import qualified Data.Text.Lazy.Builder                    as TB
-import qualified Data.Text.Prettyprint.Doc                 as PP
-import qualified Data.Text.Prettyprint.Doc.Render.Terminal as PPT
+import qualified Prettyprinter                             as PP
+import qualified Prettyprinter.Render.Terminal             as PPT
 import qualified Data.Vector                               as V
 import qualified Data.Vector.Algorithms.Intro              as Intro
 import qualified Debug.Trace                               as DT

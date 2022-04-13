@@ -16,6 +16,7 @@
               src = ./.;
               projectFileName = "cabal.project";
               compiler-nix-name = "ghc8107";
+              plan-sha256 = "1fvgzivzk3z8xc8l17rmpswqbj500qplm670vimhaq3zsx3n7kys";
               # This is used by `nix develop .` to open a shell for use with
               # `cabal`, `hlint` and `haskell-language-server`
               shell.tools = {
