@@ -115,12 +115,6 @@ import Data.Functor.Identity (Identity (..))
 import Data.Type.Equality
 #endif
 
--- | Defined in 'Futurice.Prelude'
---
--- TODO: move into own package
-instance (Hashable k, Hashable v) => Hashable (Map k v) where
-    hashWithSalt salt = hashWithSalt salt . Map.toList
-
 #ifndef  __GHCJS__
 -- | Defined in 'Futurice.Prelude'.
 instance MonadTransControl (CRandT g e) where

@@ -2,13 +2,3 @@ packages: .
 
 package futurice-prelude
     ghc-options: -Wall -Werror
-
-constraints:
-  unix-time >=0.3.8,
-  containers installed
-
--- https://github.com/nilcons/haskell-tz/pull/21
-allow-newer:
-  tzdata:containers,
-  tz:containers,
-  tz:template-haskell
