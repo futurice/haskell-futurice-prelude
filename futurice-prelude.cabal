@@ -48,7 +48,7 @@ library
     , array
     , async
     , attoparsec
-    , base
+    , base < 4.15
     , base-compat-batteries
     , base-orphans
     , bifunctors
