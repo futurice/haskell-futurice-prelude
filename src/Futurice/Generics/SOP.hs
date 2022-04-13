@@ -221,7 +221,7 @@ instance
 --
 -- >>> data R =  R { rFoo :: Int, rBarBar :: String }; $(deriveGeneric ''R)
 -- >>> Aeson.encode $ sopToJSON R { rFoo = 42, rBarBar = "Answer" }
--- "{\"foo\":42,\"barBar\":\"Answer\"}"
+-- "{\"barBar\":\"Answer\",\"foo\":42}"
 --
 -- /Note:/ single field data isn't supported. Use @'toJSON' . 'coerce'@
 --
