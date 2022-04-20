@@ -38,6 +38,7 @@ module Futurice.Generics.Enum (
     ) where
 
 import Control.Monad    ((>=>))
+import Data.Kind (Type)
 import Data.Typeable    (typeRep)
 import Futurice.Prelude
 import Lucid            (HtmlT, ToHtml (..))
@@ -87,7 +88,7 @@ class (Typeable a, Enum a, Bounded a) => TextEnum a where
         m :: Tagged (TextEnumNames a) (Map Text (NS (NP I) (SOP.Code a)))
         m = enumMap
 
-class GTextEnumTo (ks :: [Symbol]) (xss :: [[*]]) | ks -> xss where
+class GTextEnumTo (ks :: [Symbol]) (xss :: [[Type]]) | ks -> xss where
     enumToText' :: NS (NP I) xss -> Tagged ks Text
 
 instance GTextEnumTo '[] '[] where
@@ -103,7 +104,7 @@ instance
     enumToText' (Z x) = case x of
 #endif
 
-class GTextEnumFrom (ks :: [Symbol]) (xss :: [[*]]) | ks -> xss where
+class GTextEnumFrom (ks :: [Symbol]) (xss :: [[Type]]) | ks -> xss where
     enumMap :: Tagged ks (Map Text (NS (NP I) xss))
 
 instance GTextEnumFrom '[] '[] where

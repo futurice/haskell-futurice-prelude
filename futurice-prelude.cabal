@@ -18,7 +18,7 @@ maintainer:         Toni Okuogume <toni.okuogume@futurice.com>
 license:            BSD-3-Clause
 license-file:       LICENSE
 tested-with:
-  ghc ==8.2.2 ghc ==8.4.4 ghc ==8.6.5 ghc ==8.8.4 ghc ==8.10.4
+  ghc ==8.8.4 ghc ==8.10.7 ghc ==9.0.2
 
 build-type:         Simple
 extra-source-files: README.md
@@ -39,99 +39,96 @@ library
     DeriveTraversable
     ScopedTypeVariables
 
--- https://github.com/haskell-servant/servant/pull/1037
-  build-depends:      servant-client-core ^>=0.18.2
   build-depends:
-    , aeson                      ^>=1.5.6.0
-    , aeson-compat               ^>=0.3.9
-    , ansi-pretty                ^>=0.1.2.2
-    , ansi-terminal              ^>=0.10.2
-    , ansi-wl-pprint             ^>=0.6.9
-    , array                      >=0.5.1.0 && <0.6
-    , async                      ^>=2.2.1
-    , attoparsec                 ^>=0.13.2.4
-    , base                       >=4.9      && <4.15
-    , base-compat-batteries      >=0.10.0   && <0.12.0
-    , base-orphans               ^>=0.8.3
+    , aeson
+    , aeson-compat
+    , ansi-terminal
+    , array
+    , async
+    , attoparsec
+    , base < 4.17
+    , base-compat-batteries
+    , base-orphans
     , bifunctors
     , binary
-    , binary-orphans             ^>=1.0.1
-    , binary-tagged              ^>=0.3
+    , binary-orphans
+    , binary-tagged
     , bytestring
-    , case-insensitive           ^>=1.2.0.7
-    , cassava                    ^>=0.5.2.0
-    , clock                      ^>=0.7.2
-    , comonad                    ^>=5.0.8
-    , composition-extra          ^>=2.0.0
-    , constraints                ^>=0.12
+    , case-insensitive
+    , cassava
+    , clock
+    , comonad
+    , composition-extra
+    , constraints
     , containers
-    , contravariant              ^>=1.5
-    , deepseq                    ^>=1.4.1.1
-    , dependent-sum              >=0.3.2.2  && <0.5
-    , deriving-compat            ^>=0.5
-    , exceptions                 ^>=0.10
-    , extra                      ^>=1.6.2
+    , contravariant
+    , deepseq
+    , dependent-sum
+    , deriving-compat
+    , exceptions
+    , extra
     , fail
-    , fin                        ^>=0.1
-    , generics-sop               ^>=0.5.1.0
-    , generics-sop-lens          ^>=0.2
+    , fin
+    , generics-sop
+    , generics-sop-lens
     , ghc-prim
-    , hashable                   >=1.2.4
-    , hashable-time              ^>=0.2
-    , http-api-data              ^>=0.4
-    , http-types                 ^>=0.12
+    , hashable
+    , hashable-time
+    , http-api-data
+    , http-types
     , insert-ordered-containers
-    , intervals                  ^>=0.8
-    , JuicyPixels                ^>=3.3.5
-    , keys                       ^>=3.12
-    , lens                       ^>=4.19
-    , lifted-base                ^>=0.2.3.0
-    , log-base                   ^>=0.9.0.0
-    , lucid                      ^>=2.9.12
-    , mmorph                     >=1.0.6    && <1.2
-    , monad-control              ^>=1.0.1.0
-    , monad-time                 ^>=0.3.1.0
-    , mtl                        ^>=2.2.2
+    , intervals
+    , JuicyPixels
+    , keys
+    , lens
+    , lifted-base
+    , log-base
+    , lucid
+    , mmorph
+    , monad-control
+    , monad-time
+    , mtl
     , nats
-    , nf                         ^>=1.0.1.0
-    , Only                       ^>=0.1
-    , parsec                     >=3.1.11 && <3.1.15
-    , prettyprinter              ^>=1.6.2
-    , prettyprinter-ansi-terminal ^>=1.1.1.2
-    , profunctors                ^>=5.3
-    , QuickCheck                 ^>=2.14.2
-    , quickcheck-instances       ^>=0.3.25
-    , random                     ^>=1.1
-    , random-shuffle             ==0.0.4
-    , reducers                   ^>=3.12.1
-    , resource-pool              ^>=0.2.3.2
-    , resourcet                  ^>=1.1.11 || ^>=1.2.1
-    , scientific                 ^>=0.3.4.9
-    , semialign                  ^>=1.1
-    , semialign-indexed          ^>=1.1
-    , semigroupoids              ^>=5.3.1
+    , nf
+    , Only
+    , parsec
+    , prettyprinter
+    , prettyprinter-ansi-terminal
+    , profunctors
+    , QuickCheck
+    , quickcheck-instances
+    , random
+    , random-shuffle
+    , reducers
+    , resource-pool
+    , resourcet
+    , scientific
+    , semialign
+    , semialign-indexed
+    , semigroupoids
     , semigroups
-    , strict                     ^>=0.4.0.1
-    , tagged                     ^>=0.8.4
+    , servant-client-core
+    , strict
+    , tagged
     , template-haskell
     , text
-    , text-short                 ^>=0.1.2
-    , th-lift                    ^>=0.8
-    , th-lift-instances          ^>=0.1.11
-    , these                      ^>=1.1.1
-    , time                       >=1.6      && <2.0
-    , time-parsers               ^>=0.1.2.0
-    , transformers               >=0.4.2.0  && <0.6
-    , transformers-base          ^>=0.4.4
-    , transformers-compat        >=0.5.1.4  && <0.7
-    , trifecta                   ^>=2.1
-    , tz                         ^>=0.1.3.0
-    , unordered-containers       ^>=0.2.7.1
-    , uuid-types                 ^>=1.0.3
-    , vector                     >=0.11.0.0 && <0.13
-    , vector-algorithms          ^>=0.8.0.0
-    , vector-instances           ^>=3.4
-    , writer-cps-mtl             ^>=0.1.1.4
+    , text-short
+    , th-lift
+    , th-lift-instances
+    , these
+    , time
+    , time-parsers
+    , transformers
+    , transformers-base
+    , transformers-compat
+    , trifecta
+    , tz
+    , unordered-containers
+    , uuid-types
+    , vector
+    , vector-algorithms
+    , vector-instances
+    , writer-cps-mtl
 
   if impl(ghcjs -any)
     build-depends: primitive <0.6.4
@@ -139,20 +136,18 @@ library
   else
     exposed-modules: Futurice.CryptoRandom
     build-depends:
-      , DRBG               ^>=0.5.5
-      , file-embed         ^>=0.0.13
-      , file-embed-lzma    ^>=0
-      , github             ^>=0.26
-      , http-client        ^>=0.6.4
-      , http-client-tls    ^>=0.3.5
-      , monadcryptorandom  >=0.7.2  && <0.7.3
-      , postgresql-simple  ^>=0.6
-      , servant-server     ^>=0.18
-      , swagger2           >=2.3    && <2.7
+      , DRBG
+      , file-embed
+      , file-embed-lzma
+      , github
+      , http-client
+      , http-client-tls
+      , monadcryptorandom
+      , postgresql-simple
+      , servant-server
+      , swagger2
+      , unicode-transforms
       , wai
-
-    -- https://github.com/ghcjs/ghcjs/issues/703
-    build-depends:   unicode-transforms ^>=0.3.7
 
   exposed-modules:
     Futurice.Aeson

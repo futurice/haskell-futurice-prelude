@@ -14,3 +14,7 @@ See the documentation for
 [Futurice.Prelude](http://docs.futurice.com/haskell-mega-repo/futurice-prelude-1/Futurice-Prelude.html),
 or all modules at
 [docs.futurice.com](http://docs.futurice.com/haskell-mega-repo/futurice-prelude-1/index.html)
+
+## Using the nix build
+
+Set up the IOHK substituter per [these instructions](https://input-output-hk.github.io/haskell.nix/tutorials/getting-started-flakes.html#setting-up-the-binary-cache)

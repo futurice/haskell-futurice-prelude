@@ -61,7 +61,6 @@ module Futurice.Prelude.Internal (
     Semigroup(..),
     Typeable,
     IsString(..),
-    AnsiPretty.AnsiPretty,
     Zip (..),
     ZipWithKey (..),
     Exception,
@@ -347,8 +346,6 @@ import qualified Data.Aeson.Types     as Aeson
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.Strict.Tuple    as STuple
 import qualified Data.Text.Lazy       as LT
-
-import qualified Text.PrettyPrint.ANSI.Leijen.AnsiPretty as AnsiPretty
 
 -------------------------------------------------------------------------------
 -- type aliases

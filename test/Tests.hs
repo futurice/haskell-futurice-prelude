@@ -3,6 +3,7 @@
 {-# LANGUAGE TemplateHaskell   #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE CPP               #-}
 module Main (main) where
 
 import Data.Type.Equality
@@ -22,7 +23,11 @@ import Test.Tasty.QuickCheck
 
 import qualified Data.Aeson          as Aeson
 import qualified Data.Csv            as Csv
+#if MIN_VERSION_aeson(2,0,0)
+import qualified Data.Aeson.KeyMap   as HM
+#else
 import qualified Data.HashMap.Strict as HM
+#endif
 import qualified Data.Vector         as V
 
 import HasTests

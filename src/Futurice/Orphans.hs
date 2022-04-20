@@ -56,9 +56,16 @@ import Data.Aeson.Types
        (FromJSON1 (..), FromJSONKey (..), FromJSONKeyFunction (..),
        ToJSON1 (..), ToJSONKey (..), coerceFromJSONKeyFunction,
        contramapToJSONKeyFunction, parseJSON1, toEncoding1, toJSON1)
+#if MIN_VERSION_aeson(2,0,0)
+import Control.Lens.At                       (Index, IxValue, At(..), Ixed(..))
+import Data.Aeson.KeyMap                     (KeyMap)
+import Data.Aeson.Key                        (Key)
+import qualified Data.Aeson.KeyMap        as KM
+#endif
 import Data.Binary.Tagged                    (Structured)
 import Data.Fixed                            (Fixed (..), HasResolution)
 import Data.Time.Parsers                     (day, utcTime)
+import Data.Kind (Type)
 import Futurice.Control
 import Generics.SOP                          (All)
 import Lucid                                 (HtmlT, ToHtml (..), a_, href_)
@@ -77,7 +84,6 @@ import qualified Data.Scientific            as Scientific
 import qualified Data.Strict.Tuple          as S
 import qualified Data.Text.Encoding         as TE
 import qualified Data.Text.Encoding.Error   as TE
-import qualified Data.Text.Short            as TS
 import qualified Data.UUID.Types            as UUID
 import qualified Data.Vector                as V
 import qualified GHC.Exts                   as Exts
@@ -106,26 +112,11 @@ import qualified Network.Wai                          as Wai
 import qualified Servant.Server                       as Servant
 #endif
 
-
-#if !MIN_VERSION_transformers_compat(0,5,0)
-import Data.Functor.Identity (Identity (..))
-#endif
-
-#if !MIN_VERSION_deepseq(1,4,3)
-import Data.Type.Equality
-#endif
-
--- | Defined in 'Futurice.Prelude'
---
--- TODO: move into own package
-instance (Hashable k, Hashable v) => Hashable (Map k v) where
-    hashWithSalt salt = hashWithSalt salt . Map.toList
-
 #ifndef  __GHCJS__
 -- | Defined in 'Futurice.Prelude'.
 instance MonadTransControl (CRandT g e) where
     type StT (CRandT g e) a = StT (ExceptT e) (StT (StateT g) a)
-    liftWith = defaultLiftWith2 CRandT unCRandT
+    liftWith f = defaultLiftWith2 CRandT unCRandT $ \x -> f x
     restoreT = defaultRestoreT2 CRandT
     {-# INLINABLE liftWith #-}
     {-# INLINABLE restoreT #-}
@@ -153,7 +144,7 @@ instance NFData a => NFData (NonEmpty.Interval a) where
     rnf a = rnf (NonEmpty.sup a) `seq` rnf (NonEmpty.inf a)
 
 -------------------------------------------------------------------------------
--- Typeable
+-- TypeableAt(..)At(..)
 -------------------------------------------------------------------------------
 
 deriving instance Typeable Image
@@ -163,15 +154,6 @@ deriving instance Typeable PixelRGBA8
 --
 -- <https://github.com/Twinside/Juicy.Pixels/pull/126>
 deriving instance Typeable DynamicImage
-
--------------------------------------------------------------------------------
--- ansi-pretty instances
--------------------------------------------------------------------------------
-
-#ifndef  __GHCJS__
-instance AnsiPretty (GH.Name entity)
-instance AnsiPretty GH.Language
-#endif
 
 -------------------------------------------------------------------------------
 -- QuickCheck
@@ -303,7 +285,7 @@ instance ToSchema1 NonEmpty.Interval where
 instance ToSchema a => ToSchema (NonEmpty.Interval a) where
     declareNamedSchema = declareNamedSchema1
 
-class ToSchema1 (f :: * -> *) where
+class ToSchema1 (f :: Type -> Type) where
     liftDeclareNamedSchema
         :: proxy f
         -> NamedSchema   -- ^ schema of the element
@@ -377,6 +359,21 @@ instance NFData a => NFData (HTTP.Response a) where
 -------------------------------------------------------------------------------
 -- aeson
 -------------------------------------------------------------------------------
+
+#if MIN_VERSION_aeson(2,0,0)
+type instance Index (KeyMap a) = Key
+type instance IxValue (KeyMap a) = a
+
+instance Ixed (KeyMap a) where
+  ix k f m = case KM.lookup k m of
+    Just v -> f v <&> \v' -> KM.insert k v' m
+    Nothing -> pure m
+  {-# INLINE ix #-}
+
+instance At (KeyMap a) where
+  at k f = KM.alterF f k
+  {-# INLINE at #-}
+#endif
 
 -- TODO: ToJSON1 ?
 instance ToJSON a => ToJSON (NonEmpty.Interval a) where
@@ -654,13 +651,6 @@ instance (All PG.FromField xs, f ~ I) => PG.FromRow (NP f xs) where
 -------------------------------------------------------------------------------
 -- text-short
 -------------------------------------------------------------------------------
-
-instance ToJSON ShortText where
-    toJSON     = toJSON . TS.unpack
-    toEncoding = toEncoding . TS.unpack
-
-instance FromJSON ShortText where
-    parseJSON = fmap TS.pack . parseJSON
 
 instance ToSchema ShortText where
     declareNamedSchema  _ = declareNamedSchema (Proxy  :: Proxy Text)
