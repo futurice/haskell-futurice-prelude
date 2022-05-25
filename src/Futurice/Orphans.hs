@@ -607,6 +607,7 @@ instance Structured GH.Permission
 instance Structured GH.Privacy
 instance Structured GH.PullRequestReference
 instance Structured GH.Repo
+instance Structured GH.RepoPermissions
 instance Structured GH.RepoRef
 instance Structured GH.SimpleOrganization
 instance Structured GH.SimpleOwner
