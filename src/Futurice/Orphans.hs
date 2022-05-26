@@ -115,17 +115,11 @@ import Data.Functor.Identity (Identity (..))
 import Data.Type.Equality
 #endif
 
--- | Defined in 'Futurice.Prelude'
---
--- TODO: move into own package
-instance (Hashable k, Hashable v) => Hashable (Map k v) where
-    hashWithSalt salt = hashWithSalt salt . Map.toList
-
 #ifndef  __GHCJS__
 -- | Defined in 'Futurice.Prelude'.
 instance MonadTransControl (CRandT g e) where
     type StT (CRandT g e) a = StT (ExceptT e) (StT (StateT g) a)
-    liftWith = defaultLiftWith2 CRandT unCRandT
+    liftWith = defaultLiftWith2 CRandT $ \x -> unCRandT x
     restoreT = defaultRestoreT2 CRandT
     {-# INLINABLE liftWith #-}
     {-# INLINABLE restoreT #-}
