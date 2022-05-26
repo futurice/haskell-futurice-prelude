@@ -43,6 +43,7 @@ library
     , aeson
     , aeson-compat
     , ansi-terminal
+    , ansi-pretty
     , array
     , async
     , attoparsec

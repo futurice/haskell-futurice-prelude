@@ -35,6 +35,8 @@ import Prelude ()
 import System.Random      (Random (..))
 import Test.QuickCheck    (Arbitrary (..), CoArbitrary (..))
 
+import Text.PrettyPrint.ANSI.Leijen.AnsiPretty (AnsiPretty (..))
+
 #ifdef MIN_VERSION_swagger2
 import Data.Swagger (NamedSchema (..), ToSchema (..))
 #endif
@@ -113,6 +115,10 @@ instance NFData a => NFData (NDT tu a) where
 instance B.Binary a => B.Binary (NDT tu a) where
     put (NDT x) = B.put x
     get = fmap NDT B.get
+
+-- | /TODO/ prepend unit
+instance AnsiPretty a => AnsiPretty (NDT tu a) where
+    ansiPretty (NDT x) = ansiPretty x
 
 -- | /TODO/ use unit
 instance (Typeable tu, Structured a) => Structured (NDT tu a)

@@ -2,5 +2,9 @@ index-state: 2022-04-13T00:00:00Z
 
 packages: .
 
+allow-newer:
+  ansi-pretty:base,
+  ansi-pretty:aeson,
+
 package futurice-prelude
     ghc-options: -Wall -Werror
