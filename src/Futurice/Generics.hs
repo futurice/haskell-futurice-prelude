@@ -2,11 +2,6 @@
 {-# LANGUAGE ConstraintKinds #-}
 -- | "Generics.SOP" derivation for record types (i.e. products).
 module Futurice.Generics (
-    -- * Deriving Via
-#if __GLASGOW_HASKELL__ >= 802
-    deriveVia,
-    Via,
-#endif
     Sopica (..),
     SopGeneric,
     GhcGeneric,
@@ -54,10 +49,6 @@ module Futurice.Generics (
 import Data.Typeable    (typeRep)
 import Futurice.Prelude
 import Prelude ()
-
-#if __GLASGOW_HASKELL__ >= 802
-import Data.Deriving.Via (Via, deriveVia)
-#endif
 
 import Futurice.Generics.Enum
 import Futurice.Generics.Newtype
